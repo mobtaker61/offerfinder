@@ -1,0 +1,34 @@
+{
+  "_bootstrap.bundle.min-DZGkkIWZ.js": {
+    "file": "assets/bootstrap.bundle.min-DZGkkIWZ.js",
+    "name": "bootstrap.bundle.min"
+  },
+  "node_modules/bootstrap/dist/css/bootstrap.min.css": {
+    "file": "assets/bootstrap-gPGR8ziM.css",
+    "src": "node_modules/bootstrap/dist/css/bootstrap.min.css",
+    "isEntry": true
+  },
+  "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js?commonjs-entry": {
+    "file": "assets/bootstrap.bundle.min-BOdNW26A.js",
+    "name": "bootstrap.bundle.min",
+    "src": "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js?commonjs-entry",
+    "isEntry": true,
+    "imports": [
+      "_bootstrap.bundle.min-DZGkkIWZ.js"
+    ]
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-DgfiEGSC.css",
+    "src": "resources/css/app.css",
+    "isEntry": true
+  },
+  "resources/js/app.js": {
+    "file": "assets/app-CLbC2aWr.js",
+    "name": "app",
+    "src": "resources/js/app.js",
+    "isEntry": true,
+    "imports": [
+      "_bootstrap.bundle.min-DZGkkIWZ.js"
+    ]
+  }
+}
