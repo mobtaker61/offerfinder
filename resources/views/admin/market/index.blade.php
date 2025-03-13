@@ -3,7 +3,7 @@
 @section('content')
 <div class="container">
     <h2 class="my-4">Market List</h2>
-    <a href="{{ route('market.create') }}" class="btn btn-primary my-3">Add New Market</a>
+    <a href="{{ route('markets.create') }}" class="btn btn-primary my-3">Add New Market</a>
 
     <table class="table">
         <thead>
