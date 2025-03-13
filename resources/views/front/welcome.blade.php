@@ -88,7 +88,7 @@
             <div class="swiper-wrapper">
                 @foreach ($markets->shuffle() as $market)
                     <div class="swiper-slide">
-                        <img src="{{ asset('storage/' . $market->logo) }}" class="img-fluid" alt="{{ $market->name }}">
+                        <img src="{{ asset('storage/' . $market->logo) }}" class="img-fluid" alt="{{ $market->name }}" height="75">
                     </div>
                 @endforeach
             </div>

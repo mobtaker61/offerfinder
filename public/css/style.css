@@ -301,7 +301,7 @@ h5 {
 /*----------------------------------------------*/
 .sectiontext {
   font-family: var(--body-font);
-  font-size: calc(17rem);
+  font-size: calc(10rem);
   font-weight: 900;
   line-height: 50%;
   color: var(--bs-cyan);
