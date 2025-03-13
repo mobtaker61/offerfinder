@@ -59,14 +59,9 @@ class MarketController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('market', 'public');
-            $market->logo = $logoPath;
-
-            // Debugging statement
-            Log::info('Logo Path: ' . $logoPath);
-
-            // Send the logo path to Telegram
-            sendToTelegram("Market logo updated: " . asset('storage/' . $logoPath));
+            //$logoPath = $request->file('logo')->store('market', 'public');
+            //$market->logo = $logoPath;
+            $market->logo = $request->file('logo')->store('market', 'public');
         }
 
         $market->update($request->all());
