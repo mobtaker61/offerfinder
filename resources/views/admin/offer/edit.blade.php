@@ -11,11 +11,10 @@
         <!-- Master Dropdown: Select Market -->
         <div class="mb-3">
             <label class="form-label">Select Market</label>
-            <select id="marketSelect" class="form-control" required>
+            <select id="marketSelect" name="market_id" class="form-control" required>
+                <option value="">Select Market</option>
                 @foreach ($markets as $market)
-                    <option value="{{ $market->id }}" {{ in_array($market->id, $offer->branches->pluck('market_id')->unique()->toArray()) ? 'selected' : '' }}>
-                        {{ $market->name }}
-                    </option>
+                    <option value="{{ $market->id }}" {{ $offer->market_id == $market->id ? 'selected' : '' }}>{{ $market->name }}</option>
                 @endforeach
             </select>
         </div>
@@ -25,11 +24,10 @@
             <label class="form-label">Select Branches</label>
             <select name="branch_ids[]" id="branchSelect" class="form-control" multiple required>
                 @foreach ($branches as $branch)
-                    <option value="{{ $branch->id }}" {{ in_array($branch->id, $offer->branches->pluck('id')->toArray()) ? 'selected' : '' }}>
-                        {{ $branch->name }}
-                    </option>
+                    <option value="{{ $branch->id }}" {{ in_array($branch->id, $offer->branches->pluck('id')->toArray()) ? 'selected' : '' }}>{{ $branch->name }}</option>
                 @endforeach
             </select>
+            <small class="text-muted">Hold Ctrl (Windows) or Command (Mac) to select multiple branches</small>
         </div>
 
         <div class="mb-3">
@@ -43,32 +41,32 @@
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Cover Image</label><br>
-            @if ($offer->cover_image)
-                <img src="{{ asset('storage/' . $offer->cover_image) }}" width="150">
-            @endif
-            <input type="file" name="cover_image" class="form-control mt-2">
+            <label class="form-label">Start Date</label>
+            <input type="date" name="start_date" class="form-control" value="{{ $offer->start_date }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">End Date</label>
+            <input type="date" name="end_date" class="form-control" value="{{ $offer->end_date }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Cover Image</label>
+            <input type="file" name="cover_image" class="form-control">
         </div>
 
         <div class="mb-3">
             <label class="form-label">Offer PDF</label>
-            <input type="file" name="pdf" class="form-control">
+            <input type="file" name="pdf" class="form-control" accept="application/pdf">
         </div>
 
-        <!-- Offer Image Gallery -->
+        <!-- Offer Image Gallery Upload -->
         <div class="mb-3">
-            <label class="form-label">Current Offer Images</label><br>
-            @foreach ($offer->images as $image)
-                <img src="{{ asset('storage/' . $image->image) }}" width="80" class="m-1">
-            @endforeach
-        </div>
-
-        <div class="mb-3">
-            <label class="form-label">Add More Images</label>
+            <label class="form-label">Offer Gallery Images</label>
             <input type="file" name="offer_images[]" class="form-control" multiple>
         </div>
 
-        <button type="submit" class="btn btn-success">Update Offer</button>
+        <button type="submit" class="btn btn-primary">Update Offer</button>
     </form>
 </div>
 
@@ -81,15 +79,21 @@ document.addEventListener("DOMContentLoaded", function() {
         let marketId = this.value;
         branchSelect.innerHTML = '<option value="">Loading...</option>';
 
-        fetch(`/get-branches-by-market/${marketId}`)
+        fetch(`/get-branches-by-market?market_id=${marketId}`)
             .then(response => response.json())
             .then(data => {
                 branchSelect.innerHTML = '';
-                data.branches.forEach(branch => {
-                    let selected = {{ json_encode($offer->branches->pluck('id')->toArray()) }};
-                    let isSelected = selected.includes(branch.id) ? 'selected' : '';
-                    branchSelect.innerHTML += `<option value="${branch.id}" ${isSelected}>${branch.name}</option>`;
-                });
+                if (data.branches.length > 0) {
+                    data.branches.forEach(branch => {
+                        branchSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+                    });
+                } else {
+                    branchSelect.innerHTML = '<option value="">No branches available</option>';
+                }
+            })
+            .catch(error => {
+                branchSelect.innerHTML = '<option value="">Failed to load branches</option>';
+                console.error('Error fetching branches:', error);
             });
     });
 });

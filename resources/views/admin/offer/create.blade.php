@@ -10,7 +10,7 @@
         <!-- Master Dropdown: Select Market -->
         <div class="mb-3">
             <label class="form-label">Select Market</label>
-            <select id="marketSelect" class="form-control" required>
+            <select id="marketSelect" name="market_id" class="form-control" required>
                 <option value="">Select Market</option>
                 @foreach ($markets as $market)
                     <option value="{{ $market->id }}">{{ $market->name }}</option>
@@ -54,7 +54,7 @@
 
         <div class="mb-3">
             <label class="form-label">Offer PDF</label>
-            <input type="file" name="pdf" class="form-control">
+            <input type="file" name="pdf" class="form-control" accept="application/pdf">
         </div>
 
         <!-- Offer Image Gallery Upload -->
@@ -76,13 +76,21 @@ document.addEventListener("DOMContentLoaded", function() {
         let marketId = this.value;
         branchSelect.innerHTML = '<option value="">Loading...</option>';
 
-        fetch(`/get-branches-by-market/${marketId}`)
+        fetch(`/get-branches-by-market?market_id=${marketId}`)
             .then(response => response.json())
             .then(data => {
                 branchSelect.innerHTML = '';
-                data.branches.forEach(branch => {
-                    branchSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
-                });
+                if (data.branches.length > 0) {
+                    data.branches.forEach(branch => {
+                        branchSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+                    });
+                } else {
+                    branchSelect.innerHTML = '<option value="">No branches available</option>';
+                }
+            })
+            .catch(error => {
+                branchSelect.innerHTML = '<option value="">Failed to load branches</option>';
+                console.error('Error fetching branches:', error);
             });
     });
 });

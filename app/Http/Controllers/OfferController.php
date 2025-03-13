@@ -48,26 +48,23 @@ class OfferController extends Controller
             'offer_images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $coverImagePath = $request->hasFile('cover_image') ? $request->file('cover_image')->store('offers/cover_images', 'public') : null;
-        $pdfPath = $request->hasFile('pdf') ? $request->file('pdf')->store('offers/pdfs', 'public') : null;
+        $offer = new Offer($request->all());
 
-        $offer = Offer::create([
-            'title' => $request->title,
-            'description' => $request->description,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-            'cover_image' => $coverImagePath,
-            'pdf' => $pdfPath,
-        ]);
+        if ($request->hasFile('cover_image')) {
+            $offer->cover_image = $request->file('cover_image')->store('cover_images', 'public');
+        }
+
+        if ($request->hasFile('pdf')) {
+            $offer->pdf = $request->file('pdf')->store('pdfs', 'public');
+        }
+
+        $offer->save();
 
         $offer->branches()->attach($request->branch_ids);
 
         if ($request->hasFile('offer_images')) {
             foreach ($request->file('offer_images') as $image) {
-                OfferImage::create([
-                    'offer_id' => $offer->id,
-                    'image' => $image->store('offers/images', 'public'),
-                ]);
+                $offer->images()->create(['path' => $image->store('offer_images', 'public')]);
             }
         }
 
@@ -88,31 +85,23 @@ class OfferController extends Controller
             'offer_images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $offer->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'start_date' => $request->start_date,
-            'end_date' => $request->end_date,
-        ]);
+        $offer->update($request->all());
 
         if ($request->hasFile('cover_image')) {
-            Storage::delete('public/' . $offer->cover_image);
-            $offer->cover_image = $request->file('cover_image')->store('offers/cover_images', 'public');
+            Storage::disk('public')->delete($offer->cover_image);
+            $offer->cover_image = $request->file('cover_image')->store('cover_images', 'public');
         }
 
         if ($request->hasFile('pdf')) {
-            Storage::delete('public/' . $offer->pdf);
-            $offer->pdf = $request->file('pdf')->store('offers/pdfs', 'public');
+            Storage::disk('public')->delete($offer->pdf);
+            $offer->pdf = $request->file('pdf')->store('pdfs', 'public');
         }
 
         $offer->branches()->sync($request->branch_ids);
 
         if ($request->hasFile('offer_images')) {
             foreach ($request->file('offer_images') as $image) {
-                OfferImage::create([
-                    'offer_id' => $offer->id,
-                    'image' => $image->store('offers/images', 'public'),
-                ]);
+                $offer->images()->create(['path' => $image->store('offer_images', 'public')]);
             }
         }
 
@@ -121,8 +110,8 @@ class OfferController extends Controller
 
     public function destroy(Offer $offer)
     {
-        Storage::delete('public/' . $offer->cover_image);
-        Storage::delete('public/' . $offer->pdf);
+        Storage::disk('public')->delete($offer->cover_image);
+        Storage::disk('public')->delete($offer->pdf);
         $offer->delete();
 
         return redirect()->route('offers.index')->with('success', 'Offer deleted successfully.');
