@@ -58,6 +58,7 @@ class MarketController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
+        sendToTelegram("Market updated: " . json_encode($request->all()));
 
         if ($request->hasFile('logo')) {
             //$logoPath = $request->file('logo')->store('market', 'public');
