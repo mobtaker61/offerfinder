@@ -22,15 +22,13 @@
                     <td>
                         @if($market->logo)
                             <img src="{{ asset('storage/' . $market->logo) }}" alt="{{ $market->name }}" width="50">
-                            <!-- Debugging statement -->
-                            <p>{{ asset('storage/' . $market->logo) }}</p>
                         @else
                             No Logo
                         @endif
                     </td>
                     <td>{{ $market->website }}</td>
-                    <td>{{ $market->app_link }}</td>
-                    <td>{{ $market->whatsapp }}</td>
+                    <td><a href="{{ $market->app_link }}">{{ $market->name }} App</a></td>
+                    <td><a href="https://wa.me/{{ $market->whatsapp }}">PM on Whatsapp </td>
                     <td>
                         <a href="{{ route('markets.edit', $market->id) }}" class="btn btn-warning">Edit</a>
                         <form action="{{ route('markets.destroy', $market->id) }}" method="POST" style="display:inline;">
