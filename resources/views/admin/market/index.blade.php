@@ -7,8 +7,8 @@
     <table class="table">
         <thead>
             <tr>
-                <th>Name</th>
                 <th>Logo</th>
+                <th>Name</th>
                 <th>Website</th>
                 <th>App Link</th>
                 <th>WhatsApp</th>
@@ -18,7 +18,6 @@
         <tbody>
             @foreach($markets as $market)
                 <tr>
-                    <td>{{ $market->name }}</td>
                     <td>
                         @if($market->logo)
                             <img src="{{ asset('storage/' . $market->logo) }}" alt="{{ $market->name }}" width="50">
@@ -26,6 +25,7 @@
                             No Logo
                         @endif
                     </td>
+                    <td>{{ $market->name }}</td>
                     <td>{{ $market->website }}</td>
                     <td><a href="{{ $market->app_link }}">{{ $market->name }} App</a></td>
                     <td><a href="https://wa.me/{{ $market->whatsapp }}">PM on Whatsapp </td>
