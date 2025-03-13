@@ -56,13 +56,12 @@ class MarketController extends Controller
             'whatsapp' => 'nullable|string|max:255',
         ]);
 
-        
-        $market->update($request->all());
-        
         if ($request->hasFile('logo')) {
             Storage::disk('public')->delete($market->logo);
             $market->logo = $request->file('logo')->store('market', 'public');
         }
+
+        $market->update($request->except('logo'));
 
         return redirect()->route('markets.index')->with('success', 'Market updated successfully.');
     }
