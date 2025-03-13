@@ -60,6 +60,7 @@ class OfferController extends Controller
 
         $offer->save();
 
+        // Attach branches to the offer
         $offer->branches()->attach($request->branch_ids);
 
         if ($request->hasFile('offer_images')) {
@@ -100,6 +101,7 @@ class OfferController extends Controller
             $offer->pdf = $request->file('pdf')->store('pdfs', 'public');
         }
 
+        // Sync branches with the offer
         $offer->branches()->sync($request->branch_ids);
 
         if ($request->hasFile('offer_images')) {
