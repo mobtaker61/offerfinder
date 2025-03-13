@@ -12,12 +12,12 @@ class NotificationController extends Controller
     public function index()
     {
         $notifications = Notification::orderBy('created_at', 'desc')->get();
-        return view('notifications.index', compact('notifications'));
+        return view('admin.notifications.index', compact('notifications'));
     }
 
     public function create()
     {
-        return view('notifications.create');
+        return view('admin.notifications.create');
     }
 
     public function store(Request $request)
@@ -34,6 +34,7 @@ class NotificationController extends Controller
         ]);
 
         $this->sendPushNotification($notification);
+        $this->sendToTelegram($notification->message);
 
         return redirect()->route('notifications.index')->with('success', 'Notification sent successfully.');
     }
@@ -59,5 +60,20 @@ class NotificationController extends Controller
             'Authorization' => 'key=' . $firebaseServerKey,
             'Content-Type' => 'application/json',
         ])->post('https://fcm.googleapis.com/fcm/send', $data);
+    }
+
+    private function sendToTelegram($message, $receiverId = null)
+    {
+        $telegramBotToken = env('TELEGRAM_BOT_TOKEN');
+        $defaultReceiverId = env('TELEGRAM_DEFAULT_RECEIVER_ID');
+
+        $chatId = $receiverId ?? $defaultReceiverId;
+
+        $data = [
+            'chat_id' => $chatId,
+            'text' => $message,
+        ];
+
+        Http::post("https://api.telegram.org/bot{$telegramBotToken}/sendMessage", $data);
     }
 }

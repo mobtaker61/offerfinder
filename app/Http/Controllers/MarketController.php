@@ -33,8 +33,11 @@ class MarketController extends Controller
         $market->whatsapp = $request->whatsapp;
 
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('logos', 'public');
+            $logoPath = $request->file('logo')->store('market', 'public');
             $market->logo = $logoPath;
+
+            // Send the logo path to Telegram
+            sendToTelegram("New market logo uploaded: " . asset('storage/' . $logoPath));
         }
 
         $market->save();
@@ -52,8 +55,11 @@ class MarketController extends Controller
         ]);
 
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('logos', 'public');
+            $logoPath = $request->file('logo')->store('market', 'public');
             $market->logo = $logoPath;
+
+            // Send the logo path to Telegram
+            sendToTelegram("Market logo updated: " . asset('storage/' . $logoPath));
         }
 
         $market->update($request->all());
