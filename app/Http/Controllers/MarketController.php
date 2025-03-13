@@ -35,14 +35,7 @@ class MarketController extends Controller
         $market->whatsapp = $request->whatsapp;
 
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('market', 'public');
-            $market->logo = $logoPath;
-
-            // Debugging statement
-            Log::info('Logo Path: ' . $logoPath);
-
-            // Send the logo path to Telegram
-            sendToTelegram("New market logo uploaded: " . asset('storage/' . $logoPath));
+            $market->logo = $request->file('logo')->store('market', 'public');
         }
 
         $market->save();
@@ -57,17 +50,19 @@ class MarketController extends Controller
     public function update(Request $request, Market $market) {
         $request->validate([
             'name' => 'required|string|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'website' => 'nullable|url',
+            'app_link' => 'nullable|url',
+            'whatsapp' => 'nullable|string|max:255',
         ]);
-        sendToTelegram("Market updated: " . json_encode($request->all()));
 
+        
+        $market->update($request->all());
+        
         if ($request->hasFile('logo')) {
-            //$logoPath = $request->file('logo')->store('market', 'public');
-            //$market->logo = $logoPath;
             Storage::disk('public')->delete($market->logo);
             $market->logo = $request->file('logo')->store('market', 'public');
         }
-
-        $market->update($request->all());
 
         return redirect()->route('markets.index')->with('success', 'Market updated successfully.');
     }
