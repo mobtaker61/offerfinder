@@ -2,16 +2,13 @@
 
 @section('content')
 <div class="container">
-    <h2 class="my-4">Manage Markets</h2>
+    <h2 class="my-4">Market List</h2>
 
-    <a href="{{ route('markets.create') }}" class="btn btn-primary mb-3">Add New Market</a>
-
-    <table class="table table-bordered">
+    <table class="table">
         <thead>
             <tr>
-                <th>Logo</th>
-                <th>#</th>
                 <th>Name</th>
+                <th>Logo</th>
                 <th>Website</th>
                 <th>App Link</th>
                 <th>WhatsApp</th>
@@ -19,25 +16,25 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($markets as $market)
+            @foreach($markets as $market)
                 <tr>
+                    <td>{{ $market->name }}</td>
                     <td>
-                        @if ($market->logo)
-                            <img src="{{ asset('storage/' . $market->logo) }}" width="50">
+                        @if($market->logo)
+                            <img src="{{ asset('storage/' . $market->logo) }}" alt="{{ $market->name }}" width="50">
                         @else
-                            N/A
+                            No Logo
                         @endif
                     </td>
-                    <td>{{ $market->id }}</td>
-                    <td>{{ $market->name }}</td>
                     <td>{{ $market->website }}</td>
                     <td>{{ $market->app_link }}</td>
                     <td>{{ $market->whatsapp }}</td>
                     <td>
-                        <a href="{{ route('markets.edit', $market) }}" class="btn btn-warning btn-sm">Edit</a>
-                        <form action="{{ route('markets.destroy', $market) }}" method="POST" class="d-inline">
-                            @csrf @method('DELETE')
-                            <button class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
+                        <a href="{{ route('markets.edit', $market->id) }}" class="btn btn-warning">Edit</a>
+                        <form action="{{ route('markets.destroy', $market->id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </td>
                 </tr>
