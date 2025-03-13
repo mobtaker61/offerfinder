@@ -64,9 +64,12 @@ class OfferController extends Controller
 
         if ($request->hasFile('offer_images')) {
             foreach ($request->file('offer_images') as $image) {
-                $offer->images()->create(['path' => $image->store('offer_images', 'public')]);
+                $path = $image->store('offer_images', 'public');
+                $offer->images()->create(['image' => $path]);
             }
         }
+
+        sendToTelegram("New offer created: ". json_encode($request->all()));
 
         return redirect()->route('offers.index')->with('success', 'Offer created successfully.');
     }
@@ -101,7 +104,8 @@ class OfferController extends Controller
 
         if ($request->hasFile('offer_images')) {
             foreach ($request->file('offer_images') as $image) {
-                $offer->images()->create(['path' => $image->store('offer_images', 'public')]);
+                $path = $image->store('offer_images', 'public');
+                $offer->images()->create(['path' => $path]);
             }
         }
 
