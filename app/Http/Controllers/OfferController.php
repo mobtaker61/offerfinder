@@ -36,6 +36,7 @@ class OfferController extends Controller
 
     public function store(Request $request)
     {
+        sendToTelegram('OfferController@store', $request->all());
         $request->validate([
             'branch_ids' => 'required|array',
             'branch_ids.*' => 'exists:branches,id',
@@ -58,15 +59,14 @@ class OfferController extends Controller
             $offer->pdf = $request->file('pdf')->store('pdfs', 'public');
         }
 
-        $offer->save();
-
-        $offer->branches()->attach($request->branch_ids);
-
         if ($request->hasFile('offer_images')) {
             foreach ($request->file('offer_images') as $image) {
                 $offer->images()->create(['path' => $image->store('offer_images', 'public')]);
             }
         }
+        $offer->save();
+
+        $offer->branches()->attach($request->branch_ids);
 
         return redirect()->route('offers.index')->with('success', 'Offer created successfully.');
     }
