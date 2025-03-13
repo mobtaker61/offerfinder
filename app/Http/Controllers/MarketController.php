@@ -16,14 +16,30 @@ class MarketController extends Controller
         return view('admin.market.create');
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
             'name' => 'required|string|max:255',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'website' => 'nullable|url',
+            'app_link' => 'nullable|url',
+            'whatsapp' => 'nullable|string|max:255',
         ]);
 
-        Market::create($request->all());
+        $market = new Market();
+        $market->name = $request->name;
+        $market->website = $request->website;
+        $market->app_link = $request->app_link;
+        $market->whatsapp = $request->whatsapp;
 
-        return redirect()->route('markets.index')->with('success', 'Market added successfully.');
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('logos', 'public');
+            $market->logo = $logoPath;
+        }
+
+        $market->save();
+
+        return redirect()->route('markets.index')->with('success', 'Market created successfully.');
     }
 
     public function edit(Market $market) {
