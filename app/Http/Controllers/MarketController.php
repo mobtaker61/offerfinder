@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Market;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class MarketController extends Controller
 {
@@ -36,6 +37,9 @@ class MarketController extends Controller
             $logoPath = $request->file('logo')->store('market', 'public');
             $market->logo = $logoPath;
 
+            // Debugging statement
+            Log::info('Logo Path: ' . $logoPath);
+
             // Send the logo path to Telegram
             sendToTelegram("New market logo uploaded: " . asset('storage/' . $logoPath));
         }
@@ -57,6 +61,9 @@ class MarketController extends Controller
         if ($request->hasFile('logo')) {
             $logoPath = $request->file('logo')->store('market', 'public');
             $market->logo = $logoPath;
+
+            // Debugging statement
+            Log::info('Logo Path: ' . $logoPath);
 
             // Send the logo path to Telegram
             sendToTelegram("Market logo updated: " . asset('storage/' . $logoPath));
