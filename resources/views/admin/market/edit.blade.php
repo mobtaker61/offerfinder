@@ -16,7 +16,7 @@
         <div class="mb-3">
             <label class="form-label">Current Logo</label><br>
             @if ($market->logo)
-                <img src="{{ asset('storage/' . $market->logo) }}" width="100" class="mt-2">
+                <img src="{{ asset('images/' . $market->logo) }}" width="100" class="mt-2">
             @endif
         </div>
 

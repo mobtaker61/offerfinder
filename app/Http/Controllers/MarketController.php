@@ -33,7 +33,7 @@ class MarketController extends Controller
         $market->whatsapp = $request->whatsapp;
 
         if ($request->hasFile('logo')) {
-            $logoPath = $request->file('logo')->store('logos', 'public');
+            $logoPath = $request->file('logo')->storeAs('images', $request->file('logo')->getClientOriginalName(), 'public');
             $market->logo = $logoPath;
         }
 
@@ -50,6 +50,11 @@ class MarketController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
         ]);
+
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->storeAs('images', $request->file('logo')->getClientOriginalName(), 'public');
+            $market->logo = $logoPath;
+        }
 
         $market->update($request->all());
 

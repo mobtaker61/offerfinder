@@ -21,7 +21,7 @@
                     <td>{{ $market->name }}</td>
                     <td>
                         @if($market->logo)
-                            <img src="{{ asset('storage/' . $market->logo) }}" alt="{{ $market->name }}" width="50">
+                            <img src="{{ asset('images/' . $market->logo) }}" alt="{{ $market->name }}" width="50">
                         @else
                             No Logo
                         @endif
