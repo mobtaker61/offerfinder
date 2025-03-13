@@ -65,6 +65,7 @@
         gtag('config', 'G-JZ2RWM7LX6');
     </script>
     <meta name="google-adsense-account" content="ca-pub-3344202725221870">
+    <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
     <!--style sheet-->
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/vendor.css">
@@ -159,11 +160,10 @@
     <!-- Google AdSense Section -->
     <div class="container my-4 text-center">
         <p>Advertisement</p>
-        <ins class="adsbygoogle" style="display:block" data-ad-client="your-ad-client-id"
-            data-ad-slot="your-ad-slot-id" data-ad-format="auto"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
+        <amp-ad width="100vw" height="320" type="adsense" data-ad-client="ca-pub-3344202725221870"
+            data-ad-slot="8646263894" data-auto-format="rspv" data-full-width="">
+            <div overflow=""></div>
+        </amp-ad>
     </div>
 
     <footer id="footer" class="bg-danger">
