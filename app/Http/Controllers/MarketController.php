@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Market;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class MarketController extends Controller
 {
@@ -61,6 +62,7 @@ class MarketController extends Controller
         if ($request->hasFile('logo')) {
             //$logoPath = $request->file('logo')->store('market', 'public');
             //$market->logo = $logoPath;
+            Storage::disk('public')->delete($market->logo);
             $market->logo = $request->file('logo')->store('market', 'public');
         }
 
