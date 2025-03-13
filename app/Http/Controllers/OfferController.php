@@ -48,7 +48,7 @@ class OfferController extends Controller
             'offer_images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $offer = new Offer($request->all());
+        $offer = new Offer($request->except('branch_ids'));
 
         if ($request->hasFile('cover_image')) {
             $offer->cover_image = $request->file('cover_image')->store('cover_images', 'public');
@@ -88,7 +88,7 @@ class OfferController extends Controller
             'offer_images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
 
-        $offer->update($request->all());
+        $offer->update($request->except('branch_ids'));
 
         if ($request->hasFile('cover_image')) {
             Storage::disk('public')->delete($offer->cover_image);
@@ -105,7 +105,7 @@ class OfferController extends Controller
         if ($request->hasFile('offer_images')) {
             foreach ($request->file('offer_images') as $image) {
                 $path = $image->store('offer_images', 'public');
-                $offer->images()->create(['path' => $path]);
+                $offer->images()->create(['image' => $path]);
             }
         }
 
