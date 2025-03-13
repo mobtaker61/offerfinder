@@ -5,7 +5,7 @@
         <div style="background-image: url(images/background-big.png);background-repeat: no-repeat; width: 100%;">
             <div class="container d-flex position-relative">
                 <div class="row flex-row-reverse align-items-center padding-medium mt-md-5">
-                    <div class="col-md-4">
+                    <div class="col-md-4 d-none d-sm-block">
                         <img src="/images/banner-illustration.png" class="img-fluid" alt="banner">
                     </div>
                     <div class="col-md-8 mt-5">
