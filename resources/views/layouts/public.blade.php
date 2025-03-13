@@ -64,6 +64,7 @@
 
         gtag('config', 'G-JZ2RWM7LX6');
     </script>
+    <meta name="google-adsense-account" content="ca-pub-3344202725221870">
     <!--style sheet-->
     <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     <link rel="stylesheet" type="text/css" href="/css/vendor.css">
