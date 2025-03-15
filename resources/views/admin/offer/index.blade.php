@@ -15,6 +15,7 @@
                 <th>Cover Image</th>
                 <th>PDF</th>
                 <th>Gallery</th>
+                <th>VIP</th>
                 <th>Actions</th>
             </tr>
         </thead>
@@ -76,6 +77,12 @@
                         @endif
                     </td>
                     <td>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="vipSwitch{{ $offer->id }}" {{ $offer->vip ? 'checked' : '' }} data-offer-id="{{ $offer->id }}">
+                            <label class="form-check-label" for="vipSwitch{{ $offer->id }}"></label>
+                        </div>
+                    </td>
+                    <td>
                         <a href="{{ route('offers.edit', $offer->id) }}" class="btn btn-warning btn-sm">Edit</a>
                         <form action="{{ route('offers.destroy', $offer->id) }}" method="POST" class="d-inline">
                             @csrf
@@ -93,5 +100,37 @@
         {{ $offers->links('pagination::bootstrap-5') }}
     </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll('.form-check-input').forEach(function(switchElement) {
+        switchElement.addEventListener('change', function() {
+            let offerId = this.getAttribute('data-offer-id');
+            let isVip = this.checked;
+
+            fetch(`/offers/${offerId}/toggle-vip`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ vip: isVip })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    alert('Failed to update VIP status');
+                    this.checked = !isVip;
+                }
+            })
+            .catch(error => {
+                console.error('Error updating VIP status:', error);
+                alert('Failed to update VIP status');
+                this.checked = !isVip;
+            });
+        });
+    });
+});
+</script>
 
 @endsection

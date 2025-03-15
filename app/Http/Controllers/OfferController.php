@@ -195,4 +195,14 @@ class OfferController extends Controller
 
         return response()->json(['offers' => $offers]);
     }
+
+    public function toggleVip(Request $request, Offer $offer)
+    {
+        $offer->vip = $request->vip;
+        if ($offer->save()) {
+            return response()->json(['success' => true]);
+        } else {
+            return response()->json(['success' => false]);
+        }
+    }
 }

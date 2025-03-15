@@ -24,6 +24,7 @@ Route::get('/offers', [OfferController::class, 'list'])->name('offer.list'); // 
 Route::get('/offer/{offer}', [OfferController::class, 'show'])->name('offer.show');
 Route::get('/offer/card/{id}', [OfferController::class, 'card'])->name('offer.card');
 Route::post('/offers/filter', [OfferController::class, 'filter'])->name('offer.filter');
+Route::post('/offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip'])->name('offers.toggleVip');
 
 // Admin Routes
 Route::prefix('admin')->middleware('auth')->group(function () {
