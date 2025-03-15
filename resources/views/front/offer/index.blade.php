@@ -60,7 +60,7 @@
                     @endforeach
                 </div>
                 <div id="paginationLinks">
-                    {{ $offers->links() }}
+                    {{ $offers->links('pagination::bootstrap-5') }}
                 </div>
             </div>
         </div>

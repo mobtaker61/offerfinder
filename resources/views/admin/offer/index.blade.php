@@ -90,7 +90,7 @@
 
     <!-- Pagination -->
     <div class="d-flex justify-content-center mt-4">
-        {{ $offers->links() }}
+        {{ $offers->links('pagination::bootstrap-5') }}
     </div>
 </div>
 
