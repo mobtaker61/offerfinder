@@ -33,6 +33,7 @@
                             @method('DELETE')
                             <button class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
                         </form>
+                        <a href="{{ route('offers.index', ['branch_id' => $branch->id]) }}" class="btn btn-success btn-sm">Offers</a>
                     </td>
                 </tr>
             @endforeach

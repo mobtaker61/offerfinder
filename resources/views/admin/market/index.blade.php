@@ -37,6 +37,8 @@
                             @method('DELETE')
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
+                        <a href="{{ route('branches.index', ['market_id' => $market->id]) }}" class="btn btn-info">Branches</a>
+                        <a href="{{ route('offers.index', ['market_id' => $market->id]) }}" class="btn btn-success">Offers</a>
                     </td>
                 </tr>
             @endforeach

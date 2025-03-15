@@ -9,8 +9,17 @@ use Illuminate\Support\Facades\Storage;
 
 class MarketController extends Controller
 {
-    public function index() {
-        $markets = Market::all();
+    public function index(Request $request) {
+        $query = Market::query();
+
+        if ($request->has('emirate_id')) {
+            $query->whereHas('branches', function($query) use ($request) {
+                $query->where('emirate_id', $request->emirate_id);
+            });
+        }
+
+        $markets = $query->get();
+
         return view('admin.market.index', compact('markets'));
     }
 

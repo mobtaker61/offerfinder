@@ -14,9 +14,23 @@ use Carbon\Carbon;
 
 class OfferController extends Controller
 {
-    public function index()
-    {
-        $offers = Offer::with(['branches.market', 'images'])->paginate(10);
+    public function index(Request $request) {
+        $query = Offer::query();
+
+        if ($request->has('market_id')) {
+            $query->whereHas('branches.market', function($query) use ($request) {
+                $query->where('markets.id', $request->market_id);
+            });
+        }
+
+        if ($request->has('branch_id')) {
+            $query->whereHas('branches', function($query) use ($request) {
+                $query->where('branches.id', $request->branch_id);
+            });
+        }
+
+        $offers = $query->paginate(10);
+
         return view('admin.offer.index', compact('offers'));
     }
 

@@ -10,9 +10,15 @@ use Illuminate\Http\Request;
 
 class BranchController extends Controller
 {
-    public function index()
-    {
-        $branches = Branch::with('market', 'emirate')->paginate(10); // ✅ Ensure paginate() is used
+    public function index(Request $request) {
+        $query = Branch::query();
+
+        if ($request->has('market_id')) {
+            $query->where('market_id', $request->market_id);
+        }
+
+        $branches = $query->paginate(10);
+
         return view('admin.branch.index', compact('branches'));
     }
 

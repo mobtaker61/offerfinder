@@ -29,6 +29,7 @@
                             @method('DELETE')
                             <button class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</button>
                         </form>
+                        <a href="{{ route('markets.index', ['emirate_id' => $emirate->id]) }}" class="btn btn-info btn-sm">Markets</a>
                     </td>
                 </tr>
             @endforeach
