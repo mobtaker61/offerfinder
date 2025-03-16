@@ -11,6 +11,7 @@ use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OfferImageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
+use Illuminate\Support\Facades\View;
 
 // Front Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');

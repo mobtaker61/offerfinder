@@ -8,6 +8,7 @@ use App\Models\Market;
 use App\Models\OfferImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\View;
 use Intervention\Image\Facades\Image;
 use App\Models\Emirate;
 use Carbon\Carbon;

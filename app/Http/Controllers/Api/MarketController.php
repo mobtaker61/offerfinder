@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Market;
 use App\Models\Emirate;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Response;
 
 class MarketController extends Controller
 {
