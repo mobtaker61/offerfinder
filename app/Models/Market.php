@@ -10,11 +10,16 @@ class Market extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'logo', 'website', 'app_link', 'whatsapp'
+        'name', 'logo', 'website', 'app_link', 'whatsapp', 'emirate_id'
     ];
 
     public function branches()
     {
         return $this->hasMany(Branch::class);
+    }
+    
+    public function emirate()
+    {
+        return $this->belongsTo(Emirate::class);
     }
 }

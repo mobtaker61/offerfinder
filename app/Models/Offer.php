@@ -17,7 +17,7 @@ class Offer extends Model
         'end_date',
         'cover_image',
         'pdf',
-        'vip', // Add vip to fillable properties
+        'is_vip', // Changed from 'vip' to match controller usage
     ];
 
     protected static function booted()
