@@ -19,7 +19,7 @@ Route::middleware('api')->group(function () {
     // Branches
     Route::apiResource('branches', BranchController::class);
     Route::get('branches/by-market/{market}', [BranchController::class, 'getBranchesByMarket']);
-    Route::get('branches/by-market-and-emirate', [BranchController::class, 'getBranchesByMarketAndEmirate']);
+    Route::post('branches/by-market-and-emirate', [BranchController::class, 'getBranchesByMarketAndEmirate']);
     Route::get('branches/{branch}/offers', [BranchController::class, 'getOffersByBranch']);
     
     // Offers
