@@ -99,7 +99,11 @@ class MarketController extends Controller
      */
     public function getMarketsByEmirate(Emirate $emirate)
     {
-        $markets = Market::where('emirate_id', $emirate->id)->get();
+        // Get markets that have at least one branch in the specified emirate
+        $markets = Market::whereHas('branches', function($query) use ($emirate) {
+            $query->where('emirate_id', $emirate->id);
+        })->get();
+        
         return response()->json(['markets' => $markets], 200);
     }
 }
