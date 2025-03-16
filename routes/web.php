@@ -28,7 +28,7 @@ Route::post('/offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip'])
 
 // Admin Routes
 Route::prefix('admin')->middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
+    Route::get('/', function () {
         return view('admin.dashboard');
     })->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
