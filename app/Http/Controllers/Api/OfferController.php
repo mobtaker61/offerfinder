@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Emirate;
 use App\Models\Market;
 use App\Models\Offer;
 use App\Models\OfferImage;
@@ -244,6 +245,24 @@ class OfferController extends Controller
                 $query->where('emirate_id', $request->emirate_id);
             });
         }
+        
+        $offers = $query->get();
+        
+        return response()->json(['offers' => $offers], 200);
+    }
+
+    /**
+     * Get offers by emirate
+     *
+     * @param  \App\Models\Emirate  $emirate
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getOffersByEmirate(Emirate $emirate, Request $request)
+    {
+        $query = Offer::whereHas('branches', function($query) use ($emirate) {
+            $query->where('emirate_id', $emirate->id);
+        })->with(['images', 'branches.market']);
         
         $offers = $query->get();
         

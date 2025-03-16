@@ -232,4 +232,25 @@ class OfferController extends Controller
         
         return view('front.offer.market', compact('offers', 'market', 'emirates'));
     }
+
+    /**
+     * Get offers by emirate
+     *
+     * @param  \App\Models\Emirate  $emirate
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function getOffersByEmirate(Emirate $emirate, Request $request)
+    {
+        $query = Offer::whereHas('branches', function($query) use ($emirate) {
+            $query->where('emirate_id', $emirate->id);
+        });
+        
+        $offers = $query->paginate(10);
+        $markets = Market::whereHas('branches', function($query) use ($emirate) {
+            $query->where('emirate_id', $emirate->id);
+        })->get();
+        
+        return view('front.offer.emirate', compact('offers', 'emirate', 'markets'));
+    }
 }

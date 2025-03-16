@@ -29,6 +29,9 @@ Route::post('/offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip'])
 // Market offers routes
 Route::get('/offers/market/{market}', [App\Http\Controllers\OfferController::class, 'getOffersByMarket'])
     ->name('offers.by-market');
+// Emirate offers routes
+Route::get('/offers/emirate/{emirate}', [App\Http\Controllers\OfferController::class, 'getOffersByEmirate'])
+    ->name('offers.by-emirate');
 
 // Admin Routes
 Route::prefix('admin')->middleware('auth')->group(function () {
