@@ -32,6 +32,8 @@ Route::get('/offers/market/{market}', [App\Http\Controllers\OfferController::cla
 // Emirate offers routes
 Route::get('/offers/emirate/{emirate}', [App\Http\Controllers\OfferController::class, 'getOffersByEmirate'])
     ->name('offers.by-emirate');
+// Market and Emirate combined offers route
+Route::post('/offers/by-emirate-and-market', [OfferController::class, 'getOffersByEmirateAndMarket'])->name('offers.by-emirate-and-market');
 
 // Admin Routes
 Route::prefix('admin')->middleware('auth')->group(function () {

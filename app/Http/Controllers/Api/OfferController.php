@@ -268,4 +268,27 @@ class OfferController extends Controller
         
         return response()->json(['offers' => $offers], 200);
     }
+
+    /**
+     * Get offers by emirate and market
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getOffersByEmirateAndMarket(Request $request)
+    {
+        $request->validate([
+            'market_id' => 'required|exists:markets,id',
+            'emirate_id' => 'required|exists:emirates,id'
+        ]);
+
+        $query = Offer::whereHas('branches', function($query) use ($request) {
+            $query->where('market_id', $request->market_id)
+                  ->where('emirate_id', $request->emirate_id);
+        })->with(['images', 'branches.market']);
+        
+        $offers = $query->get();
+        
+        return response()->json(['offers' => $offers], 200);
+    }
 }

@@ -253,4 +253,29 @@ class OfferController extends Controller
         
         return view('front.offer.emirate', compact('offers', 'emirate', 'markets'));
     }
+
+    /**
+     * Get offers by emirate and market
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function getOffersByEmirateAndMarket(Request $request)
+    {
+        $request->validate([
+            'market_id' => 'required|exists:markets,id',
+            'emirate_id' => 'required|exists:emirates,id'
+        ]);
+
+        $query = Offer::whereHas('branches', function($query) use ($request) {
+            $query->where('market_id', $request->market_id)
+                  ->where('emirate_id', $request->emirate_id);
+        });
+        
+        $offers = $query->paginate(10);
+        $market = Market::findOrFail($request->market_id);
+        $emirate = Emirate::findOrFail($request->emirate_id);
+        
+        return view('front.offer.emirate-market', compact('offers', 'market', 'emirate'));
+    }
 }

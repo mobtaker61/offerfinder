@@ -27,6 +27,7 @@ Route::middleware('api')->group(function () {
     Route::get('offers/card/{id}', [OfferController::class, 'card']);
     Route::get('offers/by-market/{market}', [OfferController::class, 'getOffersByMarket']);
     Route::get('offers/by-emirate/{emirate}', [OfferController::class, 'getOffersByEmirate']);
+    Route::post('offers/by-emirate-and-market', [OfferController::class, 'getOffersByEmirateAndMarket']);
     Route::post('offers/filter', [OfferController::class, 'filter']);
     Route::post('offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip']);
     
