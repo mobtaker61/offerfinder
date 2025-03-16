@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Market;
 use App\Models\Offer;
 use App\Models\OfferImage;
 use Illuminate\Http\Request;
@@ -218,5 +219,34 @@ class OfferController extends Controller
     {
         $offer = Offer::with(['branches.market', 'images'])->findOrFail($id);
         return response()->json(['offer' => $offer], 200);
+    }
+    
+    /**
+     * Get offers by market with optional emirate filtering
+     *
+     * @param  \App\Models\Market  $market
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getOffersByMarket(Market $market, Request $request)
+    {
+        $query = Offer::whereHas('branches', function($query) use ($market) {
+            $query->where('market_id', $market->id);
+        })->with(['images', 'branches.market']);
+        
+        // If emirate_id is provided, filter by the specific emirate
+        if ($request->has('emirate_id')) {
+            $request->validate([
+                'emirate_id' => 'required|exists:emirates,id'
+            ]);
+            
+            $query->whereHas('branches', function($query) use ($request) {
+                $query->where('emirate_id', $request->emirate_id);
+            });
+        }
+        
+        $offers = $query->get();
+        
+        return response()->json(['offers' => $offers], 200);
     }
 }

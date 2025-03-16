@@ -26,6 +26,10 @@ Route::get('/offer/card/{id}', [OfferController::class, 'card'])->name('offer.ca
 Route::post('/offers/filter', [OfferController::class, 'filter'])->name('offer.filter');
 Route::post('/offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip'])->name('offers.toggleVip');
 
+// Market offers routes
+Route::get('/offers/market/{market}', [App\Http\Controllers\OfferController::class, 'getOffersByMarket'])
+    ->name('offers.by-market');
+
 // Admin Routes
 Route::prefix('admin')->middleware('auth')->group(function () {
     Route::get('/', function () {

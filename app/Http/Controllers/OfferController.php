@@ -205,4 +205,31 @@ class OfferController extends Controller
             return response()->json(['success' => false]);
         }
     }
+
+    /**
+     * Get offers by market with optional emirate filtering
+     *
+     * @param  \App\Models\Market  $market
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View
+     */
+    public function getOffersByMarket(Market $market, Request $request)
+    {
+        $query = Offer::whereHas('branches', function($query) use ($market) {
+            $query->where('market_id', $market->id);
+        });
+        
+        // If emirate_id is provided, filter by the specific emirate
+        if ($request->has('emirate_id')) {
+            $emirate_id = $request->emirate_id;
+            $query->whereHas('branches', function($query) use ($emirate_id) {
+                $query->where('emirate_id', $emirate_id);
+            });
+        }
+        
+        $offers = $query->paginate(10);
+        $emirates = Emirate::all();
+        
+        return view('front.offer.market', compact('offers', 'market', 'emirates'));
+    }
 }
