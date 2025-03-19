@@ -1,9 +1,9 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="container">
     <h2>Newsletter Management</h2>
-    <a href="{{ route('newsletters.create') }}" class="btn btn-primary my-3">Create New Newsletter</a>
+    <a href="{{ route('admin.newsletters.create') }}" class="btn btn-primary my-3">Create New Newsletter</a>
 
     <table class="table table-bordered">
         <thead>

@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\NewsletterController;
+use App\Http\Controllers\Admin\BranchController as AdminBranchController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\EmirateController;
 use App\Http\Controllers\FcmTokenController;
@@ -11,6 +12,8 @@ use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OfferImageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\DistrictController;
+use App\Http\Controllers\NeighbourController;
 use Illuminate\Support\Facades\View;
 
 // Front Routes
@@ -37,25 +40,33 @@ Route::get('/offers/emirate/{emirate}', [App\Http\Controllers\OfferController::c
 Route::post('/offers/by-emirate-and-market', [OfferController::class, 'getOffersByEmirateAndMarket'])->name('offers.by-emirate-and-market');
 
 // Admin Routes
-Route::prefix('admin')->middleware('auth')->group(function () {
+Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return view('admin.dashboard');
     })->name('dashboard');
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('markets', MarketController::class);
-    Route::resource('branches', BranchController::class);
+    Route::post('markets/{market}/toggle-status', [MarketController::class, 'toggleStatus'])->name('markets.toggle-status');
+    Route::resource('branches', AdminBranchController::class);
     Route::resource('offers', OfferController::class);
-    Route::delete('offer_images/{offerImage}', [OfferImageController::class, 'destroy'])->name('offer_images.destroy');
+    Route::resource('offer-images', OfferImageController::class);
     Route::resource('notifications', NotificationController::class);
-    Route::post('/save-fcm-token', [FcmTokenController::class, 'store']);
+    Route::resource('fcm-tokens', FcmTokenController::class);
 
     Route::resource('emirates', EmirateController::class);
+    Route::resource('districts', DistrictController::class);
+    Route::resource('neighbours', NeighbourController::class);
 
     Route::resource('newsletters', NewsletterController::class)->except(['edit', 'update']);
     Route::post('newsletters/{newsletter}/send', [NewsletterController::class, 'send'])->name('newsletters.send');
+});
+
+// Profile Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/profile/notifications', [ProfileController::class, 'updateNotifications'])->name('profile.notifications.update');
 });
 
 require __DIR__ . '/auth.php';

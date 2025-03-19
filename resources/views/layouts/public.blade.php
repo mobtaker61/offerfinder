@@ -71,6 +71,7 @@
     <link rel="stylesheet" type="text/css" href="/css/vendor.css">
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 
 <body>
@@ -116,25 +117,30 @@
                                             class="dropdown-item">Contact us</a></li>
                                 </ul>
                             </li>
-                            <li class="nav-item px-4 search-dropdown dropdown">
-                                <a class="nav-link p-0 search dropdown-toggle" data-bs-toggle="dropdown"
-                                    href="#" role="button" aria-expanded="false">
-                                    <svg class="search" width="24" height="24">
-                                        <use xlink:href="#search"></use>
-                                    </svg>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end animate slide mt-3 border-0 p-3 shadow">
-                                    <li class="position-relative d-flex align-items-center p-0">
-                                        <input class="form-control me-2 shadow-none" type="search"
-                                            placeholder="Search" aria-label="Search">
-                                        <button class="btn btn-primary position-absolute end-0" type="submit">
-                                            <svg class="search" width="24" height="24">
-                                                <use xlink:href="#search"></use>
-                                            </svg>
-                                        </button>
-                                    </li>
-                                </ul>
-                            </li>
+                            @guest
+                                <li class="nav-item px-4">
+                                    <a class="nav-link p-0" href="{{ route('login') }}">Login</a>
+                                </li>
+                                <li class="nav-item px-4">
+                                    <a class="nav-link p-0" href="{{ route('register') }}">Register</a>
+                                </li>
+                            @else
+                                <li class="nav-item dropdown px-4">
+                                    <a class="nav-link p-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        {{ Auth::user()->name }}
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <form method="POST" action="{{ route('logout') }}">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item">Logout</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @endguest
                         </ul>
                     </div>
                 </div>
@@ -171,7 +177,7 @@
             <div class="row align-items-center">
                 <div class="col-md-5">
                     <h3 class="display-1 text-white fw-bold">
-                        Let’s Talk
+                        Let's Talk
                     </h3>
                 </div>
                 <div class="col-md-3 ">

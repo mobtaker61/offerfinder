@@ -14,10 +14,14 @@ return new class extends Migration
         Schema::create('markets', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('local_name')->nullable();
             $table->string('logo')->nullable();
+            $table->string('avatar')->nullable();
             $table->string('website')->nullable();
-            $table->string('app_link')->nullable();
+            $table->string('android_app_link')->nullable();
+            $table->string('ios_app_link')->nullable();
             $table->string('whatsapp')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

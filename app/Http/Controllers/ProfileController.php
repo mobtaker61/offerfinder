@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -16,9 +17,9 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('admin.profile.edit', [
+        return view('profile.edit', [
             'user' => $request->user(),
-        ]); // Corrected view address
+        ]);
     }
 
     /**
@@ -26,15 +27,55 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
+        $data = $request->validated();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Handle avatar upload
+        if ($request->hasFile('avatar')) {
+            // Delete old avatar if exists
+            if ($user->avatar) {
+                Storage::delete($user->avatar);
+            }
+            
+            // Store new avatar
+            $data['avatar'] = $request->file('avatar')->store('avatars', 'public');
         }
 
-        $request->user()->save();
+        // Handle date fields
+        if (isset($data['birth_date'])) {
+            $data['birth_date'] = \Carbon\Carbon::parse($data['birth_date']);
+        }
+
+        $user->fill($data);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Update the user's notification preferences.
+     */
+    public function updateNotifications(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'email_notifications' => ['boolean'],
+            'push_notifications' => ['boolean'],
+            'sms_notifications' => ['boolean'],
+        ]);
+
+        $user = $request->user();
+        $user->update([
+            'email_notifications' => $request->boolean('email_notifications'),
+            'push_notifications' => $request->boolean('push_notifications'),
+            'sms_notifications' => $request->boolean('sms_notifications'),
+        ]);
+
+        return Redirect::route('profile.edit')->with('status', 'notifications-updated');
     }
 
     /**
@@ -42,11 +83,16 @@ class ProfileController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        $request->validateWithBag('userDeletion', [
+        $request->validate([
             'password' => ['required', 'current_password'],
         ]);
 
         $user = $request->user();
+        
+        // Delete avatar if exists
+        if ($user->avatar) {
+            Storage::delete($user->avatar);
+        }
 
         Auth::logout();
 
