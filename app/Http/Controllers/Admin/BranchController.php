@@ -20,10 +20,7 @@ class BranchController extends Controller
         if ($request->has('market_id')) {
             $query->where('market_id', $request->market_id);
         }
-
         $branches = $query->paginate(10);
-        sendToTelegram('Branch created', 'Branch create started',);
-
         return view('admin.branch.index', compact('branches'));
     }
 
@@ -42,7 +39,6 @@ class BranchController extends Controller
                 'request_data' => $request->all(),
                 'headers' => $request->headers->all()
             ]);
-            sendToTelegram('Branch created', 'Branch create started',);
 
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
@@ -57,8 +53,6 @@ class BranchController extends Controller
                 'contact_profiles.*.is_primary' => 'nullable|boolean',
             ]);
 
-            Log::info('Validation passed', ['validated_data' => $validated]);
-
             DB::beginTransaction();
 
             $branch = Branch::create([
@@ -69,7 +63,7 @@ class BranchController extends Controller
                 'longitude' => $validated['longitude'],
                 'is_active' => $request->boolean('is_active', true),
             ]);
-            sendToTelegram('Branch created', 'Branch created successfully', $branch->id);
+            sendToTelegram('Branch stored = ' . json_encode($branch));
 
             Log::info('Branch created', ['branch_id' => $branch->id]);
 
