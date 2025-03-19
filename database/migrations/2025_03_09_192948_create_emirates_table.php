@@ -17,9 +17,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::table('branches', function (Blueprint $table) {
-            $table->foreignId('emirate_id')->constrained('emirates')->onDelete('cascade');
-        });
     }
 
     /**
@@ -27,11 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('branches', function (Blueprint $table) {
-            $table->dropForeign(['emirate_id']);
-            $table->dropColumn('emirate_id');
-        });
-
         Schema::dropIfExists('emirates');
     }
 };
