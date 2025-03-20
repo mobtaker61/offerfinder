@@ -12,10 +12,20 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-    <!-- Bootstrap CSS -->
+    <!-- Styles -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    <!-- Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <style>
         body {
@@ -209,10 +219,79 @@
         .user-menu .dropdown-divider {
             margin: 0.5rem 0;
         }
+
+        /* Add these new styles */
+        .modal-backdrop {
+            z-index: 1040;
+        }
+        .modal {
+            z-index: 1050;
+        }
+        .modal-dialog {
+            z-index: 1051;
+        }
+        .modal-content {
+            z-index: 1052;
+        }
+        .dropdown-menu {
+            z-index: 1060;
+        }
     </style>
 
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all dropdowns
+            const dropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+            dropdowns.forEach(dropdown => {
+                new bootstrap.Dropdown(dropdown, {
+                    autoClose: true
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.dropdown')) {
+                    const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+                    dropdowns.forEach(dropdown => {
+                        dropdown.classList.remove('show');
+                    });
+                }
+            });
+
+            // Sidebar toggle
+            const sidebarToggle = document.querySelector('.navbar-toggler');
+            const sidebar = document.querySelector('.sidebar');
+
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            // Initialize all modals
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', function() {
+                    // Remove the backdrop
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                    // Remove the modal-open class from body
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                });
+            });
+
+            // Initialize Select2
+            $('.select2').select2({
+                theme: 'bootstrap-5'
+            });
+        });
+    </script>
+
+    @stack('scripts')
 </head>
 
 <body>
@@ -325,13 +404,20 @@
                     <div class="sidebar-heading text-muted">Offer Management</div>
                 </li>
                 <li class="nav-item">
+                    <a href="{{ route('admin.offer-categories.index') }}"
+                        class="nav-link {{ request()->routeIs('admin.offer-categories.*') ? 'active' : '' }}">
+                        <i class="fas fa-tags"></i>
+                        Offer Categories
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="{{ route('admin.offers.index') }}"
                         class="nav-link {{ request()->routeIs('admin.offers.*') ? 'active' : '' }}">
                         <i class="fas fa-tag"></i>
                         Offers
                     </a>
                 </li>
-
+                    
                 <!-- Communication -->
                 <li class="nav-item">
                     <div class="sidebar-heading text-muted">Communication</div>
@@ -358,51 +444,7 @@
     <main class="main-content">
         @yield('content')
     </main>
-
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-
-    <!-- jQuery (required for Bootstrap) -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Popper.js (required for Bootstrap) -->
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-
-    <!-- Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Sidebar toggle
-            const sidebarToggle = document.querySelector('.navbar-toggler');
-            const sidebar = document.querySelector('.sidebar');
-
-            if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                });
-            }
-
-            // Initialize all dropdowns
-            const dropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-            dropdowns.forEach(dropdown => {
-                new bootstrap.Dropdown(dropdown, {
-                    autoClose: true
-                });
-            });
-
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!event.target.closest('.dropdown')) {
-                    const dropdowns = document.querySelectorAll('.dropdown-menu.show');
-                    dropdowns.forEach(dropdown => {
-                        dropdown.classList.remove('show');
-                    });
-                }
-            });
-        });
-    </script>
-
+   
     <!-- Toast Container -->
     <div class="toast-container position-fixed top-0 end-0 p-3">
         <div id="statusToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">

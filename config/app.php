@@ -123,4 +123,16 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Upload Size Configuration
+    |--------------------------------------------------------------------------
+    |
+    | This value determines the maximum upload size for files.
+    | Check .user.ini in public directory for PHP upload limits.
+    |
+    */
+
+    'max_upload_size' => env('MAX_UPLOAD_SIZE', 64 * 1024 * 1024), // 64MB in bytes
+
 ];

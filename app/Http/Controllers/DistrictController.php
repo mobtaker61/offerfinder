@@ -92,4 +92,18 @@ class DistrictController extends Controller
         return redirect()->route('admin.districts.index')
             ->with('success', 'District deleted successfully.');
     }
+
+    public function getDistrictsByEmirate(Emirate $emirate)
+    {
+        sendToTelegram('getDistrictsByEmirate' . json_encode($emirate));
+        try {
+            $districts = $emirate->districts()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get();
+            return response()->json($districts);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch districts'], 500);
+        }
+    }
 } 

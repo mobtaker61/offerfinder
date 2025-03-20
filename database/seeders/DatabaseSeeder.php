@@ -15,6 +15,9 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             EmirateSeeder::class,
             MarketSeeder::class,
+            DistrictSeeder::class,
+            NeighbourSeeder::class,
+            BranchSeeder::class,
         ]);
     }
 }

@@ -8,29 +8,42 @@ use App\Models\Market;
 use App\Models\OfferImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Yajra\DataTables\Facades\DataTables;
 use Intervention\Image\Facades\Image;
 use App\Models\Emirate;
 use Carbon\Carbon;
 
 class OfferController extends Controller
 {
-    public function index(Request $request) {
-        $query = Offer::query();
+    public function index(Request $request)
+    {
+        $query = Offer::with(['market', 'branches', 'category']);
 
-        if ($request->has('market_id')) {
-            $query->whereHas('branches.market', function($query) use ($request) {
-                $query->where('markets.id', $request->market_id);
-            });
+        // Search functionality
+        if ($request->has('search')) {
+            $search = $request->get('search');
+            $query->where('title', 'like', "%{$search}%")
+                  ->orWhereHas('market', function($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  });
         }
 
-        if ($request->has('branch_id')) {
-            $query->whereHas('branches', function($query) use ($request) {
-                $query->where('branches.id', $request->branch_id);
-            });
+        // Sorting
+        $sortField = $request->get('sort', 'created_at');
+        $sortDirection = $request->get('direction', 'desc');
+        $allowedFields = ['title', 'start_date', 'end_date', 'created_at'];
+        
+        if (in_array($sortField, $allowedFields)) {
+            $query->orderBy($sortField, $sortDirection);
         }
 
-        $offers = $query->paginate(10);
+        $offers = $query->paginate(10)->withQueryString();
+        
+        if ($request->ajax()) {
+            return view('admin.offer.partials.offers-table', compact('offers'));
+        }
 
         return view('admin.offer.index', compact('offers'));
     }
@@ -38,104 +51,221 @@ class OfferController extends Controller
     public function create()
     {
         $markets = Market::all();
-        $branches = Branch::all();
-        return view('admin.offer.create', compact('markets', 'branches'));
-    }
-
-    public function edit(Offer $offer)
-    {
-        $markets = Market::all();
-        $branches = Branch::all();
-        return view('admin.offer.edit', compact('offer', 'markets', 'branches'));
+        return view('admin.offer.create', compact('markets'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
+            'market_id' => 'required|exists:markets,id',
             'branch_ids' => 'required|array',
             'branch_ids.*' => 'exists:branches,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'pdf' => 'nullable|mimes:pdf|max:5120',
-            'offer_images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'pdf' => 'nullable|mimetypes:application/pdf|max:20480',
+            'offer_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+        ], [
+            'cover_image.image' => 'The cover image must be a valid image file (JPEG, PNG, JPG, GIF).',
+            'cover_image.mimes' => 'The cover image must be a file of type: jpeg, png, jpg, gif.',
+            'cover_image.max' => 'The cover image may not be greater than 10MB.',
+            'pdf.mimetypes' => 'The PDF file must be a valid PDF document.',
+            'pdf.max' => 'The PDF file may not be greater than 20MB.',
+            'offer_images.*.image' => 'All gallery images must be valid image files (JPEG, PNG, JPG, GIF).',
+            'offer_images.*.mimes' => 'All gallery images must be files of type: jpeg, png, jpg, gif.',
+            'offer_images.*.max' => 'Each gallery image may not be greater than 10MB.'
         ]);
 
-        $offer = new Offer($request->except('branch_ids'));
+        try {
+            DB::beginTransaction();
 
-        if ($request->hasFile('cover_image')) {
-            $offer->cover_image = $request->file('cover_image')->store('cover_images', 'public');
-        }
+            $offer = new Offer($request->except(['cover_image', 'pdf', 'offer_images', 'branch_ids']));
 
-        if ($request->hasFile('pdf')) {
-            $offer->pdf = $request->file('pdf')->store('pdfs', 'public');
-        }
-
-        $offer->save();
-
-        // Attach branches to the offer
-        $offer->branches()->attach($request->branch_ids);
-
-        if ($request->hasFile('offer_images')) {
-            foreach ($request->file('offer_images') as $image) {
-                $path = $image->store('offer_images', 'public');
-                $offer->images()->create(['image' => $path]);
+            if ($request->hasFile('cover_image')) {
+                $cover = $request->file('cover_image');
+                if ($cover->isValid()) {
+                    $coverPath = $cover->store('offers/covers', 'public');
+                    $offer->cover_image = $coverPath;
+                }
             }
+
+            if ($request->hasFile('pdf')) {
+                $pdf = $request->file('pdf');
+                if ($pdf->isValid()) {
+                    $pdfPath = $pdf->store('offers/pdfs', 'public');
+                    $offer->pdf = $pdfPath;
+                }
+            }
+
+            $offer->save();
+
+            // Attach branches
+            $offer->branches()->attach($request->branch_ids);
+
+            // Handle offer images
+            if ($request->hasFile('offer_images')) {
+                foreach ($request->file('offer_images') as $image) {
+                    if ($image->isValid()) {
+                        $path = $image->store('offers/gallery', 'public');
+                        $offer->images()->create(['image' => $path]);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Offer created successfully',
+                'redirect' => route('admin.offers.index')
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error creating offer: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating offer: ' . $e->getMessage()
+            ], 500);
         }
+    }
 
-        sendToTelegram("New offer created: ". json_encode($request->all()));
-
-        return redirect()->route('offers.index')->with('success', 'Offer created successfully.');
+    public function edit(Offer $offer)
+    {
+        $markets = Market::all();
+        $branches = Branch::where('market_id', $offer->market_id)->get();
+        return view('admin.offer.edit', compact('offer', 'markets', 'branches'));
     }
 
     public function update(Request $request, Offer $offer)
     {
         $request->validate([
+            'market_id' => 'required|exists:markets,id',
             'branch_ids' => 'required|array',
             'branch_ids.*' => 'exists:branches,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'start_date' => 'required|date',
             'end_date' => 'required|date|after_or_equal:start_date',
-            'cover_image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'pdf' => 'nullable|mimes:pdf|max:5120',
-            'offer_images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'cover_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+            'pdf' => 'nullable|mimetypes:application/pdf|max:20480',
+            'offer_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
         ]);
 
-        $offer->update($request->except('branch_ids'));
+        try {
+            DB::beginTransaction();
 
-        if ($request->hasFile('cover_image')) {
-            Storage::disk('public')->delete($offer->cover_image);
-            $offer->cover_image = $request->file('cover_image')->store('cover_images', 'public');
-        }
+            // Update basic offer information
+            $offer->fill($request->except(['cover_image', 'pdf', 'offer_images', 'branch_ids']));
 
-        if ($request->hasFile('pdf')) {
-            Storage::disk('public')->delete($offer->pdf);
-            $offer->pdf = $request->file('pdf')->store('pdfs', 'public');
-        }
-
-        // Sync branches with the offer
-        $offer->branches()->sync($request->branch_ids);
-
-        if ($request->hasFile('offer_images')) {
-            foreach ($request->file('offer_images') as $image) {
-                $path = $image->store('offer_images', 'public');
-                $offer->images()->create(['image' => $path]);
+            // Handle cover image upload
+            if ($request->hasFile('cover_image')) {
+                $cover = $request->file('cover_image');
+                if ($cover->isValid()) {
+                    // Delete old cover image if it exists
+                    if ($offer->cover_image && Storage::disk('public')->exists($offer->cover_image)) {
+                        Storage::disk('public')->delete($offer->cover_image);
+                    }
+                    $coverPath = $cover->store('offers/covers', 'public');
+                    $offer->cover_image = $coverPath;
+                }
             }
-        }
 
-        return redirect()->route('offers.index')->with('success', 'Offer updated successfully.');
+            // Handle PDF upload
+            if ($request->hasFile('pdf')) {
+                $pdf = $request->file('pdf');
+                if ($pdf->isValid()) {
+                    // Delete old PDF if it exists
+                    if ($offer->pdf && Storage::disk('public')->exists($offer->pdf)) {
+                        Storage::disk('public')->delete($offer->pdf);
+                    }
+                    $pdfPath = $pdf->store('offers/pdfs', 'public');
+                    $offer->pdf = $pdfPath;
+                }
+            }
+
+            $offer->save();
+
+            // Update branches
+            $offer->branches()->sync($request->branch_ids);
+
+            // Handle offer images
+            if ($request->hasFile('offer_images')) {
+                // Delete old gallery images if they exist
+                foreach ($offer->images as $image) {
+                    if ($image->image && Storage::disk('public')->exists($image->image)) {
+                        Storage::disk('public')->delete($image->image);
+                    }
+                }
+                $offer->images()->delete();
+
+                // Upload new gallery images
+                foreach ($request->file('offer_images') as $image) {
+                    if ($image->isValid()) {
+                        $path = $image->store('offers/gallery', 'public');
+                        $offer->images()->create(['image' => $path]);
+                    }
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Offer updated successfully',
+                'redirect' => route('admin.offers.index')
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error updating offer: ' . $e->getMessage());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating offer: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function destroy(Offer $offer)
     {
-        Storage::disk('public')->delete($offer->cover_image);
-        Storage::disk('public')->delete($offer->pdf);
-        $offer->delete();
+        try {
+            DB::beginTransaction();
+            
+            if ($offer->cover_image) {
+                Storage::disk('public')->delete($offer->cover_image);
+            }
+            if ($offer->pdf) {
+                Storage::disk('public')->delete($offer->pdf);
+            }
+            
+            foreach ($offer->images as $image) {
+                Storage::disk('public')->delete($image->image);
+                $image->delete();
+            }
+            
+            $offer->delete();
+            
+            DB::commit();
+            return response()->json(['success' => true, 'message' => 'Offer deleted successfully']);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Error deleting offer: ' . $e->getMessage()], 500);
+        }
+    }
 
-        return redirect()->route('offers.index')->with('success', 'Offer deleted successfully.');
+    public function toggleVip(Request $request, Offer $offer)
+    {
+        try {
+            $offer->vip = $request->vip;
+            $offer->save();
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
     }
 
     public function show($id)
@@ -195,16 +325,6 @@ class OfferController extends Controller
         $offers = $query->paginate(10);
 
         return response()->json(['offers' => $offers]);
-    }
-
-    public function toggleVip(Request $request, Offer $offer)
-    {
-        $offer->vip = $request->vip;
-        if ($offer->save()) {
-            return response()->json(['success' => true]);
-        } else {
-            return response()->json(['success' => false]);
-        }
     }
 
     /**
@@ -278,5 +398,11 @@ class OfferController extends Controller
         $emirate = Emirate::findOrFail($request->emirate_id);
         
         return view('front.offer.emirate-market', compact('offers', 'market', 'emirate'));
+    }
+
+    public function getBranchesByMarket(Request $request)
+    {
+        $branches = Branch::where('market_id', $request->market_id)->get();
+        return response()->json(['branches' => $branches]);
     }
 }

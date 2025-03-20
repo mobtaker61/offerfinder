@@ -4,14 +4,14 @@
 <div class="container">
     <h2>Edit Offer</h2>
 
-    <form action="{{ route('offers.update', $offer->id) }}" method="POST" enctype="multipart/form-data">
+    <form id="offerForm" action="{{ route('admin.offers.update', $offer->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
         <div class="row">
             <!-- Left Column -->
             <div class="col-6">
-                <!-- Master Dropdown: Select Market -->
+                <!-- Market Selection -->
                 <div class="mb-3">
                     <label class="form-label">Select Market</label>
                     <select id="marketSelect" name="market_id" class="form-control" required>
@@ -22,7 +22,7 @@
                     </select>
                 </div>
 
-                <!-- Child Dropdown: Select Branch -->
+                <!-- Branch Selection -->
                 <div class="mb-3">
                     <label class="form-label">Select Branches</label>
                     <select name="branch_ids[]" id="branchSelect" class="form-control" multiple required>
@@ -46,28 +46,28 @@
                 <div class="row">
                     <div class="col-6 mb-3">
                         <label class="form-label">Start Date</label>
-                        <input type="date" name="start_date" class="form-control" value="{{ $offer->start_date }}" required>
+                        <input type="date" name="start_date" class="form-control" value="{{ $offer->start_date ? \Carbon\Carbon::parse($offer->start_date)->format('Y-m-d') : '' }}" required>
                     </div>
                     <div class="col-6 mb-3">
                         <label class="form-label">End Date</label>
-                        <input type="date" name="end_date" class="form-control" value="{{ $offer->end_date }}" required>
+                        <input type="date" name="end_date" class="form-control" value="{{ $offer->end_date ? \Carbon\Carbon::parse($offer->end_date)->format('Y-m-d') : '' }}" required>
                     </div>
                 </div>
-        <button type="submit" class="btn btn-primary">Update Offer</button>
+                <button type="submit" class="btn btn-primary">Update Offer</button>
             </div>
 
             <!-- Right Column -->
             <div class="col-6">
                 <div class="mb-3">
-                    <label class="form-label">Cover Image</label>
-                    <input type="file" name="cover_image" class="form-control">
+                    <label class="form-label">Cover Image (Max: 2MB)</label>
+                    <input type="file" name="cover_image" class="form-control" accept="image/jpeg,image/png,image/jpg">
                     @if ($offer->cover_image)
                         <img src="{{ asset('storage/' . $offer->cover_image) }}" class="img-thumbnail mt-2" width="150">
                     @endif
                 </div>
 
                 <div class="mb-3">
-                    <label class="form-label">Offer PDF</label>
+                    <label class="form-label">Offer PDF (Max: 5MB)</label>
                     <input type="file" name="pdf" class="form-control" accept="application/pdf">
                     @if ($offer->pdf)
                         <a href="{{ asset('storage/' . $offer->pdf) }}" target="_blank" class="d-block mt-2">View PDF</a>
@@ -76,8 +76,9 @@
 
                 <!-- Offer Image Gallery Upload -->
                 <div class="mb-3">
-                    <label class="form-label">Offer Gallery Images</label>
-                    <input type="file" name="offer_images[]" id="offerImages" class="form-control" multiple>
+                    <label class="form-label">Offer Gallery Images (Max: 2MB each)</label>
+                    <input type="file" name="offer_images[]" id="offerImages" class="form-control" multiple accept="image/jpeg,image/png,image/jpg">
+                    <small class="text-muted">You can select multiple images. Each image maximum size: 2MB</small>
                 </div>
                 <div id="galleryPreview" class="row">
                     @if(is_array($offer->gallery_images) || is_object($offer->gallery_images))
@@ -97,6 +98,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let branchSelect = document.getElementById('branchSelect');
     let offerImages = document.getElementById('offerImages');
     let galleryPreview = document.getElementById('galleryPreview');
+    let form = document.getElementById('offerForm');
 
     marketSelect.addEventListener('change', function() {
         let marketId = this.value;
@@ -123,6 +125,10 @@ document.addEventListener("DOMContentLoaded", function() {
     offerImages.addEventListener('change', function() {
         galleryPreview.innerHTML = '';
         Array.from(this.files).forEach(file => {
+            if (file.size > 2 * 1024 * 1024) {
+                toastr.error(`File ${file.name} is larger than 2MB`);
+                return;
+            }
             let reader = new FileReader();
             reader.onload = function(e) {
                 let img = document.createElement('img');
@@ -131,6 +137,71 @@ document.addEventListener("DOMContentLoaded", function() {
                 galleryPreview.appendChild(img);
             }
             reader.readAsDataURL(file);
+        });
+    });
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        console.log('Form submitted');
+        
+        let formData = new FormData(this);
+        let totalSize = 0;
+        
+        // Calculate total size of all files
+        formData.getAll('offer_images[]').forEach(file => totalSize += file.size);
+        if (formData.get('cover_image')) totalSize += formData.get('cover_image').size;
+        if (formData.get('pdf')) totalSize += formData.get('pdf').size;
+        
+        if (totalSize > 128 * 1024 * 1024) {
+            toastr.error('Total file size exceeds 128MB limit');
+            return;
+        }
+
+        // Show loading state
+        let submitButton = form.querySelector('button[type="submit"]');
+        let originalButtonText = submitButton.innerHTML;
+        submitButton.disabled = true;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...';
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Accept': 'application/json'
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => Promise.reject(err));
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response:', data);
+            if (data.success) {
+                toastr.success(data.message || 'Offer updated successfully');
+                setTimeout(() => {
+                    window.location.href = "{{ route('admin.offers.index') }}";
+                }, 1000); // Wait for 1 second to show the success message
+            } else {
+                toastr.error(data.message || 'Error updating offer');
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            if (error.errors) {
+                Object.values(error.errors).forEach(messages => {
+                    messages.forEach(message => toastr.error(message));
+                });
+            } else {
+                toastr.error(error.message || 'An error occurred while updating the offer');
+            }
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalButtonText;
         });
     });
 });

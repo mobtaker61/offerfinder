@@ -14,6 +14,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\NeighbourController;
+use App\Http\Controllers\OfferCategoryController;
 use Illuminate\Support\Facades\View;
 
 // Front Routes
@@ -23,12 +24,13 @@ Route::get('/get-branches-by-market', [BranchController::class, 'getBranchesByMa
 Route::get('/get-branches-by-market-and-emirate', [BranchController::class, 'getBranchesByMarketAndEmirate'])->name('getBranchesByMarketAndEmirate');
 Route::get('/get-offers-by-branch', [BranchController::class, 'getOffersByBranch'])->name('getOffersByBranch');
 Route::get('/get-markets-by-emirate', [MarketController::class, 'getMarketsByEmirate'])->name('getMarketsByEmirate');
+Route::get('/get-districts/{emirate}', [DistrictController::class, 'getDistrictsByEmirate'])->name('districts.get');
+Route::get('/get-neighbours/{district}', [NeighbourController::class, 'getNeighboursByDistrict'])->name('neighbours.get');
 
-Route::get('/offers', [OfferController::class, 'list'])->name('offer.list'); // Ensure this line is present
+Route::get('/offers', [OfferController::class, 'list'])->name('offer.list');
 Route::get('/offer/{offer}', [OfferController::class, 'show'])->name('offer.show');
 Route::get('/offer/card/{id}', [OfferController::class, 'card'])->name('offer.card');
 Route::post('/offers/filter', [OfferController::class, 'filter'])->name('offer.filter');
-Route::post('/offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip'])->name('offers.toggleVip');
 
 // Market offers routes
 Route::get('/offers/market/{market}', [App\Http\Controllers\OfferController::class, 'getOffersByMarket'])
@@ -47,16 +49,19 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
 
     Route::resource('markets', MarketController::class);
     Route::post('markets/{market}/toggle-status', [MarketController::class, 'toggleStatus'])->name('markets.toggle-status');
-    Route::resource('branches', AdminBranchController::class);
+    
+    // Offers routes
     Route::resource('offers', OfferController::class);
+    Route::post('offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip'])->name('offers.toggle-vip');
+    
+    Route::resource('branches', AdminBranchController::class);
     Route::resource('offer-images', OfferImageController::class);
     Route::resource('notifications', NotificationController::class);
     Route::resource('fcm-tokens', FcmTokenController::class);
-
     Route::resource('emirates', EmirateController::class);
     Route::resource('districts', DistrictController::class);
     Route::resource('neighbours', NeighbourController::class);
-
+    Route::resource('offer-categories', OfferCategoryController::class);
     Route::resource('newsletters', NewsletterController::class)->except(['edit', 'update']);
     Route::post('newsletters/{newsletter}/send', [NewsletterController::class, 'send'])->name('newsletters.send');
 });

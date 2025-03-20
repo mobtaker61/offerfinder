@@ -35,4 +35,9 @@ class Market extends Model
     {
         return $this->belongsTo(Emirate::class);
     }
+
+    public function offers()
+    {
+        return $this->hasMany(Offer::class);
+    }
 }

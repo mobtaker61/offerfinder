@@ -97,4 +97,17 @@ class NeighbourController extends Controller
         return redirect()->route('admin.neighbours.index')
             ->with('success', 'Neighbour deleted successfully.');
     }
+
+    public function getNeighboursByDistrict(District $district)
+    {
+        try {
+            $neighbours = $district->neighbours()
+                ->where('is_active', true)
+                ->orderBy('name')
+                ->get();
+            return response()->json($neighbours);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch neighbours'], 500);
+        }
+    }
 } 
