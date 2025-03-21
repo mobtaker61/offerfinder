@@ -88,7 +88,7 @@
             <div class="swiper-wrapper">
                 @foreach ($markets->shuffle() as $market)
                     <div class="swiper-slide">
-                        <img src="{{ asset('storage/' . $market->logo) }}" class="img-fluid" alt="{{ $market->name }}" height="75">
+                        <img src="{{ asset('storage/' . $market->avatar) }}" class="img-fluid rounded-circle" width="96" height="96" role="img" alt="{{ $market->name }}">
                     </div>
                 @endforeach
             </div>
@@ -165,7 +165,7 @@
         document.addEventListener("DOMContentLoaded", function() {
             var swiper = new Swiper('.swiper-container', {
                 slidesPerView: 5,
-                spaceBetween: 20,
+                spaceBetween: 25,
                 autoplay: {
                     delay: 3000,
                     disableOnInteraction: false,
