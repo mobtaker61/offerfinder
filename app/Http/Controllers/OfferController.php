@@ -14,6 +14,7 @@ use Yajra\DataTables\Facades\DataTables;
 use Intervention\Image\Facades\Image;
 use App\Models\Emirate;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 
 class OfferController extends Controller
 {
@@ -82,6 +83,7 @@ class OfferController extends Controller
             DB::beginTransaction();
 
             $offer = new Offer($request->except(['cover_image', 'pdf', 'offer_images', 'branch_ids']));
+            $productInfo = [];
 
             if ($request->hasFile('cover_image')) {
                 $cover = $request->file('cover_image');
@@ -104,13 +106,34 @@ class OfferController extends Controller
             // Attach branches
             $offer->branches()->attach($request->branch_ids);
 
-            // Handle offer images
+            // Handle offer images and analyze them with ChatGPT
             if ($request->hasFile('offer_images')) {
                 foreach ($request->file('offer_images') as $image) {
                     if ($image->isValid()) {
                         $path = $image->store('offers/gallery', 'public');
                         $offer->images()->create(['image' => $path]);
+                        
+                        // Analyze image with ChatGPT
+                        $imageInfo = $this->analyzeImageWithChatGPT(Storage::disk('public')->path($path));
+                        if (!empty($imageInfo)) {
+                            $productInfo[] = $imageInfo;
+                        }
                     }
+                }
+                
+                // Append product information to offer description
+                if (!empty($productInfo)) {
+                    $productInfoText = "### Product Information Extracted From Images:\n\n";
+                    foreach ($productInfo as $index => $info) {
+                        $productInfoText .= "**Product " . ($index + 1) . ":**\n";
+                        $productInfoText .= $info . "\n\n";
+                    }
+                    
+                    $offer->description = $offer->description ? 
+                        $offer->description . "\n\n" . $productInfoText : 
+                        $productInfoText;
+                        
+                    $offer->save();
                 }
             }
 
@@ -142,6 +165,7 @@ class OfferController extends Controller
 
     public function update(Request $request, Offer $offer)
     {
+        sendToTelegram('man injam');
         $request->validate([
             'market_id' => 'required|exists:markets,id',
             'branch_ids' => 'required|array',
@@ -157,6 +181,7 @@ class OfferController extends Controller
 
         try {
             DB::beginTransaction();
+            $productInfo = [];
 
             // Update basic offer information
             $offer->fill($request->except(['cover_image', 'pdf', 'offer_images', 'branch_ids']));
@@ -202,12 +227,37 @@ class OfferController extends Controller
                 }
                 $offer->images()->delete();
 
-                // Upload new gallery images
+                // Upload new gallery images and analyze them
                 foreach ($request->file('offer_images') as $image) {
                     if ($image->isValid()) {
                         $path = $image->store('offers/gallery', 'public');
                         $offer->images()->create(['image' => $path]);
+                        
+                        // Analyze image with ChatGPT
+                        $imageInfo = $this->analyzeImageWithChatGPT(Storage::disk('public')->path($path));
+                        if (!empty($imageInfo)) {
+                            $productInfo[] = $imageInfo;
+                        }
                     }
+                }
+                
+                // Append product information to offer description
+                if (!empty($productInfo)) {
+                    $productInfoText = "### Product Information Extracted From Images:\n\n";
+                    foreach ($productInfo as $index => $info) {
+                        $productInfoText .= "**Product " . ($index + 1) . ":**\n";
+                        $productInfoText .= $info . "\n\n";
+                    }
+                    
+                    // Remove any previous product info sections if they exist
+                    $descriptionParts = preg_split('/### Product Information Extracted From Images:/i', $offer->description, 2);
+                    $cleanDescription = trim($descriptionParts[0]);
+                    
+                    $offer->description = $cleanDescription ? 
+                        $cleanDescription . "\n\n" . $productInfoText : 
+                        $productInfoText;
+                        
+                    $offer->save();
                 }
             }
 
@@ -404,5 +454,62 @@ class OfferController extends Controller
     {
         $branches = Branch::where('market_id', $request->market_id)->get();
         return response()->json(['branches' => $branches]);
+    }
+
+    /**
+     * Analyze image using ChatGPT API to extract product information
+     *
+     * @param string $imagePath Full path to the image file
+     * @return string Formatted product information
+     */
+    private function analyzeImageWithChatGPT($imagePath)
+    {
+        try {
+            // Encode image to base64
+            $imageData = base64_encode(file_get_contents($imagePath));
+            
+            // Create ChatGPT API client
+            $client = new Client();
+            
+            // Make API request to OpenAI
+            $response = $client->post('https://api.openai.com/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'model' => 'gpt-4-vision-preview', // Use the vision model
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => [
+                                [
+                                    'type' => 'text',
+                                    'text' => 'Please find product in this image, and get result include name, Quantity, Unit and price'
+                                ],
+                                [
+                                    'type' => 'image_url',
+                                    'image_url' => [
+                                        'url' => "data:image/jpeg;base64,{$imageData}"
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    'max_tokens' => 300
+                ]
+            ]);
+            
+            $result = json_decode($response->getBody(), true);
+            sendToTelegram($result);
+            if (isset($result['choices'][0]['message']['content'])) {
+                return $result['choices'][0]['message']['content'];
+            }
+            
+            return '';
+        } catch (\Exception $e) {
+            Log::error('Error analyzing image with ChatGPT: ' . $e->getMessage());
+            return '';
+        }
     }
 }

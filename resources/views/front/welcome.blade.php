@@ -164,8 +164,8 @@
 
         document.addEventListener("DOMContentLoaded", function() {
             var swiper = new Swiper('.swiper-container', {
-                slidesPerView: 5,
-                spaceBetween: 25,
+                slidesPerView: 7,
+                spaceBetween: 5,
                 autoplay: {
                     delay: 3000,
                     disableOnInteraction: false,
