@@ -15,4 +15,12 @@ class OfferImage extends Model
     {
         return $this->belongsTo(Offer::class);
     }
+
+    /**
+     * Get the offer products for this offer image
+     */
+    public function offerProducts()
+    {
+        return $this->hasMany(OfferProduct::class);
+    }
 }

@@ -26,6 +26,56 @@
                         </div>
                     </div>
                 @endif
+
+                <!-- Products Section -->
+                @if($offer->images->flatMap->offerProducts->isNotEmpty())
+                    <div class="products mt-4">
+                        <h5 class="widget-title text-uppercase border-bottom border-primary pb-3 mb-3">Products</h5>
+                        
+                        @foreach($offer->images as $image)
+                            @if($image->offerProducts->isNotEmpty())
+                                <div class="card mb-4">
+                                    <div class="card-header d-flex align-items-center">
+                                        <div style="width: 50px; height: 50px; overflow: hidden; margin-right: 10px;">
+                                            <img src="{{ asset('storage/' . $image->image) }}" class="img-fluid rounded" alt="Product Image" style="width: 100%; height: 100%; object-fit: cover;">
+                                        </div>
+                                        <h6 class="mb-0">Products in this image</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Product</th>
+                                                        <th>Variant</th>
+                                                        <th>Quantity</th>
+                                                        <th>Price</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($image->offerProducts as $offerProduct)
+                                                        <tr>
+                                                            <td>{{ $offerProduct->product->name }}</td>
+                                                            <td>{{ $offerProduct->variant ?? '-' }}</td>
+                                                            <td>
+                                                                @if($offerProduct->quantity)
+                                                                    {{ $offerProduct->quantity }} {{ $offerProduct->unit ?? '' }}
+                                                                @else
+                                                                    -
+                                                                @endif
+                                                            </td>
+                                                            <td>{{ $offerProduct->price ? number_format($offerProduct->price, 2) . ' AED' : '-' }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
                 <!-- ShareThis BEGIN --><div class="sharethis-inline-share-buttons"></div><!-- ShareThis END -->
             </main>
             <aside class="col-md-4" id="info-sidebar">

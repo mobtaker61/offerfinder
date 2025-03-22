@@ -79,13 +79,25 @@
                     <label class="form-label">Offer Gallery Images (Max: 2MB each)</label>
                     <input type="file" name="offer_images[]" id="offerImages" class="form-control" multiple accept="image/jpeg,image/png,image/jpg">
                     <small class="text-muted">You can select multiple images. Each image maximum size: 2MB</small>
+                    <div class="mt-2">
+                        <label class="form-label">Current Images (Click to delete)</label>
+                        <div class="row">
+                            @foreach ($offer->images as $image)
+                                <div class="col-md-3 mb-3">
+                                    <div class="position-relative">
+                                        <img src="{{ asset('storage/' . $image->image) }}" class="img-thumbnail w-100" style="height: 150px; object-fit: cover;">
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 delete-image" 
+                                                data-image-id="{{ $image->id }}">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
                 <div id="galleryPreview" class="row">
-                    @if(is_array($offer->gallery_images) || is_object($offer->gallery_images))
-                        @foreach ($offer->gallery_images as $image)
-                            <img src="{{ asset('storage/' . $image) }}" class="col-2 mb-3 img-thumbnail">
-                        @endforeach
-                    @endif
+                    <!-- Preview of new images will appear here -->
                 </div>
             </div>
         </div>
@@ -202,6 +214,53 @@ document.addEventListener("DOMContentLoaded", function() {
             }
             submitButton.disabled = false;
             submitButton.innerHTML = originalButtonText;
+        });
+    });
+    
+    // Handle image deletion
+    document.querySelectorAll('.delete-image').forEach(button => {
+        button.addEventListener('click', function() {
+            if (!confirm('Are you sure you want to delete this image? This will also remove all products detected in this image.')) {
+                return;
+            }
+            
+            const imageId = this.getAttribute('data-image-id');
+            const imageContainer = this.closest('.col-md-3');
+            
+            // Show loading state
+            button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+            button.disabled = true;
+            
+            fetch(`{{ route('admin.offer-images.delete', '') }}/${imageId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => Promise.reject(err));
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    toastr.success(data.message || 'Image deleted successfully');
+                    imageContainer.remove(); // Remove the image container from the DOM
+                } else {
+                    toastr.error(data.message || 'Error deleting image');
+                    button.innerHTML = '<i class="fas fa-times"></i>';
+                    button.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error(error.message || 'An error occurred while deleting the image');
+                button.innerHTML = '<i class="fas fa-times"></i>';
+                button.disabled = false;
+            });
         });
     });
 });

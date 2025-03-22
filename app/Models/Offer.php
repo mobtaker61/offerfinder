@@ -85,4 +85,22 @@ class Offer extends Model
     {
         return $this->market ? $this->market->name : null;
     }
+
+    /**
+     * Get the offer products for this offer
+     */
+    public function offerProducts()
+    {
+        return $this->hasMany(OfferProduct::class);
+    }
+
+    /**
+     * Get the products for this offer
+     */
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'offer_products')
+            ->withPivot(['variant', 'unit', 'quantity', 'price', 'offer_image_id'])
+            ->withTimestamps();
+    }
 }

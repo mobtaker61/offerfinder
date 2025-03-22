@@ -53,6 +53,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     // Offers routes
     Route::resource('offers', OfferController::class);
     Route::post('offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip'])->name('offers.toggle-vip');
+    Route::delete('offer-images/{id}', [OfferController::class, 'deleteOfferImage'])->name('offer-images.delete');
     
     Route::resource('branches', AdminBranchController::class);
     Route::resource('offer-images', OfferImageController::class);
