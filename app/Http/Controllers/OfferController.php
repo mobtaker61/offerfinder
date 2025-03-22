@@ -165,7 +165,6 @@ class OfferController extends Controller
 
     public function update(Request $request, Offer $offer)
     {
-        sendToTelegram('man injam');
         $request->validate([
             'market_id' => 'required|exists:markets,id',
             'branch_ids' => 'required|array',
@@ -464,9 +463,48 @@ class OfferController extends Controller
      */
     private function analyzeImageWithChatGPT($imagePath)
     {
+        sendToTelegram('man injam---3');
         try {
+            // Log the start of image analysis
+            Log::info('Starting image analysis with ChatGPT for: ' . $imagePath);
+            
+            // Check if API key is set
+            $apiKey = env('OPENAI_API_KEY');
+            if (empty($apiKey)) {
+                Log::error('OpenAI API key is not set in .env file');
+                return '';
+            }
+            
+            // Clean the API key - remove any whitespace or line breaks
+            $apiKey = trim(preg_replace('/\s+/', '', $apiKey));
+            Log::info('API Key length: ' . strlen($apiKey));
+            
+            // Test if the API key works with a simple text request first
+            try {
+                $testResponse = $this->testOpenAIAccess($apiKey);
+                if (!$testResponse) {
+                    Log::error('OpenAI API key validation failed');
+                    return 'API access test failed. Please check your API key.';
+                }
+                Log::info('OpenAI API key is valid, proceeding with image analysis');
+            } catch (\Exception $e) {
+                Log::error('OpenAI API test failed: ' . $e->getMessage());
+                return 'API test failed: ' . $e->getMessage();
+            }
+            
             // Encode image to base64
+            if (!file_exists($imagePath)) {
+                Log::error('Image file does not exist: ' . $imagePath);
+                return '';
+            }
+            
             $imageData = base64_encode(file_get_contents($imagePath));
+            if (empty($imageData)) {
+                Log::error('Failed to encode image to base64: ' . $imagePath);
+                return '';
+            }
+            
+            Log::info('Image encoded successfully, making API request');
             
             // Create ChatGPT API client
             $client = new Client();
@@ -474,7 +512,7 @@ class OfferController extends Controller
             // Make API request to OpenAI
             $response = $client->post('https://api.openai.com/v1/chat/completions', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . env('OPENAI_API_KEY'),
+                    'Authorization' => 'Bearer ' . $apiKey,
                     'Content-Type' => 'application/json',
                 ],
                 'json' => [
@@ -501,15 +539,64 @@ class OfferController extends Controller
             ]);
             
             $result = json_decode($response->getBody(), true);
-            sendToTelegram($result);
+            
+            Log::info('ChatGPT API response received', ['response' => $result]);
+            
             if (isset($result['choices'][0]['message']['content'])) {
                 return $result['choices'][0]['message']['content'];
+            } else {
+                Log::warning('No valid content found in ChatGPT response', ['response' => $result]);
+                return '';
             }
             
-            return '';
         } catch (\Exception $e) {
-            Log::error('Error analyzing image with ChatGPT: ' . $e->getMessage());
+            Log::error('Error analyzing image with ChatGPT: ' . $e->getMessage(), [
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return '';
+        }
+    }
+    
+    /**
+     * Test if the OpenAI API key is valid by making a simple request
+     *
+     * @param string $apiKey The OpenAI API key to test
+     * @return bool Whether the API key is valid
+     */
+    private function testOpenAIAccess($apiKey)
+    {
+        try {
+            $client = new Client();
+            $response = $client->post('https://api.openai.com/v1/chat/completions', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Content-Type' => 'application/json',
+                ],
+                'json' => [
+                    'model' => 'gpt-3.5-turbo', // Use a simpler model for testing
+                    'messages' => [
+                        [
+                            'role' => 'user',
+                            'content' => 'Hello, this is a test message. Please respond with "API is working".'
+                        ]
+                    ],
+                    'max_tokens' => 50
+                ]
+            ]);
+            
+            $result = json_decode($response->getBody(), true);
+            Log::info('API test result', ['result' => $result]);
+            
+            return isset($result['choices'][0]['message']['content']);
+        } catch (\Exception $e) {
+            Log::error('API test exception', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]);
+            return false;
         }
     }
 }
