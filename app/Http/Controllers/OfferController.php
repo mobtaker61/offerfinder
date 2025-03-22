@@ -57,6 +57,7 @@ class OfferController extends Controller
 
     public function store(Request $request)
     {
+        sendToTelegram('man injam---4');
         $request->validate([
             'market_id' => 'required|exists:markets,id',
             'branch_ids' => 'required|array',
