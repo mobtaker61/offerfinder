@@ -83,9 +83,9 @@
                         <label class="form-label">Current Images (Click to delete)</label>
                         <div class="row">
                             @foreach ($offer->images as $image)
-                                <div class="col-md-3 mb-3">
+                                <div class="col-2 mb-2">
                                     <div class="position-relative">
-                                        <img src="{{ asset('storage/' . $image->image) }}" class="img-thumbnail w-100" style="height: 150px; object-fit: cover;">
+                                        <img src="{{ asset('storage/' . $image->image) }}" class="img-thumbnail" style="object-fit: cover;">
                                         <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 delete-image" 
                                                 data-image-id="{{ $image->id }}">
                                             <i class="fas fa-times"></i>
