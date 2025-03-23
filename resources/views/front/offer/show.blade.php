@@ -83,8 +83,9 @@
             @endif
         </div>
         <main class="col-md-8" id="offer-content">
+            <!-- PDF Section -->
             @if ($offer->pdf)
-            <div class="pdf-viewer mb-4">
+            <div class="pdf-viewer mb-4" hidden>
                 <iframe src="{{ asset('storage/' . $offer->pdf) }}" width="100%" height="600px"></iframe>
             </div>
             @endif
