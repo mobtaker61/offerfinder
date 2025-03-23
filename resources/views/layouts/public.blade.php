@@ -160,7 +160,7 @@
             <div class="container d-flex position-relative" style="justify-content: center;">
                 <div class="row flex-row-reverse align-items-center text-center padding-medium mt-md-5">
                     <h1 class="herotext display-4 fw-bold  mb-4">
-                        @yield('title')
+                        @yield('title') -
                     </h1>
                 </div>
             </div>
