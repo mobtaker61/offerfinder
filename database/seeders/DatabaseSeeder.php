@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             DistrictSeeder::class,
             NeighbourSeeder::class,
             BranchSeeder::class,
+            PagesSeeder::class,
         ]);
     }
 }

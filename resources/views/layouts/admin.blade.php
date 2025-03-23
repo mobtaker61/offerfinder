@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }} - Admin</title>
+    <title>@yield('title') - {{ config('app.name', 'Laravel') }} Admin</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -19,14 +19,6 @@
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-
-    <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-
     <style>
         body {
             overflow-x: hidden;
@@ -224,74 +216,25 @@
         .modal-backdrop {
             z-index: 1040;
         }
+
         .modal {
             z-index: 1050;
         }
+
         .modal-dialog {
             z-index: 1051;
         }
+
         .modal-content {
             z-index: 1052;
         }
+
         .dropdown-menu {
             z-index: 1060;
         }
     </style>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize all dropdowns
-            const dropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-            dropdowns.forEach(dropdown => {
-                new bootstrap.Dropdown(dropdown, {
-                    autoClose: true
-                });
-            });
-
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!event.target.closest('.dropdown')) {
-                    const dropdowns = document.querySelectorAll('.dropdown-menu.show');
-                    dropdowns.forEach(dropdown => {
-                        dropdown.classList.remove('show');
-                    });
-                }
-            });
-
-            // Sidebar toggle
-            const sidebarToggle = document.querySelector('.navbar-toggler');
-            const sidebar = document.querySelector('.sidebar');
-
-            if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', function() {
-                    sidebar.classList.toggle('show');
-                });
-            }
-
-            // Initialize all modals
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(modal => {
-                modal.addEventListener('hidden.bs.modal', function() {
-                    // Remove the backdrop
-                    const backdrop = document.querySelector('.modal-backdrop');
-                    if (backdrop) {
-                        backdrop.remove();
-                    }
-                    // Remove the modal-open class from body
-                    document.body.classList.remove('modal-open');
-                    document.body.style.overflow = '';
-                    document.body.style.paddingRight = '';
-                });
-            });
-
-            // Initialize Select2
-            $('.select2').select2({
-                theme: 'bootstrap-5'
-            });
-        });
-    </script>
-
-    @stack('scripts')
+    @stack('styles')
 </head>
 
 <body>
@@ -417,7 +360,7 @@
                         Offers
                     </a>
                 </li>
-                    
+
                 <!-- Communication -->
                 <li class="nav-item">
                     <div class="sidebar-heading text-muted">Communication</div>
@@ -436,6 +379,18 @@
                         Notifications
                     </a>
                 </li>
+
+                <!-- Content Management -->
+                <li class="nav-item">
+                    <div class="sidebar-heading text-muted">Content Management</div>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.pages.index') }}"
+                        class="nav-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
+                        <i class="fas fa-file-alt"></i>
+                        Pages
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -444,7 +399,7 @@
     <main class="main-content">
         @yield('content')
     </main>
-   
+
     <!-- Toast Container -->
     <div class="toast-container position-fixed top-0 end-0 p-3">
         <div id="statusToast" class="toast align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
@@ -458,7 +413,71 @@
         </div>
     </div>
 
+    <!-- Core Scripts -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
+    <!-- Custom Scripts -->
     @stack('scripts')
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all dropdowns
+            const dropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
+            dropdowns.forEach(dropdown => {
+                new bootstrap.Dropdown(dropdown, {
+                    autoClose: true
+                });
+            });
+
+            // Close dropdowns when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('.dropdown')) {
+                    const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+                    dropdowns.forEach(dropdown => {
+                        dropdown.classList.remove('show');
+                    });
+                }
+            });
+
+            // Sidebar toggle
+            const sidebarToggle = document.querySelector('.navbar-toggler');
+            const sidebar = document.querySelector('.sidebar');
+
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('show');
+                });
+            }
+
+            // Initialize all modals
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                modal.addEventListener('hidden.bs.modal', function() {
+                    // Remove the backdrop
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                    // Remove the modal-open class from body
+                    document.body.classList.remove('modal-open');
+                    document.body.style.overflow = '';
+                    document.body.style.paddingRight = '';
+                });
+            });
+
+            // Initialize Select2
+            $('.select2').select2({
+                theme: 'bootstrap-5'
+            });
+        });
+    </script>
+    <!-- Page Specific Scripts -->
+    @yield('scripts')
+
     @if(session('success'))
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -471,8 +490,12 @@
 
     <!-- Firebase SDK -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
-        import { getMessaging } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-messaging.js";
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+        import {
+            getMessaging
+        } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-messaging.js";
 
         const firebaseConfig = {
             apiKey: "{{ config('services.firebase.api_key') }}",
@@ -482,7 +505,7 @@
             messagingSenderId: "{{ config('services.firebase.messaging_sender_id') }}",
             appId: "{{ config('services.firebase.app_id') }}"
         };
-        
+
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const messaging = getMessaging(app);

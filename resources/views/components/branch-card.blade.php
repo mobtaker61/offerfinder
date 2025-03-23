@@ -6,7 +6,7 @@
             <!-- Left Side - Market Avatar -->
             <div class="col-4 branch-avatar-wrapper">
                 <div class="branch-avatar">
-                    <img src="{{ $branch->market->logo ? asset('storage/' . $branch->market->logo) : 'https://via.placeholder.com/150' }}" 
+                    <img src="{{ $branch->market->logo ? asset('storage/' . $branch->market->avatar) : 'https://via.placeholder.com/150' }}" 
                          alt="{{ $branch->market->name }}"
                          class="img-fluid rounded-start">
                 </div>

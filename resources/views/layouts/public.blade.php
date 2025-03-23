@@ -123,28 +123,30 @@
                                 </ul>
                             </li>
                             @guest
-                                <li class="nav-item px-4">
-                                    <a class="nav-link p-0" href="{{ route('login') }}">Login</a>
-                                </li>
-                                <li class="nav-item px-4">
-                                    <a class="nav-link p-0" href="{{ route('register') }}">Register</a>
-                                </li>
+                            <li class="nav-item px-4">
+                                <a class="nav-link p-0" href="{{ route('login') }}">Login</a>
+                            </li>
+                            <li class="nav-item px-4">
+                                <a class="nav-link p-0" href="{{ route('register') }}">Register</a>
+                            </li>
                             @else
-                                <li class="nav-item dropdown px-4">
-                                    <a class="nav-link p-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        {{ Auth::user()->name }}
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li>
-                                            <form method="POST" action="{{ route('logout') }}">
-                                                @csrf
-                                                <button type="submit" class="dropdown-item">Logout</button>
-                                            </form>
-                                        </li>
-                                    </ul>
-                                </li>
+                            <li class="nav-item dropdown px-4">
+                                <a class="nav-link p-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    {{ Auth::user()->name }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
                             @endguest
                         </ul>
                     </div>
@@ -153,17 +155,17 @@
         </nav>
     </header>
     @if (!Request::is('/'))
-        <section id="billboard" style="margin-top: -80px;">
-            <div style="background-image: url(/images/background.png);background-repeat: no-repeat; width: 100%;">
-                <div class="container d-flex position-relative" style="justify-content: center;">
-                    <div class="row flex-row-reverse align-items-center text-center padding-medium mt-md-5">
-                        <h1 class="herotext display-4 fw-bold  mb-4">
-                            @yield('title')
-                        </h1>
-                    </div>
+    <section id="billboard" style="margin-top: -80px;">
+        <div style="background-image: url(/images/background.png);background-repeat: no-repeat; width: 100%;">
+            <div class="container d-flex position-relative" style="justify-content: center;">
+                <div class="row flex-row-reverse align-items-center text-center padding-medium mt-md-5">
+                    <h1 class="herotext display-4 fw-bold  mb-4">
+                        @yield('title')
+                    </h1>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
     @endif
 
     @yield('content')
@@ -177,80 +179,107 @@
         </amp-ad>
     </div>
 
-    <footer id="footer" class="bg-danger">
-        <div class="container text-white padding-medium">
-            <div class="row align-items-center">
-                <div class="col-md-5">
-                    <h3 class="display-1 text-white fw-bold">
-                        Let's Talk
-                    </h3>
-                </div>
-                <div class="col-md-3 ">
-                    <p>Justo, a quisque in accumsan dignissim volutpat quis.Sit pellentesque faucibus arcu lacinia
-                        egestas augue. Sit volutpat vel dui ultricies massa. Sit pellentesque faucibus arcu lacinia
-                        egestas augue. Sit volutpat vel dui ultricies massa.</p>
-                </div>
-                <div class="offset-md-1 col-md-3">
-                    <div>
-                        <p>
-                            <u>offer@roniplus.ae</u>
-                        </p>
-                        <p>
-                            Hor Al Anz, Deira</br>
-                            Dubai, UAE
-                        </p>
+    <!-- Footer Section -->
+    <footer class="bg-danger py-5 mt-5">
+        <div class="container">
+            <div class="row g-4">
+                <!-- Logo & About Column -->
+                <div class="col-md-4">
+                    <div class="footer-logo mb-3">
+                        <img src="{{ asset('images/logo-2.png') }}" alt="Logo" class="img-fluid" style="max-height: 60px;">
                     </div>
-                    <div class="social-links">
-                        <ul class="d-flex gap-3 list-unstyled">
-                            <li>
-                                <a href="#">
-                                    <svg class="behance" width="30" height="30">
-                                        <use xlink:href="#behance" />
-                                    </svg>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <svg class="pinterest" width="30" height="30">
-                                        <use xlink:href="#pinterest" />
-                                    </svg>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <svg class="instagram" width="30" height="30">
-                                        <use xlink:href="#instagram" />
-                                    </svg>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <svg class="twitter" width="30" height="30">
-                                        <use xlink:href="#twitter" />
-                                    </svg>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#">
-                                    <svg class="facebook" width="30" height="30">
-                                        <use xlink:href="#facebook" />
-                                    </svg>
-                                </a>
-                            </li>
-                        </ul>
+                    <div class="footer-brand mb-3">
+                        <h5 class="footer-slogan mb-1">You're never far from a good deal</h5>
+                    </div>
+                    <p class="small">
+                        Discover the best offers and deals from your favorite markets across UAE.
+                        We bring you exclusive discounts and promotions all in one place.
+                    </p>
+                </div>
+
+                <!-- Quick Menu Column -->
+                <div class="col-md-2 offset-1">
+                    <h5 class="footer-title mb-3">Quick Menu</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2">
+                            <a href="{{ route('front.market.index') }}" class="text-decoration-none">Markets</a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ route('offer.list') }}" class="text-decoration-none">Offers</a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ route('home') }}" class="text-decoration-none">About Us</a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ route('home') }}" class="text-decoration-none">Contact Us</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Official Links Column -->
+                <div class="col-md-2">
+                    <h5 class="footer-title mb-3">Official Links</h5>
+                    <ul class="list-unstyled footer-links">
+                        <li class="mb-2">
+                            <a href="{{ route('pages.show', 'about-us') }}" class="text-decoration-none">About Us</a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ route('pages.show', 'offer-submission') }}" class="text-decoration-none">Offer Submission</a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ route('pages.show', 'faqs') }}" class="text-decoration-none">FAQs</a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ route('pages.show', 'privacy-policy') }}" class="text-decoration-none">Privacy Policy</a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ route('pages.show', 'terms-conditions') }}" class="text-decoration-none">Terms & Conditions</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Contact & Social Column -->
+                <div class="col-md-3">
+                    <h5 class="footer-title mb-3">Get in Touch</h5>
+                    <ul class="list-unstyled footer-contact">
+                        <li class="mb-2">
+                            <i class="fas fa-envelope me-2"></i>
+                            <a href="mailto:contact@offerfinder.ae" class="text-decoration-none">
+                                contact[@]offerfinder.ae
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-phone me-2"></i>
+                            <a href="tel:+1234567890" class="text-decoration-none">
+                                +971 56 2858133
+                            </a>
+                        </li>
+                        <li class="mb-3">
+                            <i class="fas fa-map-marker-alt me-2"></i>
+                            <span class="">Deira, Dubai, UAE</span>
+                        </li>
+                    </ul>
+
+                    <div class="footer-social mt-3">
+                        <h6 class="text-light mb-2">Follow Us</h6>
+                        <div class="social-links">
+                            <a href="#" class="me-3"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="me-3"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="me-3"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class=""><i class="fab fa-linkedin-in"></i></a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <hr class="text-white">
-        <div class="container text-white">
-            <div class="row py-1">
-                <div class="col text-start">
-                    <p>© {{ date('Y') }} Digital. All rights reserved.</p>
-                </div>
-                <div class="col text-end">
-                    Developed by: <a href="https://roniplus.ae/" target="_blank"
-                        class="text-decoration-underline fw-bold">Roni Plus Co. L.L.C</a>
+
+            <!-- Copyright Bar -->
+            <div class="border-top border-secondary mt-4 pt-4">
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <p class="mb-0">
+                            © {{ date('Y') }} {{ config('app.name') }}. All rights reserved.<br/> Developed by <a href="https://roniplus.ae">Roni Plus</a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -277,3 +306,63 @@
 </body>
 
 </html>
+
+<style>
+    .footer-title {
+        color: #fff;
+        position: relative;
+        padding-bottom: 10px;
+    }
+
+    .footer-title::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 50px;
+        height: 2px;
+        background-color: #0d6efd;
+    }
+
+    .footer-slogan {
+        color: #fcd100;
+    }
+
+    .footer-links a:hover {
+        color: #fcd100 !important;
+        padding-left: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .footer-contact i {
+        width: 20px;
+        text-align: center;
+    }
+
+    .footer-social .social-links a {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        text-align: center;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .footer-social .social-links a:hover {
+        color: #fff !important;
+        background-color: #0d6efd;
+        transform: translateY(-3px);
+    }
+
+    .footer-logo img {
+        filter: brightness(0) invert(1);
+    }
+
+    @media (max-width: 768px) {
+        .footer-title {
+            margin-top: 1.5rem;
+        }
+    }
+</style>

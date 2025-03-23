@@ -79,6 +79,14 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::resource('offer-categories', OfferCategoryController::class);
     Route::resource('newsletters', NewsletterController::class)->except(['edit', 'update']);
     Route::post('newsletters/{newsletter}/send', [NewsletterController::class, 'send'])->name('newsletters.send');
+    Route::resource('pages', \App\Http\Controllers\Admin\PageController::class);
 });
+
+// Pages
+Route::get('pages/{slug}', [App\Http\Controllers\Front\PageController::class, 'show'])->name('pages.show');
+
+// Sitemap Routes
+Route::get('sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap.xml');
+Route::get('sitemap/generate', [App\Http\Controllers\SitemapController::class, 'generate'])->name('sitemap.generate');
 
 require __DIR__ . '/auth.php';
