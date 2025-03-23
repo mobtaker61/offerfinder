@@ -14,11 +14,13 @@ class Branch extends Model
 
     protected $fillable = [
         'name',
-        'market_id',
         'address',
-        'latitude',
-        'longitude',
-        'is_active'
+        'location',
+        'working_hours',
+        'customer_service',
+        'emirate_id',
+        'district_id',
+        'market_id'
     ];
 
     protected $casts = [
@@ -27,7 +29,17 @@ class Branch extends Model
         'is_active' => 'boolean'
     ];
 
-    public function market(): BelongsTo
+    public function emirate()
+    {
+        return $this->belongsTo(Emirate::class);
+    }
+
+    public function district()
+    {
+        return $this->belongsTo(District::class);
+    }
+
+    public function market()
     {
         return $this->belongsTo(Market::class);
     }

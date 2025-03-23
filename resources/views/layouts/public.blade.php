@@ -103,6 +103,10 @@
                             </li>
                             <li class="nav-item px-4">
                                 <a class="nav-link active p-0" aria-current="page"
+                                    href="{{ route('front.market.index') }}">Markets</a>
+                            </li>
+                            <li class="nav-item px-4">
+                                <a class="nav-link active p-0" aria-current="page"
                                     href="{{ route('offer.list') }}">Offers</a>
                             </li>
                             <li class="nav-item dropdown px-4">

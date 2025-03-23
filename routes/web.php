@@ -41,6 +41,20 @@ Route::get('/offers/emirate/{emirate}', [App\Http\Controllers\OfferController::c
 // Market and Emirate combined offers route
 Route::post('/offers/by-emirate-and-market', [OfferController::class, 'getOffersByEmirateAndMarket'])->name('offers.by-emirate-and-market');
 
+// Profile Routes
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::patch('/profile/notifications', [ProfileController::class, 'updateNotifications'])->name('profile.notifications.update');
+});
+
+Route::group(['prefix' => 'market', 'as' => 'front.market.'], function () {
+    Route::get('/', [App\Http\Controllers\Front\MarketController::class, 'index'])->name('index');
+    Route::get('/{market}', [App\Http\Controllers\Front\MarketController::class, 'show'])->name('show');
+    Route::get('/{market}/offers', [App\Http\Controllers\Front\MarketController::class, 'getOffersByStatus'])->name('offers');
+});
+
 // Admin Routes
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
@@ -65,14 +79,6 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::resource('offer-categories', OfferCategoryController::class);
     Route::resource('newsletters', NewsletterController::class)->except(['edit', 'update']);
     Route::post('newsletters/{newsletter}/send', [NewsletterController::class, 'send'])->name('newsletters.send');
-});
-
-// Profile Routes
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::patch('/profile/notifications', [ProfileController::class, 'updateNotifications'])->name('profile.notifications.update');
 });
 
 require __DIR__ . '/auth.php';

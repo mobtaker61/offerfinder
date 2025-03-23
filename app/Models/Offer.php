@@ -103,4 +103,17 @@ class Offer extends Model
             ->withPivot(['variant', 'unit', 'quantity', 'price', 'offer_image_id'])
             ->withTimestamps();
     }
+
+    public function scopeActive($query) {
+        return $query->where('start_date', '<=', now())
+                     ->where('end_date', '>=', now());
+    }
+
+    public function scopeUpcoming($query) {
+        return $query->where('start_date', '>', now());
+    }
+
+    public function scopeFinished($query) {
+        return $query->where('end_date', '<', now());
+    }
 }
