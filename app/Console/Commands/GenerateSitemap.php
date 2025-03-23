@@ -66,6 +66,20 @@ class GenerateSitemap extends Command
                 ->setPriority(0.7));
         });
 
+        // Add static pages
+        $pages = Page::where('is_active', true)
+            ->orderBy('sort_order')
+            ->get();
+
+        foreach ($pages as $page) {
+            $sitemap->add(
+                Url::create(route('pages.show', $page->slug))
+                    ->setLastModificationDate($page->updated_at)
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                    ->setPriority(0.7)
+            );
+        }
+
         // Add non-expired offers
         Offer::where('end_date', '>=', now())
             ->orderBy('end_date')
