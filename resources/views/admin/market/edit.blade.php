@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Edit Market')
+
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -9,7 +11,7 @@
         </a>
     </div>
 
-    <form action="{{ route('admin.markets.update', $market->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.markets.update', $market->slug) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="row">
@@ -121,8 +123,9 @@
         </div>
     </form>
 </div>
+@endsection
 
-@push('scripts')
+@section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Logo preview
@@ -154,5 +157,4 @@
         });
     });
 </script>
-@endpush
 @endsection

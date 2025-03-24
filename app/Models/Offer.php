@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
+use App\Traits\HasViewCount;
 
 class Offer extends Model
 {
-    use HasFactory;
+    use HasFactory, HasViewCount;
 
     protected $fillable = [
         'title',

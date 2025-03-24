@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Market List')
+
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -100,8 +102,9 @@
         </table>
     </div>
 </div>
+@endsection
 
-@push('scripts')
+@section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const statusSwitches = document.querySelectorAll('.status-switch');
@@ -140,5 +143,4 @@
         });
     });
 </script>
-@endpush
 @endsection

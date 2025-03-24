@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Notifications Management')
+
 @section('content')
 <div class="card shadow-sm">
     <div class="card-body">

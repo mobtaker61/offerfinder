@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
+use App\Traits\HasViewCount;
 
 class Market extends Model
 {
-    use HasFactory;
+    use HasFactory, HasViewCount;
 
     protected $fillable = [
         'name',
@@ -45,7 +46,7 @@ class Market extends Model
 
     public function getRouteKeyName()
     {
-        return 'slug';
+        return 'id';
     }
 
     public function branches(): HasMany

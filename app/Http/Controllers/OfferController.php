@@ -277,9 +277,11 @@ class OfferController extends Controller
         }
     }
 
-    public function show($id)
+    public function show(Offer $offer)
     {
-        $offer = Offer::with('branches.market')->findOrFail($id);
+        // Increment view count
+        $offer->incrementViewCount();
+        
         $market = $offer->branches->first()->market ?? null;
         return view('front.offer.show', compact('offer', 'market'));
     }

@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Market;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class MarketController extends Controller
@@ -27,8 +27,7 @@ class MarketController extends Controller
         return view('admin.market.create');
     }
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         $request->validate([
             'name' => 'required|string|max:255',
             'local_name' => 'nullable|string|max:255',

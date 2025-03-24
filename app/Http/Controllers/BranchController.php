@@ -41,4 +41,13 @@ class BranchController extends Controller
 
         return response()->json(['offers' => $offers]);
     }
+
+    public function show(Branch $branch)
+    {
+        // Increment view count
+        $branch->incrementViewCount();
+        
+        // Rest of your existing show method code...
+        return view('branches.show', compact('branch'));
+    }
 } 

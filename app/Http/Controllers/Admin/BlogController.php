@@ -18,7 +18,7 @@ class BlogController extends Controller
     {
         $posts = Post::with(['author', 'market', 'branch'])
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(15);
 
         return view('admin.blog.index', compact('posts'));
     }
@@ -82,7 +82,7 @@ class BlogController extends Controller
 
     public function edit(Post $blog)
     {
-        $markets = Market::orderBy('name')->get();
+        $markets = Market::all();
         return view('admin.blog.edit', compact('blog', 'markets'));
     }
 

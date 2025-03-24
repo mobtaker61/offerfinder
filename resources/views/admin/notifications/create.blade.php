@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Create New Notification')
+
 @section('content')
 <!-- Include Latest CKEditor -->
 <script src="https://cdn.ckeditor.com/4.25.1-lts/standard/ckeditor.js"></script>

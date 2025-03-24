@@ -23,6 +23,7 @@
         body {
             overflow-x: hidden;
             padding-top: 56px;
+            background-color: #dddddd;
             /* Add padding for fixed navbar */
         }
 
@@ -37,7 +38,7 @@
             padding: 0;
             /* Remove top padding */
             box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
-            background-color: #fff;
+            background-color: #ffc107;
             width: 250px;
             transition: all 0.3s;
             display: flex;
@@ -54,23 +55,45 @@
         }
 
         .sidebar .nav-link {
-            font-weight: 500;
-            color: #333;
+            display: flex;
+            align-items: center;
             padding: 0.5rem 1rem;
+            color: #333;
+            transition: all 0.3s;
         }
 
+        .sidebar .nav-link i {
+            margin-right: 0.5rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar .nav-link[data-bs-toggle="collapse"] {
+            cursor: pointer;
+        }
+
+        .sidebar .nav-link[data-bs-toggle="collapse"] i.fa-chevron-down {
+            transition: transform 0.3s;
+        }
+
+        .sidebar .nav-link[data-bs-toggle="collapse"][aria-expanded="true"] i.fa-chevron-down {
+            transform: rotate(180deg);
+        }
+
+        .sidebar .collapse .nav-link {
+            padding-left: 3rem;
+            font-size: 0.9rem;
+        }
+
+        .sidebar .nav-link:hover,
         .sidebar .nav-link.active {
             color: #2470dc;
             background-color: #f8f9fa;
         }
 
-        .sidebar .nav-link:hover {
-            color: #2470dc;
-            background-color: #f8f9fa;
-        }
-
-        .sidebar .nav-link i {
-            margin-right: 0.5rem;
+        .sidebar .collapse .nav-link:hover,
+        .sidebar .collapse .nav-link.active {
+            background-color: #f1f3f5;
         }
 
         .sidebar-heading {
@@ -299,103 +322,152 @@
 
                 <!-- Location Management -->
                 <li class="nav-item">
-                    <div class="sidebar-heading text-muted">Location Management</div>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.emirates.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.emirates.*') ? 'active' : '' }}">
-                        <i class="fas fa-globe"></i>
-                        Emirates
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.districts.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.districts.*') ? 'active' : '' }}">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#locationMenu" role="button">
                         <i class="fas fa-map-marker-alt"></i>
-                        Districts
+                        Location Management
+                        <i class="fas fa-chevron-down ms-auto"></i>
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.neighbours.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.neighbours.*') ? 'active' : '' }}">
-                        <i class="fas fa-building"></i>
-                        Neighbours
-                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.emirates.*') || request()->routeIs('admin.districts.*') || request()->routeIs('admin.neighbours.*') ? 'show' : '' }}" id="locationMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.emirates.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.emirates.*') ? 'active' : '' }}">
+                                    <i class="fas fa-globe"></i>
+                                    Emirates
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.districts.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.districts.*') ? 'active' : '' }}">
+                                    <i class="fas fa-map"></i>
+                                    Districts
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.neighbours.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.neighbours.*') ? 'active' : '' }}">
+                                    <i class="fas fa-building"></i>
+                                    Neighbours
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
 
                 <!-- Market Management -->
                 <li class="nav-item">
-                    <div class="sidebar-heading text-muted">Market Management</div>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.markets.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.markets.*') ? 'active' : '' }}">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#marketMenu" role="button">
                         <i class="fas fa-store"></i>
-                        Markets
+                        Market Management
+                        <i class="fas fa-chevron-down ms-auto"></i>
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.branches.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.branches.*') ? 'active' : '' }}">
-                        <i class="fas fa-code-branch"></i>
-                        Branches
-                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.markets.*') || request()->routeIs('admin.branches.*') ? 'show' : '' }}" id="marketMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.markets.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.markets.*') ? 'active' : '' }}">
+                                    <i class="fas fa-store"></i>
+                                    Markets
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.branches.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.branches.*') ? 'active' : '' }}">
+                                    <i class="fas fa-code-branch"></i>
+                                    Branches
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
 
                 <!-- Offer Management -->
                 <li class="nav-item">
-                    <div class="sidebar-heading text-muted">Offer Management</div>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.offer-categories.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.offer-categories.*') ? 'active' : '' }}">
-                        <i class="fas fa-tags"></i>
-                        Offer Categories
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.offers.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.offers.*') ? 'active' : '' }}">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#offerMenu" role="button">
                         <i class="fas fa-tag"></i>
-                        Offers
+                        Offer Management
+                        <i class="fas fa-chevron-down ms-auto"></i>
                     </a>
+                    <div class="collapse {{ request()->routeIs('admin.offers.*') || request()->routeIs('admin.offer-categories.*') ? 'show' : '' }}" id="offerMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.offer-categories.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.offer-categories.*') ? 'active' : '' }}">
+                                    <i class="fas fa-tags"></i>
+                                    Offer Categories
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.offers.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.offers.*') ? 'active' : '' }}">
+                                    <i class="fas fa-tag"></i>
+                                    Offers
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
 
                 <!-- Communication -->
                 <li class="nav-item">
-                    <div class="sidebar-heading text-muted">Communication</div>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.newsletters.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.newsletters.*') ? 'active' : '' }}">
-                        <i class="fas fa-envelope"></i>
-                        Newsletters
+                    <a class="nav-link" data-bs-toggle="collapse" href="#communicationMenu" role="button">
+                        <i class="fas fa-comments"></i>
+                        Communication
+                        <i class="fas fa-chevron-down ms-auto"></i>
                     </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.notifications.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
-                        <i class="fas fa-bell"></i>
-                        Notifications
-                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.newsletters.*') || request()->routeIs('admin.notifications.*') ? 'show' : '' }}" id="communicationMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.newsletters.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.newsletters.*') ? 'active' : '' }}">
+                                    <i class="fas fa-envelope"></i>
+                                    Newsletters
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.notifications.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.notifications.*') ? 'active' : '' }}">
+                                    <i class="fas fa-bell"></i>
+                                    Notifications
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
 
                 <!-- Content Management -->
                 <li class="nav-item">
-                    <div class="sidebar-heading text-muted">Content Management</div>
-                </li>
-                <li class="nav-item">
-                    <a href="{{ route('admin.pages.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#contentMenu" role="button">
                         <i class="fas fa-file-alt"></i>
-                        Pages
+                        Content Management
+                        <i class="fas fa-chevron-down ms-auto"></i>
                     </a>
+                    <div class="collapse {{ request()->routeIs('admin.pages.*') || request()->routeIs('admin.blog.*') ? 'show' : '' }}" id="contentMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.pages.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
+                                    <i class="fas fa-file-alt"></i>
+                                    Pages
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.blog.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.blog.*') ? 'active' : '' }}">
+                                    <i class="fas fa-blog"></i>
+                                    Blog
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
+
+                <!-- User Management -->
                 <li class="nav-item">
-                    <a href="{{ route('admin.blog.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.blog.*') ? 'active' : '' }}">
-                        <i class="fas fa-blog"></i>
-                        Blog
+                    <a href="{{ route('admin.users.index') }}"
+                        class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                        <i class="fas fa-users"></i>
+                        Users
                     </a>
                 </li>
             </ul>
@@ -432,65 +504,133 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize all dropdowns
-            const dropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
-            dropdowns.forEach(dropdown => {
-                new bootstrap.Dropdown(dropdown, {
-                    autoClose: true
+            // Initialize Select2
+            if ($.fn.select2) {
+                $('.select2').select2({
+                    theme: 'bootstrap-5'
+                });
+            }
+
+            // Initialize all collapse elements with parent
+            const collapseElements = document.querySelectorAll('.collapse');
+            collapseElements.forEach(collapse => {
+                new bootstrap.Collapse(collapse, {
+                    toggle: false
                 });
             });
 
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!event.target.closest('.dropdown')) {
-                    const dropdowns = document.querySelectorAll('.dropdown-menu.show');
-                    dropdowns.forEach(dropdown => {
-                        dropdown.classList.remove('show');
+            // Handle collapse functionality
+            const sidebarLinks = document.querySelectorAll('.sidebar .nav-link[data-bs-toggle="collapse"]');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+                    const targetCollapse = document.querySelector(targetId);
+                    
+                    // Close all other collapses
+                    collapseElements.forEach(collapse => {
+                        if (collapse !== targetCollapse) {
+                            bootstrap.Collapse.getInstance(collapse)?.hide();
+                        }
                     });
-                }
+                    
+                    // Toggle the clicked collapse
+                    const collapseInstance = bootstrap.Collapse.getInstance(targetCollapse) || new bootstrap.Collapse(targetCollapse);
+                    collapseInstance.toggle();
+                });
             });
 
-            // Sidebar toggle
+            // Explicitly initialize dropdowns
+            var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'))
+            var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl)
+            });
+            
+            // User dropdown specific initialization
+            const userDropdown = document.getElementById('userDropdown');
+            if (userDropdown) {
+                userDropdown.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const dropdown = bootstrap.Dropdown.getInstance(userDropdown) || new bootstrap.Dropdown(userDropdown);
+                    dropdown.toggle();
+                });
+            }
+
+            // Sidebar toggle functionality - improved
             const sidebarToggle = document.querySelector('.navbar-toggler');
             const sidebar = document.querySelector('.sidebar');
+            const mainContent = document.querySelector('.main-content');
 
             if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', function() {
+                sidebarToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     sidebar.classList.toggle('show');
+                    
+                    // Adjust main content when sidebar is toggled on mobile
+                    if (window.innerWidth < 768) {
+                        if (sidebar.classList.contains('show')) {
+                            mainContent.style.marginLeft = '250px';
+                        } else {
+                            mainContent.style.marginLeft = '0';
+                        }
+                    }
+                });
+                
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(e) {
+                    if (window.innerWidth < 768 && 
+                        sidebar.classList.contains('show') && 
+                        !sidebar.contains(e.target) && 
+                        !sidebarToggle.contains(e.target)) {
+                        sidebar.classList.remove('show');
+                        mainContent.style.marginLeft = '0';
+                    }
                 });
             }
 
             // Initialize all modals
             const modals = document.querySelectorAll('.modal');
             modals.forEach(modal => {
-                modal.addEventListener('hidden.bs.modal', function() {
-                    // Remove the backdrop
-                    const backdrop = document.querySelector('.modal-backdrop');
-                    if (backdrop) {
-                        backdrop.remove();
-                    }
-                    // Remove the modal-open class from body
-                    document.body.classList.remove('modal-open');
-                    document.body.style.overflow = '';
-                    document.body.style.paddingRight = '';
-                });
+                if (modal) {
+                    modal.addEventListener('hidden.bs.modal', function() {
+                        // Remove the backdrop
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) {
+                            backdrop.remove();
+                        }
+                        // Remove the modal-open class from body
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                        document.body.style.paddingRight = '';
+                    });
+                }
             });
-
-            // Initialize Select2
-            $('.select2').select2({
-                theme: 'bootstrap-5'
-            });
+            
+            // Responsive handling
+            const handleResize = function() {
+                if (window.innerWidth >= 768) {
+                    mainContent.style.marginLeft = '250px';
+                } else if (!sidebar.classList.contains('show')) {
+                    mainContent.style.marginLeft = '0';
+                }
+            };
+            
+            window.addEventListener('resize', handleResize);
+            // Initial call
+            handleResize();
         });
     </script>
-    <!-- Page Specific Scripts -->
-    @yield('scripts')
 
     @if(session('success'))
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const toast = new bootstrap.Toast(document.getElementById('statusToast'));
-            document.getElementById('statusMessage').textContent = "{{ session('success') }}";
-            toast.show();
+            const toastElement = document.getElementById('statusToast');
+            if (toastElement) {
+                const toast = new bootstrap.Toast(toastElement);
+                document.getElementById('statusMessage').textContent = "{{ session('success') }}";
+                toast.show();
+            }
         });
     </script>
     @endif

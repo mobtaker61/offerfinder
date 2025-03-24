@@ -21,7 +21,7 @@ class NewsletterController extends Controller
 
     public function create()
     {
-        return view('newsletter.create');
+        return view('admin.newsletter.create');
     }
 
     public function store(Request $request)
@@ -33,7 +33,7 @@ class NewsletterController extends Controller
 
         Newsletter::create($request->all());
 
-        return redirect()->route('newsletters.index')->with('success', 'Newsletter created successfully.');
+        return redirect()->route('admin.newsletter.index')->with('success', 'Newsletter created successfully.');
     }
     
     public function send(Newsletter $newsletter)
@@ -50,7 +50,7 @@ class NewsletterController extends Controller
     
         $newsletter->update(['sent' => true]);
     
-        return redirect()->route('newsletters.index')->with('success', 'Newsletter sent successfully.');
+        return redirect()->route('admin.newsletter.index')->with('success', 'Newsletter sent successfully.');
     }
 
     public function subscribe(Request $request)

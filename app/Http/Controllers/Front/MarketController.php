@@ -113,6 +113,9 @@ class MarketController extends Controller
 
     public function show(Market $market)
     {
+        // Increment view count
+        $market->incrementViewCount();
+        
         $market->load([
             'branches.neighbours.district.emirate',
             'branches.market',

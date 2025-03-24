@@ -4,11 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\BranchController as AdminBranchController;
 use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
+use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\EmirateController;
 use App\Http\Controllers\FcmTokenController;
-use App\Http\Controllers\MarketController;
+use App\Http\Controllers\Front\MarketController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OfferImageController;
@@ -60,12 +61,18 @@ Route::group(['prefix' => 'market', 'as' => 'front.market.'], function () {
 
 // Admin Routes
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+    Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
-    Route::resource('markets', MarketController::class);
-    Route::post('markets/{market}/toggle-status', [MarketController::class, 'toggleStatus'])->name('markets.toggle-status');
+    // Define market routes explicitly
+    Route::get('/markets', [AdminMarketController::class, 'index'])->name('markets.index');
+    Route::get('/markets/create', [AdminMarketController::class, 'create'])->name('markets.create');
+    Route::post('/markets', [AdminMarketController::class, 'store'])->name('markets.store');
+    Route::get('/markets/{market}/edit', [AdminMarketController::class, 'edit'])->name('markets.edit');
+    Route::put('/markets/{market}', [AdminMarketController::class, 'update'])->name('markets.update');
+    Route::delete('/markets/{market}', [AdminMarketController::class, 'destroy'])->name('markets.destroy');
+    
+    // Keep your existing toggle status route
+    Route::post('markets/{market}/toggle-status', [AdminMarketController::class, 'toggleStatus'])->name('markets.toggle-status');
     
     // Offers routes
     Route::resource('offers', OfferController::class);
@@ -83,6 +90,10 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('newsletters/{newsletter}/send', [NewsletterController::class, 'send'])->name('newsletters.send');
     Route::resource('pages', AdminPageController::class);
     Route::resource('blog', AdminBlogController::class);
+
+    // User Management Routes
+    Route::resource('users', \App\Http\Controllers\Admin\UserManagementController::class);
+    Route::patch('users/{user}/toggle-active', [\App\Http\Controllers\Admin\UserManagementController::class, 'toggleActive'])->name('users.toggle-active');
 });
 
 // Pages

@@ -25,6 +25,19 @@ class User extends Authenticatable
         'newsletter',
         'is_active',
         'user_type',
+        'phone',
+        'avatar',
+        'bio',
+        'location',
+        'birth_date',
+        'gender',
+        'facebook_url',
+        'twitter_url',
+        'instagram_url',
+        'linkedin_url',
+        'email_notifications',
+        'push_notifications',
+        'sms_notifications',
     ];
 
     /**
@@ -46,6 +59,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'is_active' => 'boolean',
+        'newsletter' => 'boolean',
+        'email_notifications' => 'boolean',
+        'push_notifications' => 'boolean',
+        'sms_notifications' => 'boolean',
+        'birth_date' => 'date',
     ];
 
     /**

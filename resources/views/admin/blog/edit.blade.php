@@ -5,9 +5,9 @@
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3">Edit Blog Post</h1>
+        <h1 class="h3 mb-0 text-gray-800">Edit Blog Post</h1>
         <a href="{{ route('admin.blog.index') }}" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Posts
+            <i class="fas fa-arrow-left"></i> Back to List
         </a>
     </div>
 
@@ -47,7 +47,7 @@
                 <div class="mb-3">
                     <label class="form-label">Featured Image</label>
                     <div class="d-flex flex-column align-items-center">
-                        <div class="image-preview mb-3" style="width: 100%; max-width: 300px;" {!! $blog->image_url ? '' : 'style=display:none' !!}>
+                        <div class="image-preview mb-3" style="width: 100%; max-width: 300px;">
                             <img id="preview" src="{{ $blog->image_url }}" alt="Preview" class="img-fluid rounded">
                         </div>
                         <div class="d-flex gap-2 w-100">
@@ -57,7 +57,7 @@
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <button type="button" class="btn btn-outline-danger" id="removeImage" {!! $blog->image_url ? '' : 'style=display:none' !!}>
+                            <button type="button" class="btn btn-outline-danger" id="removeImage">
                                 <i class="fas fa-times"></i>
                             </button>
                         </div>

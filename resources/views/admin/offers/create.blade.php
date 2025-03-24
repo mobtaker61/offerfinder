@@ -1,0 +1,1 @@
+@section('title', 'Create New Offer') 

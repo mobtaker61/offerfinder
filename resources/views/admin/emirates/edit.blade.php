@@ -1,5 +1,7 @@
 @extends('layouts.admin')
 
+@section('title', 'Edit Emirate')
+
 @section('content')
 <div class="container">
     <h2 class="card-title mb-4">Edit Emirate</h2>
