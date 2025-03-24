@@ -109,25 +109,15 @@
                                 <a class="nav-link active p-0" aria-current="page"
                                     href="{{ route('offer.list') }}">Offers</a>
                             </li>
-                            <li class="nav-item dropdown px-4">
-                                <a href="#" data-bs-toggle="dropdown" aria-expanded="false"
-                                    class="nav-link p-0 dropdown-toggle">Info</a>
-                                <ul class="dropdown-menu">
-                                    <li class="border-bottom"><a href="{{ url('/') }}"
-                                            class="dropdown-item">About
-                                            us</a></li>
-                                    <li class="border-bottom"><a href="{{ url('/') }}"
-                                            class="dropdown-item">Collabration</a></li>
-                                    <li class="border-bottom"><a href="{{ url('/') }}"
-                                            class="dropdown-item">Contact us</a></li>
-                                </ul>
+                            <li class="nav-item px-4">
+                                <a class="nav-link active p-0" aria-current="page"
+                                    href="{{ route('blog.index') }}">Blog</a>
                             </li>
                             @guest
                             <li class="nav-item px-4">
-                                <a class="nav-link p-0" href="{{ route('login') }}">Login</a>
-                            </li>
-                            <li class="nav-item px-4">
-                                <a class="nav-link p-0" href="{{ route('register') }}">Register</a>
+                                <a class="nav-link p-0" href="{{ route('login') }}">
+                                    <i class="fas fa-user-circle fa-lg"></i>
+                                </a>
                             </li>
                             @else
                             <li class="nav-item dropdown px-4">
@@ -206,6 +196,9 @@
                         </li>
                         <li class="mb-2">
                             <a href="{{ route('offer.list') }}" class="text-decoration-none">Offers</a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="{{ route('blog.index') }}" class="text-decoration-none">Blog</a>
                         </li>
                         <li class="mb-2">
                             <a href="{{ route('home') }}" class="text-decoration-none">About Us</a>
@@ -364,5 +357,45 @@
         .footer-title {
             margin-top: 1.5rem;
         }
+    }
+
+    /* Market Avatar Slider Styles */
+    .market-avatar {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .market-avatar:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Upcoming Offers Styles */
+    .upcoming-offers .card {
+        transition: transform 0.3s ease;
+    }
+
+    .upcoming-offers .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .upcoming-offers .badge {
+        font-size: 0.8rem;
+        padding: 0.5em 1em;
+    }
+
+    /* Blog Section Styles */
+    .blog-section .card {
+        transition: transform 0.3s ease;
+        border: none;
+    }
+
+    .blog-section .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .blog-section .card-img-top {
+        height: 200px;
+        object-fit: cover;
     }
 </style>

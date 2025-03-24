@@ -143,6 +143,7 @@
                     <th>Title</th>
                     <th>Market</th>
                     <th>Branches</th>
+                    <th>Category</th>
                     <th>Start Date</th>
                     <th>End Date</th>
                     <th>Cover Image</th>
@@ -157,6 +158,16 @@
                     <td>{{ $offer->title }}</td>
                     <td>{{ $offer->market ? $offer->market->name : 'N/A' }}</td>
                     <td>{{ $offer->branches->pluck('name')->implode(', ') }}</td>
+                    <td>
+                        @if($offer->category)
+                            @if($offer->category->parent)
+                                <small class="text-muted">{{ $offer->category->parent->name }} &raquo;</small><br>
+                            @endif
+                            {{ $offer->category->name }}
+                        @else
+                            N/A
+                        @endif
+                    </td>
                     <td>{{ $offer->start_date ? $offer->start_date->format('Y-m-d') : '' }}</td>
                     <td>{{ $offer->end_date ? $offer->end_date->format('Y-m-d') : '' }}</td>
                     <td>

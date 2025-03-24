@@ -17,18 +17,22 @@ use Intervention\Image\Facades\Image;
 use App\Models\Emirate;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use App\Models\OfferCategory;
 
 class OfferController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Offer::with(['market', 'branches', 'category']);
+        $query = Offer::with(['market', 'branches', 'category.parent']);
 
         // Search functionality
         if ($request->has('search')) {
             $search = $request->get('search');
             $query->where('title', 'like', "%{$search}%")
                   ->orWhereHas('market', function($q) use ($search) {
+                      $q->where('name', 'like', "%{$search}%");
+                  })
+                  ->orWhereHas('category', function($q) use ($search) {
                       $q->where('name', 'like', "%{$search}%");
                   });
         }
@@ -54,7 +58,8 @@ class OfferController extends Controller
     public function create()
     {
         $markets = Market::all();
-        return view('admin.offer.create', compact('markets'));
+        $categories = OfferCategory::with('children')->mainCategories()->get();
+        return view('admin.offer.create', compact('markets', 'categories'));
     }
 
     public function store(Request $request)
@@ -63,6 +68,7 @@ class OfferController extends Controller
             'market_id' => 'required|exists:markets,id',
             'branch_ids' => 'required|array',
             'branch_ids.*' => 'exists:branches,id',
+            'category_id' => 'required|exists:offer_categories,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'start_date' => 'required|date',
@@ -143,7 +149,8 @@ class OfferController extends Controller
     {
         $markets = Market::all();
         $branches = Branch::where('market_id', $offer->market_id)->get();
-        return view('admin.offer.edit', compact('offer', 'markets', 'branches'));
+        $categories = OfferCategory::with('children')->mainCategories()->get();
+        return view('admin.offer.edit', compact('offer', 'markets', 'branches', 'categories'));
     }
 
     public function update(Request $request, Offer $offer)
@@ -152,6 +159,7 @@ class OfferController extends Controller
             'market_id' => 'required|exists:markets,id',
             'branch_ids' => 'required|array',
             'branch_ids.*' => 'exists:branches,id',
+            'category_id' => 'required|exists:offer_categories,id',
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'start_date' => 'required|date',

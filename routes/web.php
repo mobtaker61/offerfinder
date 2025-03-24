@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\Admin\BranchController as AdminBranchController;
+use App\Http\Controllers\Admin\BlogController as AdminBlogController;
+use App\Http\Controllers\Admin\PageController as AdminPageController;
+use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\EmirateController;
 use App\Http\Controllers\FcmTokenController;
@@ -16,6 +18,7 @@ use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\NeighbourController;
 use App\Http\Controllers\OfferCategoryController;
 use Illuminate\Support\Facades\View;
+use App\Http\Controllers\BlogController;
 
 // Front Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -67,8 +70,7 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     // Offers routes
     Route::resource('offers', OfferController::class);
     Route::post('offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip'])->name('offers.toggle-vip');
-    Route::delete('offer-images/{id}', [OfferController::class, 'deleteOfferImage'])->name('offer-images.delete');
-    
+    Route::delete('offer-images/{id}', [OfferController::class, 'deleteOfferImage'])->name('offer-images.delete');    
     Route::resource('branches', AdminBranchController::class);
     Route::resource('offer-images', OfferImageController::class);
     Route::resource('notifications', NotificationController::class);
@@ -79,7 +81,8 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::resource('offer-categories', OfferCategoryController::class);
     Route::resource('newsletters', NewsletterController::class)->except(['edit', 'update']);
     Route::post('newsletters/{newsletter}/send', [NewsletterController::class, 'send'])->name('newsletters.send');
-    Route::resource('pages', \App\Http\Controllers\Admin\PageController::class);
+    Route::resource('pages', AdminPageController::class);
+    Route::resource('blog', AdminBlogController::class);
 });
 
 // Pages
@@ -88,5 +91,9 @@ Route::get('pages/{slug}', [App\Http\Controllers\Front\PageController::class, 's
 // Sitemap Routes
 Route::get('sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap.xml');
 Route::get('sitemap/generate', [App\Http\Controllers\SitemapController::class, 'generate'])->name('sitemap.generate');
+
+// Blog Routes
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 require __DIR__ . '/auth.php';

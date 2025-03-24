@@ -17,7 +17,7 @@
                     <select id="marketSelect" name="market_id" class="form-control" required>
                         <option value="">Select Market</option>
                         @foreach ($markets as $market)
-                            <option value="{{ $market->id }}">{{ $market->name }}</option>
+                        <option value="{{ $market->id }}">{{ $market->name }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -29,6 +29,20 @@
                         <option value="">First, select a market...</option>
                     </select>
                     <small class="text-muted">Hold Ctrl (Windows) or Command (Mac) to select multiple branches</small>
+                </div>
+
+                <!-- Category Selection -->
+                <div class="mb-3">
+                    <label class="form-label">Select Category</label>
+                    <select name="category_id" class="form-control" required>
+                        <option value="">Select Category</option>
+                        @foreach ($categories as $category)
+                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                        @foreach ($category->children as $child)
+                        <option value="{{ $child->id }}">&nbsp;&nbsp;&nbsp;- {{ $child->name }}</option>
+                        @endforeach
+                        @endforeach
+                    </select>
                 </div>
 
                 <div class="mb-3">
@@ -82,118 +96,118 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    let marketSelect = document.getElementById('marketSelect');
-    let branchSelect = document.getElementById('branchSelect');
-    let offerImages = document.getElementById('offerImages');
-    let galleryPreview = document.getElementById('galleryPreview');
-    let form = document.getElementById('offerForm');
+    document.addEventListener("DOMContentLoaded", function() {
+        let marketSelect = document.getElementById('marketSelect');
+        let branchSelect = document.getElementById('branchSelect');
+        let offerImages = document.getElementById('offerImages');
+        let galleryPreview = document.getElementById('galleryPreview');
+        let form = document.getElementById('offerForm');
 
-    marketSelect.addEventListener('change', function() {
-        let marketId = this.value;
-        branchSelect.innerHTML = '<option value="">Loading...</option>';
+        marketSelect.addEventListener('change', function() {
+            let marketId = this.value;
+            branchSelect.innerHTML = '<option value="">Loading...</option>';
 
-        fetch(`/get-branches-by-market?market_id=${marketId}`)
-            .then(response => response.json())
-            .then(data => {
-                branchSelect.innerHTML = '';
-                if (data.branches.length > 0) {
-                    data.branches.forEach(branch => {
-                        branchSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
-                    });
-                } else {
-                    branchSelect.innerHTML = '<option value="">No branches available</option>';
+            fetch(`/get-branches-by-market?market_id=${marketId}`)
+                .then(response => response.json())
+                .then(data => {
+                    branchSelect.innerHTML = '';
+                    if (data.branches.length > 0) {
+                        data.branches.forEach(branch => {
+                            branchSelect.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+                        });
+                    } else {
+                        branchSelect.innerHTML = '<option value="">No branches available</option>';
+                    }
+                })
+                .catch(error => {
+                    branchSelect.innerHTML = '<option value="">Failed to load branches</option>';
+                    console.error('Error fetching branches:', error);
+                });
+        });
+
+        offerImages.addEventListener('change', function() {
+            galleryPreview.innerHTML = '';
+            Array.from(this.files).forEach(file => {
+                if (file.size > 10 * 1024 * 1024) {
+                    toastr.error(`File ${file.name} is larger than 10MB`);
+                    return;
                 }
-            })
-            .catch(error => {
-                branchSelect.innerHTML = '<option value="">Failed to load branches</option>';
-                console.error('Error fetching branches:', error);
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    let img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.classList.add('col-2', 'mb-3', 'img-thumbnail');
+                    galleryPreview.appendChild(img);
+                }
+                reader.readAsDataURL(file);
             });
-    });
+        });
 
-    offerImages.addEventListener('change', function() {
-        galleryPreview.innerHTML = '';
-        Array.from(this.files).forEach(file => {
-            if (file.size > 10 * 1024 * 1024) {
-                toastr.error(`File ${file.name} is larger than 10MB`);
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            console.log('Form submitted');
+
+            let formData = new FormData(this);
+            let totalSize = 0;
+
+            // Calculate total size of all files
+            formData.getAll('offer_images[]').forEach(file => totalSize += file.size);
+            if (formData.get('cover_image')) totalSize += formData.get('cover_image').size;
+            if (formData.get('pdf')) totalSize += formData.get('pdf').size;
+
+            if (totalSize > 128 * 1024 * 1024) {
+                toastr.error('Total file size exceeds 128MB limit');
                 return;
             }
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                let img = document.createElement('img');
-                img.src = e.target.result;
-                img.classList.add('col-2', 'mb-3', 'img-thumbnail');
-                galleryPreview.appendChild(img);
-            }
-            reader.readAsDataURL(file);
-        });
-    });
 
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        console.log('Form submitted');
-        
-        let formData = new FormData(this);
-        let totalSize = 0;
-        
-        // Calculate total size of all files
-        formData.getAll('offer_images[]').forEach(file => totalSize += file.size);
-        if (formData.get('cover_image')) totalSize += formData.get('cover_image').size;
-        if (formData.get('pdf')) totalSize += formData.get('pdf').size;
-        
-        if (totalSize > 128 * 1024 * 1024) {
-            toastr.error('Total file size exceeds 128MB limit');
-            return;
-        }
+            // Show loading state
+            let submitButton = form.querySelector('button[type="submit"]');
+            let originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
 
-        // Show loading state
-        let submitButton = form.querySelector('button[type="submit"]');
-        let originalButtonText = submitButton.innerHTML;
-        submitButton.disabled = true;
-        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...';
-        
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                'Accept': 'application/json'
-            },
-            credentials: 'same-origin'
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => Promise.reject(err));
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Response:', data);
-            if (data.success) {
-                toastr.success(data.message || 'Offer created successfully');
-                setTimeout(() => {
-                    window.location.href = "{{ route('admin.offers.index') }}";
-                }, 1000); // Wait for 1 second to show the success message
-            } else {
-                toastr.error(data.message || 'Error creating offer');
-                submitButton.disabled = false;
-                submitButton.innerHTML = originalButtonText;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            if (error.errors) {
-                Object.values(error.errors).forEach(messages => {
-                    messages.forEach(message => toastr.error(message));
+            fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => Promise.reject(err));
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response:', data);
+                    if (data.success) {
+                        toastr.success(data.message || 'Offer created successfully');
+                        setTimeout(() => {
+                            window.location.href = "{{ route('admin.offers.index') }}";
+                        }, 1000); // Wait for 1 second to show the success message
+                    } else {
+                        toastr.error(data.message || 'Error creating offer');
+                        submitButton.disabled = false;
+                        submitButton.innerHTML = originalButtonText;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    if (error.errors) {
+                        Object.values(error.errors).forEach(messages => {
+                            messages.forEach(message => toastr.error(message));
+                        });
+                    } else {
+                        toastr.error(error.message || 'An error occurred while creating the offer');
+                    }
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
                 });
-            } else {
-                toastr.error(error.message || 'An error occurred while creating the offer');
-            }
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalButtonText;
         });
     });
-});
 </script>
 
 @endsection

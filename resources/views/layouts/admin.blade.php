@@ -234,7 +234,7 @@
         }
     </style>
 
-    @stack('styles')
+    @yield('styles')
 </head>
 
 <body>
@@ -391,6 +391,13 @@
                         Pages
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{ route('admin.blog.index') }}"
+                        class="nav-link {{ request()->routeIs('admin.blog.*') ? 'active' : '' }}">
+                        <i class="fas fa-blog"></i>
+                        Blog
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -421,7 +428,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <!-- Custom Scripts -->
-    @stack('scripts')
+    @yield('scripts')
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {

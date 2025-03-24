@@ -44,6 +44,14 @@ $remainingDays = \App\Helpers\DateHelper::calculateRemainingDays($offer->end_dat
                     {{ $offer->title }}
                 </a>
             </h5>
+            @if($offer->category)
+                <span class="badge bg-secondary">
+                    @if($offer->category->parent)
+                        {{ $offer->category->parent->name }} &raquo;
+                    @endif
+                    {{ $offer->category->name }}
+                </span>
+            @endif
         </div>
         <div class="d-flex justify-content-between align-items-center pt-1 mt-auto">
             <h6 class="text-muted m-0">Valid: {{ $offer->end_date->format('d M Y') }}</h6>

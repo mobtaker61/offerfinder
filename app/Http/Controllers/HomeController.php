@@ -6,6 +6,8 @@ use App\Models\Market;
 use App\Models\Branch;
 use App\Models\Offer;
 use App\Models\Emirate;
+use App\Models\Post;
+use App\Models\OfferCategory;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -15,8 +17,9 @@ class HomeController extends Controller
         $emirateId = $request->query('emirate_id');
         $marketId = $request->query('market_id');
         $branchId = $request->query('branch_id');
+        $categoryId = $request->query('category_id');
 
-        $offers = Offer::with(['branches.market', 'images'])
+        $offers = Offer::with(['branches.market', 'images', 'category'])
             ->when($emirateId && $emirateId !== 'all', function ($query) use ($emirateId) {
                 return $query->whereHas('branches', function ($query) use ($emirateId) {
                     $query->where('emirate_id', $emirateId);
@@ -32,6 +35,17 @@ class HomeController extends Controller
                     $query->where('id', $branchId);
                 });
             })
+            ->when($categoryId && $categoryId !== 'all', function ($query) use ($categoryId) {
+                $category = OfferCategory::find($categoryId);
+                if ($category) {
+                    if ($category->parent_id) {
+                        $query->where('category_id', $category->id);
+                    } else {
+                        $categoryIds = $category->children->pluck('id')->push($category->id);
+                        $query->whereIn('category_id', $categoryIds);
+                    }
+                }
+            })
             ->get();
 
         $vipOffers = Offer::where('vip', true)->inRandomOrder()->take(3)->get();
@@ -39,6 +53,16 @@ class HomeController extends Controller
         $emirates = Emirate::all();
         $markets = Market::all();
         $branches = Branch::all();
+        $categories = OfferCategory::with('children')->mainCategories()->get();
+
+        $upcomingOffers = Offer::where('start_date', '>', now())
+                              ->orderBy('start_date')
+                              ->take(3)
+                              ->get();
+                              
+        $latestPosts = Post::latest()
+                           ->take(3)
+                           ->get();
 
         if ($request->ajax()) {
             return response()->json([
@@ -48,7 +72,7 @@ class HomeController extends Controller
             ]);
         }
 
-        return view('front.welcome', compact('offers', 'markets', 'branches', 'emirates', 'vipOffers'));
+        return view('front.welcome', compact('offers', 'markets', 'branches', 'emirates', 'vipOffers', 'upcomingOffers', 'latestPosts', 'categories'));
     }
 
     public function list(Request $request)

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Market extends Model
 {
@@ -19,12 +20,33 @@ class Market extends Model
         'android_app_link',
         'ios_app_link',
         'whatsapp',
-        'is_active'
+        'is_active',
+        'slug'
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($market) {
+            $market->slug = $market->slug ?? Str::slug($market->name);
+        });
+
+        static::updating(function ($market) {
+            if ($market->isDirty('name') && !$market->isDirty('slug')) {
+                $market->slug = Str::slug($market->name);
+            }
+        });
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
 
     public function branches(): HasMany
     {

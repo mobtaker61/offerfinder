@@ -13,6 +13,21 @@
     @csrf
 
     <div class="form-group">
+        <label for="parent_id">Parent Category</label>
+        <select class="form-control @error('parent_id') is-invalid @enderror" id="parent_id" name="parent_id">
+            <option value="">None (Main Category)</option>
+            @foreach($categories as $category)
+            <option value="{{ $category->id }}" {{ old('parent_id') == $category->id ? 'selected' : '' }}>
+                {{ $category->name }}
+            </option>
+            @endforeach
+        </select>
+        @error('parent_id')
+        <span class="invalid-feedback">{{ $message }}</span>
+        @enderror
+    </div>
+
+    <div class="form-group">
         <label for="name">Name</label>
         <input type="text"
             class="form-control @error('name') is-invalid @enderror"
@@ -21,6 +36,18 @@
             value="{{ old('name') }}"
             required>
         @error('name')
+        <span class="invalid-feedback">{{ $message }}</span>
+        @enderror
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+            class="form-control @error('description') is-invalid @enderror"
+            id="description"
+            name="description"
+            rows="3">{{ old('description') }}</textarea>
+        @error('description')
         <span class="invalid-feedback">{{ $message }}</span>
         @enderror
     </div>
@@ -44,7 +71,7 @@
             class="form-control @error('color') is-invalid @enderror"
             id="color"
             name="color"
-            value="{{ old('color') }}">
+            value="{{ old('color', '#000000') }}">
         @error('color')
         <span class="invalid-feedback">{{ $message }}</span>
         @enderror
