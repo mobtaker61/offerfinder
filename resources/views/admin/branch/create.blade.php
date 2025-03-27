@@ -263,6 +263,26 @@
                     @enderror
                 </div>
             </div>
+
+            <!-- Branch Admin Assignment -->
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="branch_admin_id">Branch Admin</label>
+                    <select class="form-control @error('branch_admin_id') is-invalid @enderror" 
+                            id="branch_admin_id" 
+                            name="branch_admin_id">
+                        <option value="">Select Branch Admin</option>
+                        @foreach($branchAdmins as $admin)
+                            <option value="{{ $admin->id }}" {{ old('branch_admin_id') == $admin->id ? 'selected' : '' }}>
+                                {{ $admin->name }} ({{ $admin->email }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('branch_admin_id')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+            </div>
             <div class="mt-4">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Create Branch

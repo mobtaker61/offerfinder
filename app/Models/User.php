@@ -3,7 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\HasCachedPermissions;
+use App\Traits\HasRoleBasedUI;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -11,7 +14,15 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasCachedPermissions, HasRoleBasedUI;
+
+    // User Types
+    public const TYPE_WEBMASTER = 'webmaster';
+    public const TYPE_ADMIN = 'admin';
+    public const TYPE_MARKET_ADMIN = 'market_admin';
+    public const TYPE_BRANCH_ADMIN = 'branch_admin';
+    public const TYPE_USER = 'user';
+    public const TYPE_GUEST = 'guest';
 
     /**
      * The attributes that are mass assignable.
@@ -67,15 +78,6 @@ class User extends Authenticatable
     ];
 
     /**
-     * User types constants
-     */
-    const TYPE_WEBMASTER = 'webmaster';
-    const TYPE_ADMIN = 'admin';
-    const TYPE_MANAGER = 'manager';
-    const TYPE_STAFF = 'staff';
-    const TYPE_USER = 'user';
-
-    /**
      * Get all available user types
      *
      * @return array
@@ -84,10 +86,11 @@ class User extends Authenticatable
     {
         return [
             self::TYPE_WEBMASTER => 'Webmaster',
-            self::TYPE_ADMIN => 'Admin',
-            self::TYPE_MANAGER => 'Manager',
-            self::TYPE_STAFF => 'Staff',
+            self::TYPE_ADMIN => 'Admin User',
+            self::TYPE_MARKET_ADMIN => 'Market Admin',
+            self::TYPE_BRANCH_ADMIN => 'Branch Admin',
             self::TYPE_USER => 'User',
+            self::TYPE_GUEST => 'Guest',
         ];
     }
 
@@ -98,7 +101,7 @@ class User extends Authenticatable
      */
     public function isWebmaster(): bool
     {
-        return $this->user_type === self::TYPE_WEBMASTER;
+        return $this->getCachedPermission('is_webmaster');
     }
 
     /**
@@ -108,27 +111,27 @@ class User extends Authenticatable
      */
     public function isAdmin(): bool
     {
-        return $this->user_type === self::TYPE_ADMIN;
+        return $this->getCachedPermission('is_admin');
     }
 
     /**
-     * Check if user is manager
+     * Check if user is market admin
      *
      * @return bool
      */
-    public function isManager(): bool
+    public function isMarketAdmin(): bool
     {
-        return $this->user_type === self::TYPE_MANAGER;
+        return $this->getCachedPermission('is_market_admin');
     }
 
     /**
-     * Check if user is staff
+     * Check if user is branch admin
      *
      * @return bool
      */
-    public function isStaff(): bool
+    public function isBranchAdmin(): bool
     {
-        return $this->user_type === self::TYPE_STAFF;
+        return $this->getCachedPermission('is_branch_admin');
     }
 
     /**
@@ -138,7 +141,17 @@ class User extends Authenticatable
      */
     public function isUser(): bool
     {
-        return $this->user_type === self::TYPE_USER;
+        return $this->getCachedPermission('is_user');
+    }
+
+    /**
+     * Check if user is guest
+     *
+     * @return bool
+     */
+    public function isGuest(): bool
+    {
+        return $this->getCachedPermission('is_guest');
     }
 
     /**
@@ -148,26 +161,99 @@ class User extends Authenticatable
      */
     public function hasAdminPrivileges(): bool
     {
-        return in_array($this->user_type, [self::TYPE_WEBMASTER, self::TYPE_ADMIN]);
+        return $this->getCachedPermission('has_admin_privileges');
     }
 
     /**
-     * Check if user has manager privileges
+     * Check if user has market admin privileges
      *
      * @return bool
      */
-    public function hasManagerPrivileges(): bool
+    public function hasMarketAdminPrivileges(): bool
     {
-        return in_array($this->user_type, [self::TYPE_WEBMASTER, self::TYPE_ADMIN, self::TYPE_MANAGER]);
+        return $this->getCachedPermission('has_market_admin_privileges');
     }
 
     /**
-     * Check if user has staff privileges
+     * Check if user has branch admin privileges
      *
      * @return bool
      */
-    public function hasStaffPrivileges(): bool
+    public function hasBranchAdminPrivileges(): bool
     {
-        return in_array($this->user_type, [self::TYPE_WEBMASTER, self::TYPE_ADMIN, self::TYPE_MANAGER, self::TYPE_STAFF]);
+        return $this->getCachedPermission('has_branch_admin_privileges');
+    }
+
+    /**
+     * Check if user has user panel access
+     *
+     * @return bool
+     */
+    public function hasUserPanelAccess(): bool
+    {
+        return $this->getCachedPermission('has_user_panel_access');
+    }
+
+    /**
+     * Check if user has public content access
+     *
+     * @return bool
+     */
+    public function hasPublicContentAccess(): bool
+    {
+        return $this->getCachedPermission('has_public_content_access');
+    }
+
+    /**
+     * Get the user's permission groups
+     */
+    public function permissionGroups()
+    {
+        return $this->belongsToMany(PermissionGroup::class, 'user_permission_groups')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the markets assigned to the user
+     */
+    public function markets()
+    {
+        return $this->belongsToMany(Market::class, 'user_market_assignments')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the branches assigned to the user
+     */
+    public function branches()
+    {
+        return $this->belongsToMany(Branch::class, 'user_branch_assignments')
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if user has a specific permission
+     */
+    public function hasPermission(string $permission): bool
+    {
+        // Check user type permissions first
+        if ($this->getCachedPermission($permission)) {
+            return true;
+        }
+
+        // Then check permission groups
+        return $this->permissionGroups()
+            ->whereJsonContains('permissions', $permission)
+            ->exists();
+    }
+
+    /**
+     * The "booted" method of the model.
+     */
+    protected static function booted(): void
+    {
+        static::updated(function ($user) {
+            $user->clearPermissionCache();
+        });
     }
 }

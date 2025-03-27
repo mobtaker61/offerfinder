@@ -19,6 +19,16 @@
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    <!-- Firebase App (the core Firebase SDK) -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <!-- Add Firebase products that you want to use -->
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
+
+    <!-- Custom Firebase Initialization -->
+    <script src="{{ asset('js/firebase-init.js') }}"></script>
+
     <style>
         body {
             overflow-x: hidden;
@@ -238,22 +248,66 @@
         /* Add these new styles */
         .modal-backdrop {
             z-index: 1040;
+            opacity: 0.5;
         }
 
         .modal {
             z-index: 1050;
+            padding-right: 0 !important;
         }
 
         .modal-dialog {
             z-index: 1051;
+            margin: 1.75rem auto;
         }
 
         .modal-content {
             z-index: 1052;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
         }
 
         .dropdown-menu {
             z-index: 1060;
+        }
+        
+        /* Prevent body shifting when modal opens */
+        body.modal-open {
+            overflow: hidden;
+            padding-right: 0 !important;
+        }
+        
+        /* Fix for multiple modal backdrops */
+        .modal-backdrop + .modal-backdrop {
+            display: none;
+        }
+        
+        /* Center modals properly */
+        .modal {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-dialog {
+            margin: 0;
+            max-width: 500px;
+            width: 100%;
+        }
+        
+        /* Prevent backdrop problems */
+        .modal-static .modal-dialog {
+            transform: scale(1.02);
+            transition: transform 0.3s ease-out;
+        }
+        
+        /* Make sure modals remain above other elements */
+        .modal, .modal-backdrop {
+            transition: opacity 0.15s linear;
+        }
+        
+        /* Fix for Bootstrap modal padding issue */
+        .modal.show .modal-dialog {
+            transform: none !important;
         }
     </style>
 
@@ -464,11 +518,29 @@
 
                 <!-- User Management -->
                 <li class="nav-item">
-                    <a href="{{ route('admin.users.index') }}"
-                        class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#userMenu" role="button">
                         <i class="fas fa-users"></i>
-                        Users
+                        User Management
+                        <i class="fas fa-chevron-down ms-auto"></i>
                     </a>
+                    <div class="collapse {{ request()->routeIs('admin.users.*') || request()->routeIs('admin.permission-groups.*') ? 'show' : '' }}" id="userMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.users.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                                    <i class="fas fa-user"></i>
+                                    Users
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.permission-groups.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.permission-groups.*') ? 'active' : '' }}">
+                                    <i class="fas fa-user-shield"></i>
+                                    Permission Groups
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -498,12 +570,127 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    
+    <!-- Direct modal handler - fixes all modal issues -->
+    <script>
+        // Wait for DOM and Bootstrap to be fully loaded
+        window.addEventListener('load', function() {
+            // First remove all existing modal backdrops and cleanup
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open').css({overflow: '', paddingRight: ''});
+            
+            // Remove all existing click handlers on modal triggers
+            $(document).off('click.bs.modal.data-api', '[data-bs-toggle="modal"]');
+            $('[data-bs-toggle="modal"]').off('click');
+            
+            // Pages now use .modal-trigger class for their buttons
+            // Leaving this handler for backward compatibility
+            $(document).on('click', '[data-bs-toggle="modal"]:not(.modal-trigger)', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Get the target modal ID
+                const targetId = $(this).data('bs-target') || $(this).attr('href');
+                if (!targetId) return;
+                
+                // Get the modal element
+                const modalEl = document.querySelector(targetId);
+                if (!modalEl) return;
+                
+                // First clean up any open modals
+                $('.modal.show').each(function() {
+                    const instance = bootstrap.Modal.getInstance(this);
+                    if (instance) {
+                        instance.hide();
+                    }
+                });
+                
+                // Force clean up backdrops and body class
+                $('.modal-backdrop').remove();
+                $('body').removeClass('modal-open').css({overflow: '', paddingRight: ''});
+                
+                // Make sure modal has proper classes and is centered
+                $(modalEl).addClass('fade');
+                $(modalEl).find('.modal-dialog').addClass('modal-dialog-centered');
+                
+                // Ensure proper accessibility - remove aria-hidden when shown
+                $(modalEl).attr('aria-hidden', 'false');
+                
+                $(modalEl).css({
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                });
+                
+                // Dispose any existing modal instance to avoid conflicts
+                const existingModal = bootstrap.Modal.getInstance(modalEl);
+                if (existingModal) {
+                    existingModal.dispose();
+                }
+                
+                // Create and show a new modal instance
+                const modal = new bootstrap.Modal(modalEl, {
+                    backdrop: true,
+                    keyboard: true,
+                    focus: true
+                });
+                
+                modal.show();
+                
+                // Fix accessibility after modal is shown
+                setTimeout(function() {
+                    $(modalEl).attr('aria-hidden', 'false');
+                    // Set focus to first focusable element
+                    const focusable = $(modalEl).find('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])').first();
+                    if (focusable.length) {
+                        focusable.focus();
+                    }
+                }, 300);
+                
+                // Prevent event from bubbling up to parent elements
+                return false;
+            });
+            
+            // Make sure modals are properly cleaned up when closed
+            $('.modal').on('hidden.bs.modal', function() {
+                // First check if any maps need to be cleaned
+                const mapEl = this.querySelector('[id^="map"]');
+                if (mapEl) {
+                    mapEl.innerHTML = '';
+                }
+                
+                // Reset aria attributes
+                $(this).attr('aria-hidden', 'true');
+                
+                // Then clean up modal backdrop
+                setTimeout(function() {
+                    if ($('.modal.show').length === 0) {
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open').css({overflow: '', paddingRight: ''});
+                    }
+                }, 100);
+            });
+            
+            // Add escape key handler to force close modals if stuck
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' && ($('.modal.show').length > 0 || $('.modal-backdrop').length > 0)) {
+                    $('.modal.show').each(function() {
+                        const instance = bootstrap.Modal.getInstance(this);
+                        if (instance) instance.hide();
+                    });
+                    
+                    setTimeout(function() {
+                        $('.modal-backdrop').remove();
+                        $('body').removeClass('modal-open').css({overflow: '', paddingRight: ''});
+                    }, 100);
+                }
+            });
+        });
+    </script>
 
     <!-- Custom Scripts -->
-    @yield('scripts')
-
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('load', function() {
             // Initialize Select2
             if ($.fn.select2) {
                 $('.select2').select2({
@@ -589,24 +776,6 @@
                 });
             }
 
-            // Initialize all modals
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(modal => {
-                if (modal) {
-                    modal.addEventListener('hidden.bs.modal', function() {
-                        // Remove the backdrop
-                        const backdrop = document.querySelector('.modal-backdrop');
-                        if (backdrop) {
-                            backdrop.remove();
-                        }
-                        // Remove the modal-open class from body
-                        document.body.classList.remove('modal-open');
-                        document.body.style.overflow = '';
-                        document.body.style.paddingRight = '';
-                    });
-                }
-            });
-            
             // Responsive handling
             const handleResize = function() {
                 if (window.innerWidth >= 768) {
@@ -624,7 +793,7 @@
 
     @if(session('success'))
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('load', function() {
             const toastElement = document.getElementById('statusToast');
             if (toastElement) {
                 const toast = new bootstrap.Toast(toastElement);
@@ -635,28 +804,7 @@
     </script>
     @endif
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        import {
-            initializeApp
-        } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
-        import {
-            getMessaging
-        } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-messaging.js";
-
-        const firebaseConfig = {
-            apiKey: "{{ config('services.firebase.api_key') }}",
-            authDomain: "{{ config('services.firebase.auth_domain') }}",
-            projectId: "{{ config('services.firebase.project_id') }}",
-            storageBucket: "{{ config('services.firebase.storage_bucket') }}",
-            messagingSenderId: "{{ config('services.firebase.messaging_sender_id') }}",
-            appId: "{{ config('services.firebase.app_id') }}"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const messaging = getMessaging(app);
-    </script>
+    @yield('scripts')
 </body>
 
 </html>

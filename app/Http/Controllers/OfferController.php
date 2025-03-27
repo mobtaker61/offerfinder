@@ -18,9 +18,14 @@ use App\Models\Emirate;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use App\Models\OfferCategory;
+use App\Services\AuditLogService;
+use Illuminate\Support\Facades\Auth;
 
 class OfferController extends Controller
 {
+    public function __construct(private AuditLogService $auditLog)
+    {}
+
     public function index(Request $request)
     {
         $query = Offer::with(['market', 'branches', 'category.parent']);
@@ -128,6 +133,16 @@ class OfferController extends Controller
 
             DB::commit();
 
+            // Log the change
+            $this->auditLog->log(
+                Auth::user(),
+                'create',
+                $offer,
+                [],
+                $offer->toArray(),
+                $request
+            );
+
             return response()->json([
                 'success' => true,
                 'message' => 'Offer created successfully',
@@ -169,6 +184,8 @@ class OfferController extends Controller
             'offer_images.*' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
         ]);
 
+        $oldValues = $offer->toArray();
+        
         try {
             DB::beginTransaction();
 
@@ -222,7 +239,17 @@ class OfferController extends Controller
 
             DB::commit();
 
-           return response()->json(['success' => true,'message' => 'Offer updated successfully','redirect' => route('admin.offers.index')]);
+            // Log the change
+            $this->auditLog->log(
+                Auth::user(),
+                'update',
+                $offer,
+                $oldValues,
+                $offer->toArray(),
+                $request
+            );
+
+            return response()->json(['success' => true,'message' => 'Offer updated successfully','redirect' => route('admin.offers.index')]);
 
         } catch (\Exception $e) {
             DB::rollBack();

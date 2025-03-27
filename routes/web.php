@@ -5,11 +5,14 @@ use App\Http\Controllers\Admin\BranchController as AdminBranchController;
 use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
+use App\Http\Controllers\Admin\PermissionGroupController as AdminPermissionGroupController;
+use App\Http\Controllers\Admin\UserManagementController as AdminUserManagementController;
+use App\Http\Controllers\Front\MarketController;
+use App\Http\Controllers\Front\PageController as FrontPageController;
 use App\Http\Controllers\NewsletterController;
 use App\Http\Controllers\BranchController;
 use App\Http\Controllers\EmirateController;
 use App\Http\Controllers\FcmTokenController;
-use App\Http\Controllers\Front\MarketController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\OfferController;
 use App\Http\Controllers\OfferImageController;
@@ -18,8 +21,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DistrictController;
 use App\Http\Controllers\NeighbourController;
 use App\Http\Controllers\OfferCategoryController;
-use Illuminate\Support\Facades\View;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\SitemapController;
 
 // Front Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -63,17 +66,6 @@ Route::group(['prefix' => 'market', 'as' => 'front.market.'], function () {
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
-    // Define market routes explicitly
-    Route::get('/markets', [AdminMarketController::class, 'index'])->name('markets.index');
-    Route::get('/markets/create', [AdminMarketController::class, 'create'])->name('markets.create');
-    Route::post('/markets', [AdminMarketController::class, 'store'])->name('markets.store');
-    Route::get('/markets/{market}/edit', [AdminMarketController::class, 'edit'])->name('markets.edit');
-    Route::put('/markets/{market}', [AdminMarketController::class, 'update'])->name('markets.update');
-    Route::delete('/markets/{market}', [AdminMarketController::class, 'destroy'])->name('markets.destroy');
-    
-    // Keep your existing toggle status route
-    Route::post('markets/{market}/toggle-status', [AdminMarketController::class, 'toggleStatus'])->name('markets.toggle-status');
-    
     // Offers routes
     Route::resource('offers', OfferController::class);
     Route::post('offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip'])->name('offers.toggle-vip');
@@ -92,16 +84,37 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::resource('blog', AdminBlogController::class);
 
     // User Management Routes
-    Route::resource('users', \App\Http\Controllers\Admin\UserManagementController::class);
-    Route::patch('users/{user}/toggle-active', [\App\Http\Controllers\Admin\UserManagementController::class, 'toggleActive'])->name('users.toggle-active');
+    Route::resource('users', AdminUserManagementController::class);
+    Route::patch('users/{user}/toggle-active', [AdminUserManagementController::class, 'toggleActive'])->name('users.toggle-active');
+
+    // Permission Groups Routes
+    Route::resource('permission-groups', AdminPermissionGroupController::class)->parameters([
+        'permission-groups' => 'group'
+    ]);
+
+    // Market routes
+    Route::resource('markets', AdminMarketController::class);
+    Route::post('markets/{market}/toggle-status', [AdminMarketController::class, 'toggleStatus'])->name('markets.toggle-status');
+    Route::post('markets/{market}/assign-admin', [AdminMarketController::class, 'assignAdmin'])->name('markets.assign-admin');
+    Route::post('markets/{market}/remove-admin', [AdminMarketController::class, 'removeAdmin'])->name('markets.remove-admin');
+    Route::get('markets/{market}/get-admins', [AdminMarketController::class, 'getAdmins'])->name('markets.get-admins');
+    Route::get('markets/{market}/branches', [AdminMarketController::class, 'getBranches'])->name('markets.branches');
+
+    // Branch routes
+    Route::resource('branches', AdminBranchController::class);
+    Route::post('branches/{branch}/assign-admin', [AdminBranchController::class, 'assignAdmin'])->name('branches.assign-admin');
+    Route::post('branches/{branch}/remove-admin', [AdminBranchController::class, 'removeAdmin'])->name('branches.remove-admin');
+    Route::get('branches/{branch}/get-admins', [AdminBranchController::class, 'getAdmins'])->name('branches.get-admins');
+    Route::get('branches/{branch}/contacts', [AdminBranchController::class, 'getContacts'])->name('branches.contacts');
+    Route::get('branches/{branch}/areas', [AdminBranchController::class, 'getAreas'])->name('branches.areas');
 });
 
 // Pages
-Route::get('pages/{slug}', [App\Http\Controllers\Front\PageController::class, 'show'])->name('pages.show');
+Route::get('pages/{slug}', [FrontPageController::class, 'show'])->name('pages.show');
 
 // Sitemap Routes
-Route::get('sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap.xml');
-Route::get('sitemap/generate', [App\Http\Controllers\SitemapController::class, 'generate'])->name('sitemap.generate');
+Route::get('sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.xml');
+Route::get('sitemap/generate', [SitemapController::class, 'generate'])->name('sitemap.generate');
 
 // Blog Routes
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');

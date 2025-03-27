@@ -77,6 +77,24 @@
                         <label class="form-check-label" for="is_active">Active</label>
                     </div>
                 </div>
+
+                <!-- Market Admin Assignment -->
+                <div class="mb-3">
+                    <label for="market_admin_id" class="form-label">Market Admin</label>
+                    <select class="form-control @error('market_admin_id') is-invalid @enderror" 
+                            id="market_admin_id" 
+                            name="market_admin_id">
+                        <option value="">Select Market Admin</option>
+                        @foreach($marketAdmins as $admin)
+                            <option value="{{ $admin->id }}" {{ old('market_admin_id') == $admin->id ? 'selected' : '' }}>
+                                {{ $admin->name }} ({{ $admin->email }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('market_admin_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
 
             <div class="col-md-6">

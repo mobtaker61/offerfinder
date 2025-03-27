@@ -63,4 +63,10 @@ class Market extends Model
     {
         return $this->hasMany(Offer::class);
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_market_assignments')
+            ->withTimestamps();
+    }
 }

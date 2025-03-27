@@ -7,8 +7,32 @@
     <div class="card-body">
         <h2 class="card-title">Push Notifications</h2>
 
-        <a href="{{ route('notifications.create') }}" class="btn btn-primary mb-3">Send New Notification</a>
+        <form action="{{ route('admin.notifications.store') }}" method="POST" class="mb-4">
+            @csrf
+            <div class="mb-3">
+                <label for="title" class="form-label">Notification Title</label>
+                <input type="text" class="form-control" id="title" name="title" required>
+            </div>
+            <div class="mb-3">
+                <label for="message" class="form-label">Notification Message</label>
+                <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Notification</button>
+        </form>
 
+        @if(session('success'))
+            <div class="alert alert-success">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
+
+        <h3 class="mt-4">Previous Notifications</h3>
         <table class="table table-bordered">
             <thead class="table-light">
                 <tr>

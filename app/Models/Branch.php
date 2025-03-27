@@ -61,4 +61,23 @@ class Branch extends Model
     {
         return $this->hasMany(BranchContactProfile::class);
     }
+
+    /**
+     * The users that belong to the branch.
+     */
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'user_branch_assignments')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the branch admins.
+     */
+    public function admins()
+    {
+        return $this->belongsToMany(User::class, 'user_branch_assignments')
+            ->where('user_type', User::TYPE_BRANCH_ADMIN)
+            ->withTimestamps();
+    }
 }
