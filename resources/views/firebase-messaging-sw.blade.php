@@ -11,7 +11,16 @@ const firebaseConfig = {
     appId: "{{ config('services.firebase.app_id') }}"
 };
 
-firebase.initializeApp(firebaseConfig);
+// Initialize Firebase
+let firebaseApp;
+try {
+    firebaseApp = firebase.initializeApp(firebaseConfig);
+} catch (error) {
+    if (error.code !== 'app/duplicate-app') {
+        console.error('Firebase initialization error:', error);
+    }
+    firebaseApp = firebase.app();
+}
 
 const messaging = firebase.messaging();
 

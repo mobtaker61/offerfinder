@@ -27,6 +27,11 @@ use App\Http\Controllers\SitemapController;
 // Front Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::post('/subscribe', [NewsletterController::class, 'subscribe'])->name('subscribe');
+Route::post('/fcm-tokens', [FcmTokenController::class, 'store'])->name('fcm-tokens.store');
+Route::get('/firebase-messaging-sw.js', function() {
+    return response()->view('firebase-messaging-sw')
+        ->header('Content-Type', 'application/javascript');
+})->name('firebase-messaging-sw');
 Route::get('/get-branches-by-market', [BranchController::class, 'getBranchesByMarket'])->name('getBranchesByMarket');
 Route::get('/get-branches-by-market-and-emirate', [BranchController::class, 'getBranchesByMarketAndEmirate'])->name('getBranchesByMarketAndEmirate');
 Route::get('/get-offers-by-branch', [BranchController::class, 'getOffersByBranch'])->name('getOffersByBranch');

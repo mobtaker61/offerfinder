@@ -65,7 +65,6 @@ return [
         'storage_bucket' => env('FIREBASE_STORAGE_BUCKET'),
         'messaging_sender_id' => env('FIREBASE_MESSAGING_SENDER_ID'),
         'app_id' => env('FIREBASE_APP_ID'),
-        'server_key' => env('FIREBASE_SERVER_KEY'),
         'vapid_key' => env('FIREBASE_VAPID_KEY'),
     ],
 

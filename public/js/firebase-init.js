@@ -79,18 +79,6 @@ messaging.onMessage((payload) => {
     }
 });
 
-// Handle token refresh
-messaging.onTokenRefresh(async () => {
-    try {
-        const token = await messaging.getToken({
-            vapidKey: "{{ env('FIREBASE_VAPID_KEY') }}"
-        });
-        await registerFcmToken(token);
-    } catch (error) {
-        console.error('Error refreshing FCM token:', error);
-    }
-});
-
 // Initialize when document is ready
 document.addEventListener('DOMContentLoaded', () => {
     // Request notification permission

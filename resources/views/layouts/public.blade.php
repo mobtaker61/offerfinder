@@ -296,19 +296,38 @@
     <script>
         // Your web app's Firebase configuration
         const firebaseConfig = {
-            apiKey: "{{ env('FIREBASE_API_KEY') }}",
-            authDomain: "{{ env('FIREBASE_AUTH_DOMAIN') }}",
-            projectId: "{{ env('FIREBASE_PROJECT_ID') }}",
-            storageBucket: "{{ env('FIREBASE_STORAGE_BUCKET') }}",
-            messagingSenderId: "{{ env('FIREBASE_MESSAGING_SENDER_ID') }}",
-            appId: "{{ env('FIREBASE_APP_ID') }}"
+            apiKey: "{{ config('services.firebase.api_key') }}",
+            authDomain: "{{ config('services.firebase.auth_domain') }}",
+            projectId: "{{ config('services.firebase.project_id') }}",
+            storageBucket: "{{ config('services.firebase.storage_bucket') }}",
+            messagingSenderId: "{{ config('services.firebase.messaging_sender_id') }}",
+            appId: "{{ config('services.firebase.app_id') }}"
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        let firebaseApp;
+        try {
+            firebaseApp = firebase.initializeApp(firebaseConfig);
+        } catch (error) {
+            if (error.code !== 'app/duplicate-app') {
+                console.error('Firebase initialization error:', error);
+            }
+            firebaseApp = firebase.app();
+        }
 
         // Initialize Firebase Cloud Messaging
         const messaging = firebase.messaging();
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('{{ route("firebase-messaging-sw") }}')
+                .then(function(registration) {
+                    console.log('Service Worker registered with scope:', registration.scope);
+                })
+                .catch(function(error) {
+                    console.error('Service Worker registration failed:', error);
+                });
+        }
 
         // Request permission and get token
         async function requestNotificationPermission() {
@@ -319,7 +338,8 @@
                 if (permission === 'granted') {
                     // Get FCM token
                     const token = await messaging.getToken({
-                        vapidKey: "{{ env('FIREBASE_VAPID_KEY') }}"
+                        vapidKey: "{{ config('services.firebase.vapid_key') }}",
+                        serviceWorkerRegistration: await navigator.serviceWorker.ready
                     });
 
                     // Send token to server
@@ -340,7 +360,7 @@
         // Register FCM token with server
         async function registerFcmToken(token) {
             try {
-                const response = await fetch('/fcm-tokens', {
+                const response = await fetch('{{ route("fcm-tokens.store") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -372,18 +392,6 @@
                     body: payload.notification.body,
                     icon: '/images/logo.png'
                 });
-            }
-        });
-
-        // Handle token refresh
-        messaging.onTokenRefresh(async () => {
-            try {
-                const token = await messaging.getToken({
-                    vapidKey: "{{ env('FIREBASE_VAPID_KEY') }}"
-                });
-                await registerFcmToken(token);
-            } catch (error) {
-                console.error('Error refreshing FCM token:', error);
             }
         });
 
