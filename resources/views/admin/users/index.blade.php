@@ -24,6 +24,7 @@
                         <th>Email</th>
                         <th>Type</th>
                         <th>Status</th>
+                        <th>Balance</th>
                         <th>Created At</th>
                         <th>Actions</th>
                     </tr>
@@ -57,6 +58,7 @@
                                 </button>
                             </form>
                         </td>
+                        <td>{{ $user->wallet ? number_format($user->wallet->balance, 2) : '0.00' }} AED</td>
                         <td>{{ $user->created_at->format('Y-m-d H:i:s') }}</td>
                         <td>
                             <div class="btn-group">

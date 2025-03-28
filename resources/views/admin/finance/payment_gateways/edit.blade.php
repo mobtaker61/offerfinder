@@ -52,8 +52,22 @@
                         
                         <div class="form-group">
                             <label for="configuration">Configuration (JSON)</label>
-                            <textarea name="configuration" id="configuration" class="form-control" rows="10">{{ old('configuration', json_encode($paymentGateway->configuration, JSON_PRETTY_PRINT)) }}</textarea>
+                            <textarea name="configuration" id="configuration" class="form-control" rows="10">{{ old('configuration', $paymentGateway->configuration ? json_encode($paymentGateway->configuration, JSON_PRETTY_PRINT) : '{}') }}</textarea>
                             <small class="form-text text-muted">Configuration settings in JSON format (API keys, credentials, etc.)</small>
+                            
+                            @if($paymentGateway->code === 'ziina')
+                            <div class="mt-3 p-3 bg-light border rounded">
+                                <h5>Ziina Configuration Example:</h5>
+                                <p>To integrate with Ziina payment gateway, provide the following configuration in JSON format:</p>
+                                <pre class="bg-white p-2">
+{
+    "access_token": "YOUR_ZIINA_ACCESS_TOKEN",
+    "webhook_url": "{{ url('webhooks/ziina') }}"
+}
+</pre>
+                                <p class="mt-2 mb-0"><small>You can get your Ziina access token by following <a href="https://docs.ziina.com/custom-integration" target="_blank">Ziina's documentation</a>.</small></p>
+                            </div>
+                            @endif
                         </div>
                         
                         <div class="form-check mb-3">

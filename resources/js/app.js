@@ -2,35 +2,25 @@ import './bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-// Import other dependencies as needed
-// Import Select2 if installed
-try {
-    require('select2');
-    require('select2/dist/css/select2.min.css');
-} catch (e) {
-    console.warn('Select2 not found, skipping import');
-}
+// Import Selectと directly to window
+window.$ = window.jQuery = require('jquery');
+require('select2');
 
-// Import Toastr if installed
+// Import other libraries
 try {
     require('toastr');
-    require('toastr/build/toastr.min.css');
 } catch (e) {
-    console.warn('Toastr not found, skipping import');
+    console.warn('Toastr not found');
 }
 
-// Import DataTables if installed
 try {
     require('datatables.net-bs5');
-    require('datatables.net-bs5/css/dataTables.bootstrap5.css');
 } catch (e) {
-    console.warn('DataTables not found, skipping import');
+    console.warn('DataTables not found');
 }
 
 import Alpine from 'alpinejs';
-
 window.Alpine = Alpine;
-
 Alpine.start();
 
 import { initializeApp } from "firebase/app";

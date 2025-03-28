@@ -97,6 +97,21 @@ class PaymentGatewayController extends Controller
         $validated['is_active'] = $request->has('is_active');
         $validated['is_test_mode'] = $request->has('is_test_mode');
         
+        // Special handling for Ziina configuration
+        if ($paymentGateway->code === 'ziina' && !empty($validated['configuration'])) {
+            $config = json_decode($validated['configuration'], true);
+            
+            // Ensure configuration is valid
+            if (json_last_error() === JSON_ERROR_NONE) {
+                // Make sure the access_token exists
+                if (empty($config['access_token']) && $validated['is_test_mode']) {
+                    // If in test mode and no token, add a default test token
+                    $config['access_token'] = 'test_access_token_for_development';
+                    $validated['configuration'] = json_encode($config);
+                }
+            }
+        }
+        
         // Update the payment gateway
         $paymentGateway->update($validated);
         
@@ -149,5 +164,34 @@ class PaymentGatewayController extends Controller
         
         return redirect()->route('admin.finance.payment-gateways.index')
             ->with('success', "Payment gateway switched to {$mode} mode successfully");
+    }
+
+    /**
+     * Create a default Ziina payment gateway.
+     */
+    public function createDefaultZiina()
+    {
+        // Check if Ziina gateway already exists
+        if (PaymentGateway::where('code', 'ziina')->exists()) {
+            return redirect()->route('admin.finance.payment-gateways.index')
+                ->with('info', 'Ziina payment gateway already exists.');
+        }
+        
+        // Create default Ziina gateway with test configuration
+        PaymentGateway::create([
+            'name' => 'Ziina',
+            'display_name' => 'Ziina Payment Gateway',
+            'code' => 'ziina',
+            'description' => 'Accept payments with Ziina payment gateway.',
+            'is_active' => true,
+            'is_test_mode' => true,
+            'configuration' => json_encode([
+                'access_token' => 'test_access_token_for_development',
+                'webhook_url' => url('webhooks/ziina')
+            ])
+        ]);
+        
+        return redirect()->route('admin.finance.payment-gateways.index')
+            ->with('success', 'Default Ziina payment gateway created successfully.');
     }
 }

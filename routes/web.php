@@ -24,6 +24,10 @@ use App\Http\Controllers\NeighbourController;
 use App\Http\Controllers\OfferCategoryController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\WalletController;
+use App\Http\Controllers\Admin\FinanceController as AdminFinanceController;
+use App\Http\Controllers\Admin\PaymentGatewayController;
 
 // Front Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -60,6 +64,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::patch('/profile/notifications', [ProfileController::class, 'updateNotifications'])->name('profile.notifications.update');
+    
+    // Wallet Routes
+    Route::post('/wallet/add-funds', [WalletController::class, 'addFunds'])->name('wallet.add-funds');
+    Route::get('/wallet/transactions', [WalletController::class, 'transactions'])->name('wallet.transactions');
 });
 
 Route::group(['prefix' => 'market', 'as' => 'front.market.'], function () {
@@ -96,17 +104,10 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('finance/payment-methods/{paymentMethod}/toggle-active', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'toggleActive'])->name('finance.payment-methods.toggle-active');
     
     // Payment Gateways routes
-    Route::resource('finance/payment-gateways', \App\Http\Controllers\Admin\PaymentGatewayController::class)->names([
-        'index' => 'finance.payment-gateways.index',
-        'create' => 'finance.payment-gateways.create',
-        'store' => 'finance.payment-gateways.store',
-        'show' => 'finance.payment-gateways.show',
-        'edit' => 'finance.payment-gateways.edit',
-        'update' => 'finance.payment-gateways.update',
-        'destroy' => 'finance.payment-gateways.destroy',
-    ]);
-    Route::post('finance/payment-gateways/{paymentGateway}/toggle-active', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'toggleActive'])->name('finance.payment-gateways.toggle-active');
-    Route::post('finance/payment-gateways/{paymentGateway}/toggle-test-mode', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'toggleTestMode'])->name('finance.payment-gateways.toggle-test-mode');
+    Route::resource('finance/payment-gateways', PaymentGatewayController::class)->names('finance.payment-gateways');
+    Route::post('finance/payment-gateways/{paymentGateway}/toggle-active', [PaymentGatewayController::class, 'toggleActive'])->name('finance.payment-gateways.toggle-active');
+    Route::post('finance/payment-gateways/{paymentGateway}/toggle-test-mode', [PaymentGatewayController::class, 'toggleTestMode'])->name('finance.payment-gateways.toggle-test-mode');
+    Route::get('finance/default-ziina', [PaymentGatewayController::class, 'createDefaultZiina'])->name('finance.payment-gateways.create-default-ziina');
 
     // Offers routes
     Route::resource('offers', OfferController::class);
@@ -177,5 +178,12 @@ Route::get('sitemap/generate', [SitemapController::class, 'generate'])->name('si
 // Blog Routes
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
+
+// Payment Routes
+Route::get('/payment/ziina/{transactionId}', [PaymentController::class, 'initializeZiinaPayment'])->name('payment.ziina.initialize');
+Route::get('/payment/success', [PaymentController::class, 'handleSuccess'])->name('payment.success');
+Route::get('/payment/cancel', [PaymentController::class, 'handleCancel'])->name('payment.cancel');
+Route::get('/payment/failure', [PaymentController::class, 'handleFailure'])->name('payment.failure');
+Route::post('/webhooks/ziina', [PaymentController::class, 'handleWebhook'])->name('webhook.ziina');
 
 require __DIR__ . '/auth.php';

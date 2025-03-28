@@ -109,7 +109,7 @@
                         <span class="progress-text">Deposits</span>
                         <span class="float-right"><b>{{ number_format($totalDeposits, 2) }}</b> AED ({{ number_format($depositPercentage, 1) }}%)</span>
                         <div class="progress progress-sm">
-                            <div class="progress-bar bg-success" style="width: {{ $depositPercentage }}%"></div>
+                            <div class="progress-bar bg-success" style="width: <?php echo $depositPercentage; ?>%"></div>
                         </div>
                     </div>
                     
@@ -117,7 +117,7 @@
                         <span class="progress-text">Withdrawals</span>
                         <span class="float-right"><b>{{ number_format($totalWithdrawals, 2) }}</b> AED ({{ number_format($withdrawalPercentage, 1) }}%)</span>
                         <div class="progress progress-sm">
-                            <div class="progress-bar bg-danger" style="width: {{ $withdrawalPercentage }}%"></div>
+                            <div class="progress-bar bg-danger" style="width: <?php echo $withdrawalPercentage; ?>%"></div>
                         </div>
                     </div>
                 </div>
@@ -220,14 +220,14 @@
 </div>
 @endsection
 
-@push('scripts')
+@section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Chart data
-        const months = {!! json_encode($months) !!};
-        const depositData = {!! json_encode($depositData) !!};
-        const withdrawalData = {!! json_encode($withdrawalData) !!};
+        const months = JSON.parse('<?php echo json_encode($months); ?>');
+        const depositData = JSON.parse('<?php echo json_encode($depositData); ?>');
+        const withdrawalData = JSON.parse('<?php echo json_encode($withdrawalData); ?>');
         
         const ctx = document.getElementById('transactionChart').getContext('2d');
         new Chart(ctx, {
@@ -279,6 +279,14 @@
                 }
             }
         });
+
+        // Ensure modals are not aria-hidden when shown
+        $('#deleteModal1').on('show.bs.modal', function (e) {
+            $(this).attr('aria-hidden', 'false');
+        });
+        $('#deleteModal1').on('hide.bs.modal', function (e) {
+            $(this).attr('aria-hidden', 'true');
+        });
     });
 </script>
-@endpush 
+@endsection 

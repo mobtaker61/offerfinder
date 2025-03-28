@@ -56,6 +56,10 @@
                                             <th>Last Updated</th>
                                             <td>{{ $user->updated_at->format('Y-m-d H:i:s') }}</td>
                                         </tr>
+                                        <tr>
+                                            <th>Balance</th>
+                                            <td>{{ $user->wallet ? number_format($user->wallet->balance, 2) : '0.00' }} AED</td>
+                                        </tr>
                                     </table>
                                 </div>
                                 <div class="col-md-6">

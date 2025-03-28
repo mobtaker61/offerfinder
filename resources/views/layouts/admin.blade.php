@@ -13,6 +13,7 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
     <!-- Styles -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
@@ -246,13 +247,11 @@
 
         /* Add these new styles */
         .modal-backdrop {
-            z-index: 1040;
-            opacity: 0.5;
+            z-index: 1040 !important;
         }
 
         .modal {
-            z-index: 1050;
-            padding-right: 0 !important;
+            z-index: 1050 !important;
         }
 
         .modal-dialog {
@@ -307,6 +306,20 @@
         /* Fix for Bootstrap modal padding issue */
         .modal.show .modal-dialog {
             transform: none !important;
+        }
+
+        /* Ensure links and buttons are clickable */
+        .main-content a, 
+        .main-content button,
+        .main-content input[type="submit"],
+        .main-content .btn {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Ensure proper stacking context */
+        table {
+            z-index: auto !important;
         }
     </style>
 
@@ -653,6 +666,32 @@
         </div>
     </div>
 
+    <!-- Modal content -->
+    <div id="debugOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; color:#fff; padding:20px; overflow:auto;">
+        <h2>Debug Information</h2>
+        <button onclick="document.getElementById('debugOverlay').style.display='none'" style="position:absolute; top:10px; right:10px; background:#f00; color:#fff; border:none; padding:5px 10px;">Close</button>
+        
+        <div>
+            <h3>Active Event Listeners:</h3>
+            <pre id="debugEventInfo" style="background:#333; padding:10px; max-height:300px; overflow:auto;"></pre>
+        </div>
+        
+        <div>
+            <h3>DOM Structure:</h3>
+            <pre id="debugDomInfo" style="background:#333; padding:10px; max-height:300px; overflow:auto;"></pre>
+        </div>
+        
+        <div>
+            <h3>Z-Index Stacking:</h3>
+            <pre id="debugZIndexInfo" style="background:#333; padding:10px; max-height:300px; overflow:auto;"></pre>
+        </div>
+        
+        <div>
+            <h3>Fix All Elements</h3>
+            <button onclick="window.fixAllClickableElements && window.fixAllClickableElements()" style="background:#0a0; color:#fff; border:none; padding:5px 10px;">Fix Now</button>
+        </div>
+    </div>
+
     <!-- Core Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
@@ -662,18 +701,66 @@
     
     <!-- Direct modal handler - fixes all modal issues -->
     <script>
-        // Initialize modals properly
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('[data-bs-toggle="modal"]').forEach(function(element) {
-                element.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('data-bs-target') || this.getAttribute('href');
-                    const modalElement = document.querySelector(targetId);
-                    if (modalElement) {
-                        const modal = new bootstrap.Modal(modalElement);
-                        modal.show();
+            // Clean up modal elements on page load
+            function cleanModalElements() {
+                document.querySelectorAll('.modal-backdrop').forEach(element => element.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }
+            
+            // Initial cleanup
+            cleanModalElements();
+            
+            // Initialize all modals
+            document.querySelectorAll('.modal').forEach(function(modalEl) {
+                // Add proper event handler when modal is hidden
+                modalEl.addEventListener('hidden.bs.modal', function() {
+                    if (!document.querySelector('.modal.show')) {
+                        cleanModalElements();
                     }
                 });
+            });
+            
+            // Fix click handling on modal triggers
+            document.querySelectorAll('[data-bs-toggle="modal"]').forEach(function(element) {
+                element.addEventListener('click', function(e) {
+                    const targetId = this.getAttribute('data-bs-target') || this.getAttribute('href');
+                    if (!targetId) return;
+                    
+                    const modalEl = document.querySelector(targetId);
+                    if (!modalEl) return;
+                    
+                    // Ensure clean backdrop
+                    if (!document.querySelector('.modal.show')) {
+                        cleanModalElements();
+                    }
+                    
+                    try {
+                        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                        modal.show();
+                    } catch (error) {
+                        // Silent error handling
+                    }
+                });
+            });
+            
+            // Escape key handler to force close modals if stuck
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && (document.querySelector('.modal.show') || document.querySelector('.modal-backdrop'))) {
+                    document.querySelectorAll('.modal.show').forEach(function(modalEl) {
+                        try {
+                            const modal = bootstrap.Modal.getInstance(modalEl);
+                            if (modal) modal.hide();
+                        } catch (error) {
+                            // Silent error handling
+                        }
+                    });
+                    
+                    // Force cleanup after a short delay
+                    setTimeout(cleanModalElements, 100);
+                }
             });
         });
     </script>
@@ -681,103 +768,194 @@
     <!-- Custom Scripts -->
     <script>
         window.addEventListener('load', function() {
-            // Initialize Select2
-            if ($.fn.select2) {
-                $('.select2').select2({
-                    theme: 'bootstrap-5'
+            // Initialize key components
+            initializeSelect2();
+            initializeCollapses();
+            initializeSidebar();
+            initializeClickableElements(); // One-time initialization instead of interval
+            
+            // Initialize Select2 if available
+            function initializeSelect2() {
+                if ($.fn.select2) {
+                    $('.select2').select2({
+                        theme: 'bootstrap-5'
+                    });
+                }
+            }
+            
+            // Handle collapsible elements
+            function initializeCollapses() {
+                // Initialize all collapse elements
+                const collapseElements = document.querySelectorAll('.collapse');
+                
+                // Handle sidebar menu toggles
+                document.querySelectorAll('.sidebar .nav-link[data-bs-toggle="collapse"]').forEach(link => {
+                    link.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        const targetId = this.getAttribute('href');
+                        const targetCollapse = document.querySelector(targetId);
+                        
+                        // Close other menus first
+                        collapseElements.forEach(collapse => {
+                            if (collapse !== targetCollapse) {
+                                bootstrap.Collapse.getInstance(collapse)?.hide();
+                            }
+                        });
+                        
+                        // Toggle current menu
+                        const collapseInstance = bootstrap.Collapse.getInstance(targetCollapse) || 
+                                              new bootstrap.Collapse(targetCollapse, {toggle: false});
+                        collapseInstance.toggle();
+                    });
                 });
             }
-
-            // Initialize all collapse elements with parent
-            const collapseElements = document.querySelectorAll('.collapse');
-            collapseElements.forEach(collapse => {
-                new bootstrap.Collapse(collapse, {
-                    toggle: false
-                });
-            });
-
-            // Handle collapse functionality
-            const sidebarLinks = document.querySelectorAll('.sidebar .nav-link[data-bs-toggle="collapse"]');
-            sidebarLinks.forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const targetId = this.getAttribute('href');
-                    const targetCollapse = document.querySelector(targetId);
-                    
-                    // Close all other collapses
-                    collapseElements.forEach(collapse => {
-                        if (collapse !== targetCollapse) {
-                            bootstrap.Collapse.getInstance(collapse)?.hide();
+            
+            // Handle sidebar and responsive behavior
+            function initializeSidebar() {
+                const sidebarToggle = document.querySelector('.navbar-toggler');
+                const sidebar = document.querySelector('.sidebar');
+                const mainContent = document.querySelector('.main-content');
+                
+                // Handle sidebar toggle
+                if (sidebarToggle && sidebar) {
+                    sidebarToggle.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        sidebar.classList.toggle('show');
+                        
+                        // Adjust content area on mobile
+                        if (window.innerWidth < 768) {
+                            mainContent.style.marginLeft = sidebar.classList.contains('show') ? '250px' : '0';
                         }
                     });
                     
-                    // Toggle the clicked collapse
-                    const collapseInstance = bootstrap.Collapse.getInstance(targetCollapse) || new bootstrap.Collapse(targetCollapse);
-                    collapseInstance.toggle();
-                });
-            });
-
-            // Explicitly initialize dropdowns
-            var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'))
-            var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
-                return new bootstrap.Dropdown(dropdownToggleEl)
-            });
-            
-            // User dropdown specific initialization
-            const userDropdown = document.getElementById('userDropdown');
-            if (userDropdown) {
-                userDropdown.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const dropdown = bootstrap.Dropdown.getInstance(userDropdown) || new bootstrap.Dropdown(userDropdown);
-                    dropdown.toggle();
-                });
-            }
-
-            // Sidebar toggle functionality - improved
-            const sidebarToggle = document.querySelector('.navbar-toggler');
-            const sidebar = document.querySelector('.sidebar');
-            const mainContent = document.querySelector('.main-content');
-
-            if (sidebarToggle && sidebar) {
-                sidebarToggle.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    sidebar.classList.toggle('show');
-                    
-                    // Adjust main content when sidebar is toggled on mobile
-                    if (window.innerWidth < 768) {
-                        if (sidebar.classList.contains('show')) {
-                            mainContent.style.marginLeft = '250px';
-                        } else {
+                    // Close sidebar when clicking outside
+                    document.addEventListener('click', function(e) {
+                        if (window.innerWidth < 768 && 
+                            sidebar.classList.contains('show') && 
+                            !sidebar.contains(e.target) && 
+                            !sidebarToggle.contains(e.target)) {
+                            sidebar.classList.remove('show');
                             mainContent.style.marginLeft = '0';
+                        }
+                    });
+                }
+                
+                // Responsive layout handler
+                function handleResize() {
+                    if (window.innerWidth >= 768) {
+                        mainContent.style.marginLeft = '250px';
+                    } else if (!sidebar.classList.contains('show')) {
+                        mainContent.style.marginLeft = '0';
+                    }
+                }
+                
+                window.addEventListener('resize', handleResize);
+                handleResize(); // Initial call
+            }
+            
+            // Initialize clickable elements
+            function initializeClickableElements() {
+                const mainContent = document.querySelector('.main-content');
+                
+                // Fix all clickable elements
+                function fixAllClickableElements() {
+                    // Find all clickable elements
+                    const clickables = document.querySelectorAll('.main-content a, .main-content button, .main-content input[type="submit"], .main-content .btn, .main-content [data-bs-toggle]');
+                    
+                    clickables.forEach(function(element) {
+                        try {
+                            // Skip already processed elements
+                            if (element.hasAttribute('data-fixed')) return;
+                            
+                            // Record original attributes
+                            const originalHref = element.getAttribute('href');
+                            const originalOnClick = element.onclick;
+                            const originalId = element.id;
+                            const originalClasses = element.className;
+                            const originalToggle = element.getAttribute('data-bs-toggle');
+                            const originalTarget = element.getAttribute('data-bs-target') || originalHref;
+                            
+                            // Add proper z-index and position for visibility
+                            element.style.position = 'relative';
+                            element.style.zIndex = '10';
+                            
+                            // Mark as fixed
+                            element.setAttribute('data-fixed', 'true');
+                            
+                            // Fix normal links
+                            if (originalHref && originalHref !== '#' && 
+                                !originalHref.startsWith('javascript:') && 
+                                !originalToggle) {
+                                
+                                // Only add if element doesn't already have a click handler
+                                if (!element.onclick) {
+                                    element.addEventListener('click', function(e) {
+                                        if (!e.ctrlKey && !e.metaKey && !e.shiftKey) {
+                                            window.location.href = originalHref;
+                                        }
+                                    });
+                                }
+                            }
+                            
+                            // Ensure buttons trigger their original onclick
+                            if (originalOnClick && element.tagName === 'BUTTON') {
+                                // We don't need to do anything, the original onclick is preserved
+                            }
+                        } catch (error) {
+                            // Silently handle errors
+                        }
+                    });
+                }
+                
+                // Make function available globally for debug access
+                window.fixAllClickableElements = fixAllClickableElements;
+                
+                // Debug key combo listener (Ctrl+Shift+D)
+                document.addEventListener('keydown', function(e) {
+                    if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+                        const overlay = document.getElementById('debugOverlay');
+                        if (overlay) {
+                            // Get debug info
+                            const domInfo = document.getElementById('debugDomInfo');
+                            if (domInfo) {
+                                let domSummary = '';
+                                document.querySelectorAll('.main-content a, .main-content button').forEach(el => {
+                                    domSummary += `${el.tagName} - ${el.className} - ${el.id || 'no-id'}\n`;
+                                });
+                                domInfo.textContent = domSummary || 'No clickable elements found';
+                            }
+                            
+                            // Show overlay
+                            overlay.style.display = 'block';
                         }
                     }
                 });
                 
-                // Close sidebar when clicking outside on mobile
-                document.addEventListener('click', function(e) {
-                    if (window.innerWidth < 768 && 
-                        sidebar.classList.contains('show') && 
-                        !sidebar.contains(e.target) && 
-                        !sidebarToggle.contains(e.target)) {
-                        sidebar.classList.remove('show');
-                        mainContent.style.marginLeft = '0';
+                // Add handler to detect new content and fix it
+                const observer = new MutationObserver(function(mutations) {
+                    // Only run fixAllClickableElements if actual nodes were added
+                    let shouldFix = false;
+                    mutations.forEach(function(mutation) {
+                        if (mutation.addedNodes.length > 0) {
+                            shouldFix = true;
+                        }
+                    });
+                    
+                    if (shouldFix) {
+                        fixAllClickableElements();
                     }
                 });
+                
+                // Observe changes to the main content area with reduced sensitivity
+                observer.observe(mainContent, { 
+                    childList: true, 
+                    subtree: true
+                });
+                
+                // Apply fixes initially
+                fixAllClickableElements();
             }
-
-            // Responsive handling
-            const handleResize = function() {
-                if (window.innerWidth >= 768) {
-                    mainContent.style.marginLeft = '250px';
-                } else if (!sidebar.classList.contains('show')) {
-                    mainContent.style.marginLeft = '0';
-                }
-            };
-            
-            window.addEventListener('resize', handleResize);
-            // Initial call
-            handleResize();
         });
     </script>
 

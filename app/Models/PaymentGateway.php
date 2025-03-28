@@ -17,12 +17,12 @@ class PaymentGateway extends Model
      */
     protected $fillable = [
         'name',
-        'code',
         'display_name',
+        'code',
         'description',
-        'is_active',
-        'is_test_mode',
         'configuration',
+        'is_active',
+        'is_test_mode'
     ];
 
     /**
@@ -31,9 +31,9 @@ class PaymentGateway extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'is_active' => 'boolean',
-        'is_test_mode' => 'boolean',
         'configuration' => 'json',
+        'is_active' => 'boolean',
+        'is_test_mode' => 'boolean'
     ];
 
     /**
@@ -80,5 +80,26 @@ class PaymentGateway extends Model
     public function getCurrentApiKeyAttribute()
     {
         return $this->is_test_mode ? $this->test_api_key : $this->live_api_key;
+    }
+
+    /**
+     * Check if this gateway is Ziina
+     */
+    public function isZiina()
+    {
+        return $this->code === 'ziina';
+    }
+
+    /**
+     * Get the API base URL based on test mode
+     */
+    public function getApiUrl()
+    {
+        // Ziina uses the same API for both test and live mode
+        if ($this->isZiina()) {
+            return 'https://api-v2.ziina.com/api';
+        }
+        
+        return null;
     }
 }

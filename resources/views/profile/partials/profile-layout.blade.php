@@ -32,6 +32,9 @@
                         <a href="#notifications" class="list-group-item list-group-item-action {{ request()->is('profile/notifications') ? 'active' : '' }}" data-bs-toggle="list">
                             <i class="fas fa-bell me-2"></i> Notifications
                         </a>
+                        <a href="#wallet" class="list-group-item list-group-item-action {{ request()->is('profile/wallet') ? 'active' : '' }}" data-bs-toggle="list">
+                            <i class="fas fa-wallet me-2"></i> My Wallet
+                        </a>
                         <a href="#delete" class="list-group-item list-group-item-action text-danger {{ request()->is('profile/delete') ? 'active' : '' }}" data-bs-toggle="list">
                             <i class="fas fa-trash-alt me-2"></i> Delete Account
                         </a>
@@ -112,12 +115,129 @@
                             </form>
                         </div>
 
+                        <!-- Wallet Tab -->
+                        <div class="tab-pane fade {{ request()->is('profile/wallet') ? 'show active' : '' }}" id="wallet">
+                            <header class="mb-4">
+                                <h2 class="h5 mb-1">My Wallet</h2>
+                                <p class="text-muted mb-0">Manage your wallet and payments.</p>
+                            </header>
+
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="card-title h6">Current Balance</h5>
+                                        <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#addFundsModal">
+                                            <i class="fas fa-plus-circle"></i> Add Funds
+                                        </a>
+                                    </div>
+                                    <h2 class="mb-0 text-primary">{{ number_format($user->wallet->balance ?? 0, 2) }} AED</h2>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h5 class="card-title h6 mb-3">Recent Transactions</h5>
+                                    
+                                    @if(isset($user->wallet) && $user->wallet->transactions->count() > 0)
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Date</th>
+                                                        <th>Description</th>
+                                                        <th>Amount</th>
+                                                        <th>Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($user->wallet->transactions->take(5) as $transaction)
+                                                    <tr>
+                                                        <td>{{ $transaction->created_at->format('M d, Y') }}</td>
+                                                        <td>{{ $transaction->description }}</td>
+                                                        <td class="{{ $transaction->amount > 0 ? 'text-success' : 'text-danger' }}">
+                                                            {{ $transaction->amount > 0 ? '+' : '' }}{{ number_format($transaction->amount, 2) }} AED
+                                                        </td>
+                                                        <td>
+                                                            <span class="badge bg-{{ $transaction->status === 'completed' ? 'success' : ($transaction->status === 'pending' ? 'warning' : 'danger') }}">
+                                                                {{ ucfirst($transaction->status) }}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <a href="{{ route('wallet.transactions') }}" class="btn btn-sm btn-outline-primary mt-2">View All Transactions</a>
+                                    @else
+                                        <div class="text-center py-4">
+                                            <i class="fas fa-receipt fa-3x text-muted mb-3"></i>
+                                            <p class="mb-0">No transactions found</p>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Delete Account Tab -->
                         <div class="tab-pane fade {{ request()->is('profile/delete') ? 'show active' : '' }}" id="delete">
                             @include('profile.partials.delete-user-form')
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Funds Modal -->
+<div class="modal fade" id="addFundsModal" tabindex="-1" aria-labelledby="addFundsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFundsModalLabel">Add Funds to Wallet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addFundsForm" action="{{ route('wallet.add-funds') }}" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount (AED)</label>
+                        <input type="number" class="form-control" id="amount" name="amount" min="10" step="1" placeholder="Enter amount" required>
+                        <div class="form-text">Minimum amount: 10 AED</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Payment Method</label>
+                        <div class="d-flex flex-column gap-2">
+                            @php
+                                $ziinaGateway = \App\Models\PaymentGateway::where('code', 'ziina')
+                                    ->where('is_active', true)
+                                    ->first();
+                            @endphp
+                            
+                            @if($ziinaGateway)
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="payment_method" id="ziina" value="ziina" checked>
+                                    <label class="form-check-label d-flex align-items-center" for="ziina">
+                                        <img src="https://ziina.com/images/logo.png" alt="Ziina" height="24" class="me-2">
+                                        Ziina {{ $ziinaGateway->is_test_mode ? '(Test Mode)' : '' }}
+                                    </label>
+                                </div>
+                                <div class="alert alert-info mt-2 small">
+                                    <i class="fas fa-info-circle me-1"></i> You will be redirected to Ziina's secure payment page.
+                                </div>
+                            @else
+                                <div class="alert alert-warning">
+                                    No payment methods are currently available. Please contact support.
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" form="addFundsForm" class="btn btn-primary">Proceed to Payment</button>
             </div>
         </div>
     </div>
