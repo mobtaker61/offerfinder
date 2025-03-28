@@ -1,5 +1,31 @@
 import './bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
+
+// Import other dependencies as needed
+// Import Select2 if installed
+try {
+    require('select2');
+    require('select2/dist/css/select2.min.css');
+} catch (e) {
+    console.warn('Select2 not found, skipping import');
+}
+
+// Import Toastr if installed
+try {
+    require('toastr');
+    require('toastr/build/toastr.min.css');
+} catch (e) {
+    console.warn('Toastr not found, skipping import');
+}
+
+// Import DataTables if installed
+try {
+    require('datatables.net-bs5');
+    require('datatables.net-bs5/css/dataTables.bootstrap5.css');
+} catch (e) {
+    console.warn('DataTables not found, skipping import');
+}
 
 import Alpine from 'alpinejs';
 

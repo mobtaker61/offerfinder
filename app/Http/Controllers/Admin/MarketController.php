@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Market;
+use App\Models\Plan;
 use App\Models\User;
 use App\Models\Branch;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class MarketController extends Controller
     public function index()
     {
         try {
-            $markets = Market::with(['users'])->get();
+            $markets = Market::with(['users', 'plan'])->get();
             $availableMarketAdmins = User::where('user_type', User::TYPE_MARKET_ADMIN)->get();
             return view('admin.market.index', compact('markets', 'availableMarketAdmins'));
         } catch (\Exception $e) {
@@ -30,7 +31,8 @@ class MarketController extends Controller
     public function create()
     {
         $marketAdmins = User::where('user_type', User::TYPE_MARKET_ADMIN)->get();
-        return view('admin.market.create', compact('marketAdmins'));
+        $plans = Plan::where('is_active', true)->orderBy('name')->get();
+        return view('admin.market.create', compact('marketAdmins', 'plans'));
     }
 
     public function store(Request $request)
@@ -45,7 +47,8 @@ class MarketController extends Controller
             'is_active' => 'boolean',
             'logo' => 'nullable|image|max:1024',
             'avatar' => 'nullable|image|max:1024',
-            'market_admin_id' => 'nullable|exists:users,id'
+            'market_admin_id' => 'nullable|exists:users,id',
+            'plan_id' => 'nullable|exists:plans,id'
         ]);
 
         $market = Market::create($validated);
@@ -62,7 +65,8 @@ class MarketController extends Controller
     public function edit(Market $market)
     {
         $marketAdmins = User::where('user_type', User::TYPE_MARKET_ADMIN)->get();
-        return view('admin.market.edit', compact('market', 'marketAdmins'));
+        $plans = Plan::where('is_active', true)->orderBy('name')->get();
+        return view('admin.market.edit', compact('market', 'marketAdmins', 'plans'));
     }
 
     public function update(Request $request, Market $market)
@@ -77,7 +81,8 @@ class MarketController extends Controller
             'is_active' => 'boolean',
             'logo' => 'nullable|image|max:1024',
             'avatar' => 'nullable|image|max:1024',
-            'market_admin_id' => 'nullable|exists:users,id'
+            'market_admin_id' => 'nullable|exists:users,id',
+            'plan_id' => 'nullable|exists:plans,id'
         ]);
 
         $market->update($validated);
@@ -218,6 +223,52 @@ class MarketController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to load admin data: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Assign a plan to a market
+     */
+    public function assignPlan(Request $request, Market $market)
+    {
+        try {
+            $request->validate([
+                'plan_id' => 'required|exists:plans,id'
+            ]);
+            
+            $market->plan_id = $request->plan_id;
+            $market->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Plan assigned successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to assign plan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Remove a plan from a market
+     */
+    public function removePlan(Market $market)
+    {
+        try {
+            $market->plan_id = null;
+            $market->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Plan removed successfully'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to remove plan: ' . $e->getMessage()
             ], 500);
         }
     }

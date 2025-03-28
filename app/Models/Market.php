@@ -22,11 +22,17 @@ class Market extends Model
         'ios_app_link',
         'whatsapp',
         'is_active',
-        'slug'
+        'slug',
+        'banner',
+        'description',
+        'plan_id',
+        'view_count',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'location' => 'point',
+        'view_count' => 'integer',
     ];
 
     protected static function boot()
@@ -68,5 +74,13 @@ class Market extends Model
     {
         return $this->belongsToMany(User::class, 'user_market_assignments')
             ->withTimestamps();
+    }
+
+    /**
+     * Get the plan this market is subscribed to
+     */
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
     }
 }

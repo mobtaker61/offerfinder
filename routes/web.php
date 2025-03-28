@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\BlogController as AdminBlogController;
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Admin\MarketController as AdminMarketController;
 use App\Http\Controllers\Admin\PermissionGroupController as AdminPermissionGroupController;
+use App\Http\Controllers\Admin\SettingsController as AdminSettingsController;
 use App\Http\Controllers\Admin\UserManagementController as AdminUserManagementController;
 use App\Http\Controllers\Front\MarketController;
 use App\Http\Controllers\Front\PageController as FrontPageController;
@@ -71,6 +72,42 @@ Route::group(['prefix' => 'market', 'as' => 'front.market.'], function () {
 Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
+    // Finance routes
+    Route::get('finance', [\App\Http\Controllers\Admin\FinanceController::class, 'index'])->name('finance.index');
+    Route::get('finance/user-balances', [\App\Http\Controllers\Admin\FinanceController::class, 'userBalances'])->name('finance.user-balances');
+    
+    // Wallet Transaction routes
+    Route::get('finance/transactions', [\App\Http\Controllers\Admin\WalletTransactionController::class, 'index'])->name('finance.transactions.index');
+    Route::get('finance/transactions/create', [\App\Http\Controllers\Admin\WalletTransactionController::class, 'create'])->name('finance.transactions.create');
+    Route::post('finance/transactions', [\App\Http\Controllers\Admin\WalletTransactionController::class, 'store'])->name('finance.transactions.store');
+    Route::get('finance/transactions/export', [\App\Http\Controllers\Admin\WalletTransactionController::class, 'export'])->name('finance.transactions.export');
+    Route::get('finance/transactions/{transaction}', [\App\Http\Controllers\Admin\WalletTransactionController::class, 'show'])->name('finance.transactions.show');
+    
+    // Payment Methods routes
+    Route::resource('finance/payment-methods', \App\Http\Controllers\Admin\PaymentMethodController::class)->names([
+        'index' => 'finance.payment-methods.index',
+        'create' => 'finance.payment-methods.create',
+        'store' => 'finance.payment-methods.store',
+        'show' => 'finance.payment-methods.show',
+        'edit' => 'finance.payment-methods.edit',
+        'update' => 'finance.payment-methods.update',
+        'destroy' => 'finance.payment-methods.destroy',
+    ]);
+    Route::post('finance/payment-methods/{paymentMethod}/toggle-active', [\App\Http\Controllers\Admin\PaymentMethodController::class, 'toggleActive'])->name('finance.payment-methods.toggle-active');
+    
+    // Payment Gateways routes
+    Route::resource('finance/payment-gateways', \App\Http\Controllers\Admin\PaymentGatewayController::class)->names([
+        'index' => 'finance.payment-gateways.index',
+        'create' => 'finance.payment-gateways.create',
+        'store' => 'finance.payment-gateways.store',
+        'show' => 'finance.payment-gateways.show',
+        'edit' => 'finance.payment-gateways.edit',
+        'update' => 'finance.payment-gateways.update',
+        'destroy' => 'finance.payment-gateways.destroy',
+    ]);
+    Route::post('finance/payment-gateways/{paymentGateway}/toggle-active', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'toggleActive'])->name('finance.payment-gateways.toggle-active');
+    Route::post('finance/payment-gateways/{paymentGateway}/toggle-test-mode', [\App\Http\Controllers\Admin\PaymentGatewayController::class, 'toggleTestMode'])->name('finance.payment-gateways.toggle-test-mode');
+
     // Offers routes
     Route::resource('offers', OfferController::class);
     Route::post('offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip'])->name('offers.toggle-vip');
@@ -104,6 +141,8 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('markets/{market}/remove-admin', [AdminMarketController::class, 'removeAdmin'])->name('markets.remove-admin');
     Route::get('markets/{market}/get-admins', [AdminMarketController::class, 'getAdmins'])->name('markets.get-admins');
     Route::get('markets/{market}/branches', [AdminMarketController::class, 'getBranches'])->name('markets.branches');
+    Route::post('markets/{market}/assign-plan', [AdminMarketController::class, 'assignPlan'])->name('markets.assign-plan');
+    Route::post('markets/{market}/remove-plan', [AdminMarketController::class, 'removePlan'])->name('markets.remove-plan');
 
     // Branch routes
     Route::resource('branches', AdminBranchController::class);
@@ -112,6 +151,20 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::get('branches/{branch}/get-admins', [AdminBranchController::class, 'getAdmins'])->name('branches.get-admins');
     Route::get('branches/{branch}/contacts', [AdminBranchController::class, 'getContacts'])->name('branches.contacts');
     Route::get('branches/{branch}/areas', [AdminBranchController::class, 'getAreas'])->name('branches.areas');
+
+    // Membership Management Routes
+    Route::resource('feature-types', \App\Http\Controllers\Admin\FeatureTypeController::class);
+    Route::resource('packages', \App\Http\Controllers\Admin\PackageController::class);
+    Route::resource('plans', \App\Http\Controllers\Admin\PlanController::class);
+    Route::get('packages/{package}/features', [\App\Http\Controllers\Admin\PlanController::class, 'getPackageFeatures'])->name('packages.features');
+
+    // Settings routes
+    Route::get('settings', [AdminSettingsController::class, 'index'])->name('settings.index');
+    Route::post('settings', [AdminSettingsController::class, 'updateValues'])->name('settings.update');
+    Route::get('settings/schemas', [AdminSettingsController::class, 'manageSchemas'])->name('settings.schemas');
+    Route::post('settings/schemas', [AdminSettingsController::class, 'storeSchema'])->name('settings.schemas.store');
+    Route::put('settings/schemas/{id}', [AdminSettingsController::class, 'updateSchema'])->name('settings.schemas.update');
+    Route::delete('settings/schemas/{id}', [AdminSettingsController::class, 'destroySchema'])->name('settings.schemas.destroy');
 });
 
 // Pages

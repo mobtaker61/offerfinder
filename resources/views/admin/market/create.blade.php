@@ -95,6 +95,24 @@
                         <div class="invalid-feedback">{{ $message }}</div>
                     @enderror
                 </div>
+
+                <!-- Membership Plan Assignment -->
+                <div class="mb-3">
+                    <label for="plan_id" class="form-label">Membership Plan</label>
+                    <select class="form-control @error('plan_id') is-invalid @enderror" 
+                            id="plan_id" 
+                            name="plan_id">
+                        <option value="">No Plan</option>
+                        @foreach($plans as $plan)
+                            <option value="{{ $plan->id }}" {{ old('plan_id') == $plan->id ? 'selected' : '' }}>
+                                {{ $plan->name }} (Monthly: ${{ $plan->monthly_price }}, Yearly: ${{ $plan->yearly_price }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('plan_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
             </div>
 
             <div class="col-md-6">

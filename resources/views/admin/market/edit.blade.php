@@ -11,7 +11,7 @@
         </a>
     </div>
 
-    <form action="{{ route('admin.markets.update', $market->slug) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.markets.update', $market->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
         <div class="row">
@@ -78,6 +78,42 @@
                             {{ old('is_active', $market->is_active) ? 'checked' : '' }}>
                         <label class="form-check-label" for="is_active">Active</label>
                     </div>
+                </div>
+
+                <!-- Market Admin Assignment -->
+                <div class="mb-3">
+                    <label for="market_admin_id" class="form-label">Market Admin</label>
+                    <select class="form-control @error('market_admin_id') is-invalid @enderror" 
+                            id="market_admin_id" 
+                            name="market_admin_id">
+                        <option value="">Select Market Admin</option>
+                        @foreach($marketAdmins as $admin)
+                            <option value="{{ $admin->id }}" {{ (old('market_admin_id', $market->users->pluck('id')->first()) == $admin->id) ? 'selected' : '' }}>
+                                {{ $admin->name }} ({{ $admin->email }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('market_admin_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <!-- Membership Plan Assignment -->
+                <div class="mb-3">
+                    <label for="plan_id" class="form-label">Membership Plan</label>
+                    <select class="form-control @error('plan_id') is-invalid @enderror" 
+                            id="plan_id" 
+                            name="plan_id">
+                        <option value="">No Plan</option>
+                        @foreach($plans as $plan)
+                            <option value="{{ $plan->id }}" {{ old('plan_id', $market->plan_id) == $plan->id ? 'selected' : '' }}>
+                                {{ $plan->name }} (Monthly: ${{ $plan->monthly_price }}, Yearly: ${{ $plan->yearly_price }})
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('plan_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
 

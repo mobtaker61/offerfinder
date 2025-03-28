@@ -33,7 +33,9 @@
         },
         "files": [
             "app/Helpers/DateHelper.php",
-            "app/Helpers/helpers.php"
+            "app/Helpers/helpers.php",
+            "app/Helpers/PlanFeatureHelper.php",
+            "app/Helpers/settings.php"
         ]
     },
     "autoload-dev": {

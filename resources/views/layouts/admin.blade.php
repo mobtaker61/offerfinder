@@ -13,7 +13,6 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
     <!-- Styles -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
@@ -542,6 +541,96 @@
                         </ul>
                     </div>
                 </li>
+
+                <!-- Finance Management -->
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#financeMenu" role="button">
+                        <i class="fas fa-wallet"></i>
+                        Finance Management
+                        <i class="fas fa-chevron-down ms-auto"></i>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.finance.*') ? 'show' : '' }}" id="financeMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.finance.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.finance.index') ? 'active' : '' }}">
+                                    <i class="fas fa-chart-line"></i>
+                                    Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.finance.user-balances') }}"
+                                    class="nav-link {{ request()->routeIs('admin.finance.user-balances') ? 'active' : '' }}">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    User Balances
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.finance.transactions.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.finance.transactions.*') ? 'active' : '' }}">
+                                    <i class="fas fa-exchange-alt"></i>
+                                    Transactions
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.finance.payment-methods.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.finance.payment-methods.*') ? 'active' : '' }}">
+                                    <i class="fas fa-credit-card"></i>
+                                    Payment Methods
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.finance.payment-gateways.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.finance.payment-gateways.*') ? 'active' : '' }}">
+                                    <i class="fas fa-server"></i>
+                                    Payment Gateways
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <!-- Membership Management -->
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="collapse" href="#membershipMenu" role="button">
+                        <i class="fas fa-id-card"></i>
+                        Membership Management
+                        <i class="fas fa-chevron-down ms-auto"></i>
+                    </a>
+                    <div class="collapse {{ request()->routeIs('admin.feature-types.*') || request()->routeIs('admin.packages.*') || request()->routeIs('admin.plans.*') ? 'show' : '' }}" id="membershipMenu">
+                        <ul class="nav flex-column ms-3">
+                            <li class="nav-item">
+                                <a href="{{ route('admin.feature-types.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.feature-types.*') ? 'active' : '' }}">
+                                    <i class="fas fa-puzzle-piece"></i>
+                                    Feature Types
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.packages.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.packages.*') ? 'active' : '' }}">
+                                    <i class="fas fa-box"></i>
+                                    Packages
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.plans.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.plans.*') ? 'active' : '' }}">
+                                    <i class="fas fa-tags"></i>
+                                    Plans
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                
+                <!-- Settings -->
+                <li class="nav-item">
+                    <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                        <i class="fas fa-cog"></i>
+                        Settings
+                    </a>
+                </li>
             </ul>
         </div>
     </nav>
@@ -573,117 +662,18 @@
     
     <!-- Direct modal handler - fixes all modal issues -->
     <script>
-        // Wait for DOM and Bootstrap to be fully loaded
-        window.addEventListener('load', function() {
-            // First remove all existing modal backdrops and cleanup
-            $('.modal-backdrop').remove();
-            $('body').removeClass('modal-open').css({overflow: '', paddingRight: ''});
-            
-            // Remove all existing click handlers on modal triggers
-            $(document).off('click.bs.modal.data-api', '[data-bs-toggle="modal"]');
-            $('[data-bs-toggle="modal"]').off('click');
-            
-            // Pages now use .modal-trigger class for their buttons
-            // Leaving this handler for backward compatibility
-            $(document).on('click', '[data-bs-toggle="modal"]:not(.modal-trigger)', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                // Get the target modal ID
-                const targetId = $(this).data('bs-target') || $(this).attr('href');
-                if (!targetId) return;
-                
-                // Get the modal element
-                const modalEl = document.querySelector(targetId);
-                if (!modalEl) return;
-                
-                // First clean up any open modals
-                $('.modal.show').each(function() {
-                    const instance = bootstrap.Modal.getInstance(this);
-                    if (instance) {
-                        instance.hide();
+        // Initialize modals properly
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('[data-bs-toggle="modal"]').forEach(function(element) {
+                element.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('data-bs-target') || this.getAttribute('href');
+                    const modalElement = document.querySelector(targetId);
+                    if (modalElement) {
+                        const modal = new bootstrap.Modal(modalElement);
+                        modal.show();
                     }
                 });
-                
-                // Force clean up backdrops and body class
-                $('.modal-backdrop').remove();
-                $('body').removeClass('modal-open').css({overflow: '', paddingRight: ''});
-                
-                // Make sure modal has proper classes and is centered
-                $(modalEl).addClass('fade');
-                $(modalEl).find('.modal-dialog').addClass('modal-dialog-centered');
-                
-                // Ensure proper accessibility - remove aria-hidden when shown
-                $(modalEl).attr('aria-hidden', 'false');
-                
-                $(modalEl).css({
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                });
-                
-                // Dispose any existing modal instance to avoid conflicts
-                const existingModal = bootstrap.Modal.getInstance(modalEl);
-                if (existingModal) {
-                    existingModal.dispose();
-                }
-                
-                // Create and show a new modal instance
-                const modal = new bootstrap.Modal(modalEl, {
-                    backdrop: true,
-                    keyboard: true,
-                    focus: true
-                });
-                
-                modal.show();
-                
-                // Fix accessibility after modal is shown
-                setTimeout(function() {
-                    $(modalEl).attr('aria-hidden', 'false');
-                    // Set focus to first focusable element
-                    const focusable = $(modalEl).find('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])').first();
-                    if (focusable.length) {
-                        focusable.focus();
-                    }
-                }, 300);
-                
-                // Prevent event from bubbling up to parent elements
-                return false;
-            });
-            
-            // Make sure modals are properly cleaned up when closed
-            $('.modal').on('hidden.bs.modal', function() {
-                // First check if any maps need to be cleaned
-                const mapEl = this.querySelector('[id^="map"]');
-                if (mapEl) {
-                    mapEl.innerHTML = '';
-                }
-                
-                // Reset aria attributes
-                $(this).attr('aria-hidden', 'true');
-                
-                // Then clean up modal backdrop
-                setTimeout(function() {
-                    if ($('.modal.show').length === 0) {
-                        $('.modal-backdrop').remove();
-                        $('body').removeClass('modal-open').css({overflow: '', paddingRight: ''});
-                    }
-                }, 100);
-            });
-            
-            // Add escape key handler to force close modals if stuck
-            $(document).on('keydown', function(e) {
-                if (e.key === 'Escape' && ($('.modal.show').length > 0 || $('.modal-backdrop').length > 0)) {
-                    $('.modal.show').each(function() {
-                        const instance = bootstrap.Modal.getInstance(this);
-                        if (instance) instance.hide();
-                    });
-                    
-                    setTimeout(function() {
-                        $('.modal-backdrop').remove();
-                        $('body').removeClass('modal-open').css({overflow: '', paddingRight: ''});
-                    }, 100);
-                }
             });
         });
     </script>

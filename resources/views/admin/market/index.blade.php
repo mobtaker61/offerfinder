@@ -22,6 +22,7 @@
                     <th>Apps</th>
                     <th>WhatsApp</th>
                     <th>Status</th>
+                    <th>Plan</th>
                     <th>Manage</th>
                     <th>Actions</th>
                 </tr>
@@ -71,11 +72,16 @@
                         @endif
                     </td>
                     <td>
-                        <div class="form-check form-switch">
-                            <input class="form-check-input status-switch" type="checkbox"
-                                data-market-id="{{ $market->id }}"
-                                {{ $market->is_active ? 'checked' : '' }}>
+                        <div class="form-check form-switch d-flex justify-content-center">
+                            <input class="form-check-input status-toggle" type="checkbox" data-market-id="{{ $market->id }}" {{ $market->is_active ? 'checked' : '' }}>
                         </div>
+                    </td>
+                    <td>
+                        @if($market->plan)
+                            <span class="badge bg-success">{{ $market->plan->name }}</span>
+                        @else
+                            <span class="badge bg-secondary">No Plan</span>
+                        @endif
                     </td>
                     <td>
                         <div class="btn-group" role="group">
@@ -345,7 +351,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Status toggle functionality
-    document.querySelectorAll('.status-switch').forEach(switchElement => {
+    document.querySelectorAll('.status-toggle').forEach(switchElement => {
         switchElement.addEventListener('change', function() {
             const marketId = this.dataset.marketId;
             const isActive = this.checked;
