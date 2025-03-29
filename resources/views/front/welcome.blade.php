@@ -38,10 +38,10 @@
                                     <select name="category_id" id="categoryFilter" class="form-control">
                                         <option value="all">All Categories</option>
                                         @foreach ($categories as $category)
-                                            <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                            @foreach ($category->children as $child)
-                                                <option value="{{ $child->id }}">&nbsp;&nbsp;&nbsp;- {{ $child->name }}</option>
-                                            @endforeach
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                        @foreach ($category->children as $child)
+                                        <option value="{{ $child->id }}">&nbsp;&nbsp;&nbsp;- {{ $child->name }}</option>
+                                        @endforeach
                                         @endforeach
                                     </select>
                                 </div>
@@ -185,6 +185,9 @@
     </div>
 </div>
 
+@endsection
+
+@section('scripts')
 <!-- SCRIPTS -->
 <script>
     // Request FCM Token
@@ -260,26 +263,26 @@
         function updateOffers() {
             const formData = new FormData(filterForm);
             const params = new URLSearchParams(formData);
-            
+
             fetch(`${window.location.pathname}?${params.toString()}`, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Update the offer list
-                const offersHtml = data.offers.map(offer => {
-                    return `
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update the offer list
+                    const offersHtml = data.offers.map(offer => {
+                        return `
                         <div class="col-md-3 mb-4 align-items-stretch">
                             ${renderOfferCard(offer)}
                         </div>
                     `;
-                }).join('');
-                
-                offerList.innerHTML = `<div class="row">${offersHtml}</div>`;
-            })
-            .catch(error => console.error('Error:', error));
+                    }).join('');
+
+                    offerList.innerHTML = `<div class="row">${offersHtml}</div>`;
+                })
+                .catch(error => console.error('Error:', error));
         }
 
         function renderOfferCard(offer) {

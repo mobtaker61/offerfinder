@@ -1,52 +1,76 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
-    <!-- Required meta tags -->
+    <!-- Basic Meta Tags -->
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="format-detection" content="telephone=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Primary Meta Tags -->
+    <title>@yield('title', config('app.name', 'Offer Finder'))</title>
+    <meta name="title" content="@yield('title', config('app.name', 'Offer Finder'))">
+    <meta name="description" content="Find the best market offers in UAE and don't miss out on the best deals">
+    <meta name="keywords" content="offer,discount,sale,big sale,price,shop,hypermarket,supermarket,market,shopping,shopping mall,uae,dubai">
     <meta name="author" content="OfferFinder">
-    <meta name="keywords"
-        content="offer,discount,sale,big sale,price,shop,hypermarket,supermarket,market,shopping,shopping mall">
-    <meta name="description" content="Find the best market offers in uae and font miss out on the best deals">
-    <meta name="robots" content="index, follow">
-    <meta name="googlebot" content="index, follow">
-    <meta name="bingbot" content="index, follow">
-    <meta name="yandex" content="index, follow">
-    <meta name="referrer" content="always">
-    <meta name="rating" content="general">
-    <meta name="distribution" content="global">
-    <meta name="revisit-after" content="7 days">
-    <meta name="language" content="English">
-    <meta name="generator" content="OfferFinder">
-    <meta property="og:title" content="@yield('title', config('app.name', 'Offer Finder'))">
-    <meta property="og:description" content="Find the best market offers in uae and font miss out on the best deals">
-    <meta property="og:image" content="preview.png">
-    <meta property="og:url" content="https://offerfinder.com">
-    <meta property="og:site_name" content="OfferFinder">
+
+    <!-- Browser Configuration -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="theme-color" content="#b4976a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <!-- Favicon and Apple Touch Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}">
+    <link rel="manifest" href="{{ asset('site.webmanifest') }}">
+
+    <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:title" content="@yield('title', config('app.name', 'Offer Finder'))">
+    <meta property="og:description" content="Find the best market offers in UAE and don't miss out on the best deals">
+    <meta property="og:image" content="{{ asset('images/preview.png') }}">
+    <meta property="og:site_name" content="OfferFinder">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="{{ url()->current() }}">
+    <meta name="twitter:title" content="@yield('title', config('app.name', 'Offer Finder'))">
+    <meta name="twitter:description" content="Find the best market offers in UAE and don't miss out on the best deals">
+    <meta name="twitter:image" content="{{ asset('images/preview.png') }}">
     <meta name="twitter:site" content="@offerfinder">
     <meta name="twitter:creator" content="@offerfinder">
-    <meta name="twitter:title" content="@yield('title')">
-    <meta name="twitter:description" content="Find the best market offers in uae and font miss out on the best deals">
-    <meta name="twitter:image" content="preview.png">
 
-    <!-- Firebase App (the core Firebase SDK) -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <!-- Add Firebase products that you want to use -->
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
+    <!-- SEO Meta Tags -->
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
+    <meta name="revisit-after" content="7 days">
+    <meta name="language" content="English">
+    <meta name="google-adsense-account" content="ca-pub-3344202725221870">
 
-    <script type='text/javascript'
-        src='https://platform-api.sharethis.com/js/sharethis.js#property=653d3e10744d850019cafbf7&product=inline-share-buttons'
-        async='async'></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', config('app.name', 'Offer Finder'))</title>
+    <!-- Preconnect to External Domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://www.googletagmanager.com">
+
+    <!-- CSS Resources -->
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="stylesheet" href="{{ asset('css/vendor.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Firebase SDK -->
+    <script defer src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/9.0.0/firebase-analytics-compat.js"></script>
+
+    <!-- Microsoft Clarity -->
     <script type="text/javascript">
         (function(c, l, a, r, i, t, y) {
             c[a] = c[a] || function() {
@@ -59,26 +83,27 @@
             y.parentNode.insertBefore(t, y);
         })(window, document, "clarity", "script", "qvsf8dzrpj");
     </script>
-    <!-- Google tag (gtag.js) -->
+
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-JZ2RWM7LX6"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
-
         function gtag() {
             dataLayer.push(arguments);
         }
         gtag('js', new Date());
-
         gtag('config', 'G-JZ2RWM7LX6');
     </script>
-    <meta name="google-adsense-account" content="ca-pub-3344202725221870">
+
+    <!-- ShareThis -->
+    <script defer type='text/javascript'
+        src='https://platform-api.sharethis.com/js/sharethis.js#property=653d3e10744d850019cafbf7&product=inline-share-buttons'>
+    </script>
+
+    <!-- AMP Ads -->
     <script async custom-element="amp-ad" src="https://cdn.ampproject.org/v0/amp-ad-0.1.js"></script>
-    <!--style sheet-->
-    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
-    <link rel="stylesheet" type="text/css" href="/css/vendor.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/css/lightbox.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+    <!-- Additional Styles -->
     @yield('styles')
 </head>
 
@@ -104,10 +129,6 @@
                     </div>
                     <div class="offcanvas-body align-items-center justify-content-end">
                         <ul class="navbar-nav mb-2 mb-lg-0 text-uppercase">
-                            <li class="nav-item px-4">
-                                <a class="nav-link active p-0" aria-current="page"
-                                    href="{{ url('/') }}">Home</a>
-                            </li>
                             <li class="nav-item px-4">
                                 <a class="nav-link active p-0" aria-current="page"
                                     href="{{ route('front.market.index') }}">Markets</a>
@@ -177,7 +198,7 @@
     </div>
 
     <!-- Footer Section -->
-    <footer class="bg-danger py-5 mt-5">
+    <footer class="bg-primary py-5 mt-5">
         <div class="container">
             <div class="row g-4">
                 <!-- Logo & About Column -->
@@ -287,10 +308,15 @@
 
     <!-- Bootstrap JavaScript Libraries -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+
+    <!-- Additional Libraries -->
     <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
     <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Header Scroll Effect -->
     <script>
         document.addEventListener("scroll", function() {
             const header = document.getElementById("myHeader");
@@ -301,9 +327,8 @@
             }
         });
     </script>
-    @yield('scripts')
 
-    <!-- Initialize Firebase -->
+    <!-- Firebase Initialization -->
     <script>
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -343,19 +368,13 @@
         // Request permission and get token
         async function requestNotificationPermission() {
             try {
-                // Request permission
                 const permission = await Notification.requestPermission();
-
                 if (permission === 'granted') {
-                    // Get FCM token
                     const token = await messaging.getToken({
                         vapidKey: "{{ config('services.firebase.vapid_key') }}",
                         serviceWorkerRegistration: await navigator.serviceWorker.ready
                     });
-
-                    // Send token to server
                     await registerFcmToken(token);
-
                     console.log('FCM Token:', token);
                     return token;
                 } else {
@@ -385,7 +404,6 @@
                 if (!response.ok) {
                     throw new Error('Failed to register FCM token');
                 }
-
                 console.log('FCM token registered successfully');
             } catch (error) {
                 console.error('Error registering FCM token:', error);
@@ -396,8 +414,6 @@
         // Handle foreground messages
         messaging.onMessage((payload) => {
             console.log('Received foreground message:', payload);
-
-            // Show notification
             if (Notification.permission === 'granted') {
                 new Notification(payload.notification.title, {
                     body: payload.notification.body,
@@ -408,110 +424,110 @@
 
         // Initialize when document is ready
         document.addEventListener('DOMContentLoaded', () => {
-            // Request notification permission
             requestNotificationPermission();
         });
     </script>
+
+    @yield('scripts')
+    <style>
+        .footer-title {
+            color: #fff;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 2px;
+            background-color: #0d6efd;
+        }
+
+        .footer-slogan {
+            color: #fcd100;
+        }
+
+        .footer-links a:hover {
+            color: #fcd100 !important;
+            padding-left: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .footer-contact i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .footer-social .social-links a {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .footer-social .social-links a:hover {
+            color: #fff !important;
+            background-color: #0d6efd;
+            transform: translateY(-3px);
+        }
+
+        .footer-logo img {
+            filter: brightness(0) invert(1);
+        }
+
+        @media (max-width: 768px) {
+            .footer-title {
+                margin-top: 1.5rem;
+            }
+        }
+
+        /* Market Avatar Slider Styles */
+        .market-avatar {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .market-avatar:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Upcoming Offers Styles */
+        .upcoming-offers .card {
+            transition: transform 0.3s ease;
+        }
+
+        .upcoming-offers .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .upcoming-offers .badge {
+            font-size: 0.8rem;
+            padding: 0.5em 1em;
+        }
+
+        /* Blog Section Styles */
+        .blog-section .card {
+            transition: transform 0.3s ease;
+            border: none;
+        }
+
+        .blog-section .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-section .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
 </body>
 
 </html>
-
-<style>
-    .footer-title {
-        color: #fff;
-        position: relative;
-        padding-bottom: 10px;
-    }
-
-    .footer-title::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 50px;
-        height: 2px;
-        background-color: #0d6efd;
-    }
-
-    .footer-slogan {
-        color: #fcd100;
-    }
-
-    .footer-links a:hover {
-        color: #fcd100 !important;
-        padding-left: 5px;
-        transition: all 0.3s ease;
-    }
-
-    .footer-contact i {
-        width: 20px;
-        text-align: center;
-    }
-
-    .footer-social .social-links a {
-        display: inline-block;
-        width: 32px;
-        height: 32px;
-        line-height: 32px;
-        text-align: center;
-        border-radius: 50%;
-        background-color: rgba(255, 255, 255, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .footer-social .social-links a:hover {
-        color: #fff !important;
-        background-color: #0d6efd;
-        transform: translateY(-3px);
-    }
-
-    .footer-logo img {
-        filter: brightness(0) invert(1);
-    }
-
-    @media (max-width: 768px) {
-        .footer-title {
-            margin-top: 1.5rem;
-        }
-    }
-
-    /* Market Avatar Slider Styles */
-    .market-avatar {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        cursor: pointer;
-    }
-
-    .market-avatar:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    /* Upcoming Offers Styles */
-    .upcoming-offers .card {
-        transition: transform 0.3s ease;
-    }
-
-    .upcoming-offers .card:hover {
-        transform: translateY(-5px);
-    }
-
-    .upcoming-offers .badge {
-        font-size: 0.8rem;
-        padding: 0.5em 1em;
-    }
-
-    /* Blog Section Styles */
-    .blog-section .card {
-        transition: transform 0.3s ease;
-        border: none;
-    }
-
-    .blog-section .card:hover {
-        transform: translateY(-5px);
-    }
-
-    .blog-section .card-img-top {
-        height: 200px;
-        object-fit: cover;
-    }
-</style>
