@@ -238,7 +238,7 @@ class ZiinaPaymentService
         
         $data = [
             'amount' => abs($amountInFils), // Make sure amount is positive
-            'currency_code' => 'AED', // Using AED as the currency
+            'currency_code' => setting('system.currency', 'AED'), // Get currency from settings
             'message' => 'Wallet top-up transaction #' . $transaction->id,
             'success_url' => route('payment.success', ['transaction_id' => $transaction->id]),
             'cancel_url' => route('payment.cancel', ['transaction_id' => $transaction->id]),

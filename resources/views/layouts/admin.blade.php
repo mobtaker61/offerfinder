@@ -267,62 +267,74 @@
         .dropdown-menu {
             z-index: 1060;
         }
-        
+
         /* Prevent body shifting when modal opens */
         body.modal-open {
             overflow: hidden;
             padding-right: 0 !important;
         }
-        
+
         /* Fix for multiple modal backdrops */
-        .modal-backdrop + .modal-backdrop {
+        .modal-backdrop+.modal-backdrop {
             display: none;
         }
-        
+
         /* Center modals properly */
         .modal {
             display: flex !important;
             align-items: center;
             justify-content: center;
         }
-        
+
         .modal-dialog {
             margin: 0;
             max-width: 500px;
             width: 100%;
         }
-        
+
         /* Prevent backdrop problems */
         .modal-static .modal-dialog {
             transform: scale(1.02);
             transition: transform 0.3s ease-out;
         }
-        
+
         /* Make sure modals remain above other elements */
-        .modal, .modal-backdrop {
+        .modal,
+        .modal-backdrop {
             transition: opacity 0.15s linear;
         }
-        
+
         /* Fix for Bootstrap modal padding issue */
         .modal.show .modal-dialog {
             transform: none !important;
         }
 
         /* Ensure links and buttons are clickable */
-        .main-content a, 
+        .main-content a,
         .main-content button,
         .main-content input[type="submit"],
         .main-content .btn {
             position: relative;
             z-index: 1;
         }
-        
+
         /* Ensure proper stacking context */
         table {
             z-index: auto !important;
         }
     </style>
-
+    <script type="text/javascript">
+        (function(c, l, a, r, i, t, y) {
+            c[a] = c[a] || function() {
+                (c[a].q = c[a].q || []).push(arguments)
+            };
+            t = l.createElement(r);
+            t.async = 1;
+            t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0];
+            y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", "qvsf8dzrpj");
+    </script>
     @yield('styles')
 </head>
 
@@ -636,7 +648,7 @@
                         </ul>
                     </div>
                 </li>
-                
+
                 <!-- Settings -->
                 <li class="nav-item">
                     <a href="{{ route('admin.settings.index') }}" class="nav-link {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
@@ -670,22 +682,22 @@
     <div id="debugOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; color:#fff; padding:20px; overflow:auto;">
         <h2>Debug Information</h2>
         <button onclick="document.getElementById('debugOverlay').style.display='none'" style="position:absolute; top:10px; right:10px; background:#f00; color:#fff; border:none; padding:5px 10px;">Close</button>
-        
+
         <div>
             <h3>Active Event Listeners:</h3>
             <pre id="debugEventInfo" style="background:#333; padding:10px; max-height:300px; overflow:auto;"></pre>
         </div>
-        
+
         <div>
             <h3>DOM Structure:</h3>
             <pre id="debugDomInfo" style="background:#333; padding:10px; max-height:300px; overflow:auto;"></pre>
         </div>
-        
+
         <div>
             <h3>Z-Index Stacking:</h3>
             <pre id="debugZIndexInfo" style="background:#333; padding:10px; max-height:300px; overflow:auto;"></pre>
         </div>
-        
+
         <div>
             <h3>Fix All Elements</h3>
             <button onclick="window.fixAllClickableElements && window.fixAllClickableElements()" style="background:#0a0; color:#fff; border:none; padding:5px 10px;">Fix Now</button>
@@ -698,7 +710,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    
+
     <!-- Direct modal handler - fixes all modal issues -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -709,10 +721,10 @@
                 document.body.style.overflow = '';
                 document.body.style.paddingRight = '';
             }
-            
+
             // Initial cleanup
             cleanModalElements();
-            
+
             // Initialize all modals
             document.querySelectorAll('.modal').forEach(function(modalEl) {
                 // Add proper event handler when modal is hidden
@@ -722,21 +734,21 @@
                     }
                 });
             });
-            
+
             // Fix click handling on modal triggers
             document.querySelectorAll('[data-bs-toggle="modal"]').forEach(function(element) {
                 element.addEventListener('click', function(e) {
                     const targetId = this.getAttribute('data-bs-target') || this.getAttribute('href');
                     if (!targetId) return;
-                    
+
                     const modalEl = document.querySelector(targetId);
                     if (!modalEl) return;
-                    
+
                     // Ensure clean backdrop
                     if (!document.querySelector('.modal.show')) {
                         cleanModalElements();
                     }
-                    
+
                     try {
                         const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
                         modal.show();
@@ -745,7 +757,7 @@
                     }
                 });
             });
-            
+
             // Escape key handler to force close modals if stuck
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && (document.querySelector('.modal.show') || document.querySelector('.modal-backdrop'))) {
@@ -757,7 +769,7 @@
                             // Silent error handling
                         }
                     });
-                    
+
                     // Force cleanup after a short delay
                     setTimeout(cleanModalElements, 100);
                 }
@@ -773,7 +785,7 @@
             initializeCollapses();
             initializeSidebar();
             initializeClickableElements(); // One-time initialization instead of interval
-            
+
             // Initialize Select2 if available
             function initializeSelect2() {
                 if ($.fn.select2) {
@@ -782,65 +794,67 @@
                     });
                 }
             }
-            
+
             // Handle collapsible elements
             function initializeCollapses() {
                 // Initialize all collapse elements
                 const collapseElements = document.querySelectorAll('.collapse');
-                
+
                 // Handle sidebar menu toggles
                 document.querySelectorAll('.sidebar .nav-link[data-bs-toggle="collapse"]').forEach(link => {
                     link.addEventListener('click', function(e) {
                         e.preventDefault();
                         const targetId = this.getAttribute('href');
                         const targetCollapse = document.querySelector(targetId);
-                        
+
                         // Close other menus first
                         collapseElements.forEach(collapse => {
                             if (collapse !== targetCollapse) {
                                 bootstrap.Collapse.getInstance(collapse)?.hide();
                             }
                         });
-                        
+
                         // Toggle current menu
-                        const collapseInstance = bootstrap.Collapse.getInstance(targetCollapse) || 
-                                              new bootstrap.Collapse(targetCollapse, {toggle: false});
+                        const collapseInstance = bootstrap.Collapse.getInstance(targetCollapse) ||
+                            new bootstrap.Collapse(targetCollapse, {
+                                toggle: false
+                            });
                         collapseInstance.toggle();
                     });
                 });
             }
-            
+
             // Handle sidebar and responsive behavior
             function initializeSidebar() {
                 const sidebarToggle = document.querySelector('.navbar-toggler');
                 const sidebar = document.querySelector('.sidebar');
                 const mainContent = document.querySelector('.main-content');
-                
+
                 // Handle sidebar toggle
                 if (sidebarToggle && sidebar) {
                     sidebarToggle.addEventListener('click', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
                         sidebar.classList.toggle('show');
-                        
+
                         // Adjust content area on mobile
                         if (window.innerWidth < 768) {
                             mainContent.style.marginLeft = sidebar.classList.contains('show') ? '250px' : '0';
                         }
                     });
-                    
+
                     // Close sidebar when clicking outside
                     document.addEventListener('click', function(e) {
-                        if (window.innerWidth < 768 && 
-                            sidebar.classList.contains('show') && 
-                            !sidebar.contains(e.target) && 
+                        if (window.innerWidth < 768 &&
+                            sidebar.classList.contains('show') &&
+                            !sidebar.contains(e.target) &&
                             !sidebarToggle.contains(e.target)) {
                             sidebar.classList.remove('show');
                             mainContent.style.marginLeft = '0';
                         }
                     });
                 }
-                
+
                 // Responsive layout handler
                 function handleResize() {
                     if (window.innerWidth >= 768) {
@@ -849,25 +863,25 @@
                         mainContent.style.marginLeft = '0';
                     }
                 }
-                
+
                 window.addEventListener('resize', handleResize);
                 handleResize(); // Initial call
             }
-            
+
             // Initialize clickable elements
             function initializeClickableElements() {
                 const mainContent = document.querySelector('.main-content');
-                
+
                 // Fix all clickable elements
                 function fixAllClickableElements() {
                     // Find all clickable elements
                     const clickables = document.querySelectorAll('.main-content a, .main-content button, .main-content input[type="submit"], .main-content .btn, .main-content [data-bs-toggle]');
-                    
+
                     clickables.forEach(function(element) {
                         try {
                             // Skip already processed elements
                             if (element.hasAttribute('data-fixed')) return;
-                            
+
                             // Record original attributes
                             const originalHref = element.getAttribute('href');
                             const originalOnClick = element.onclick;
@@ -875,19 +889,19 @@
                             const originalClasses = element.className;
                             const originalToggle = element.getAttribute('data-bs-toggle');
                             const originalTarget = element.getAttribute('data-bs-target') || originalHref;
-                            
+
                             // Add proper z-index and position for visibility
                             element.style.position = 'relative';
                             element.style.zIndex = '10';
-                            
+
                             // Mark as fixed
                             element.setAttribute('data-fixed', 'true');
-                            
+
                             // Fix normal links
-                            if (originalHref && originalHref !== '#' && 
-                                !originalHref.startsWith('javascript:') && 
+                            if (originalHref && originalHref !== '#' &&
+                                !originalHref.startsWith('javascript:') &&
                                 !originalToggle) {
-                                
+
                                 // Only add if element doesn't already have a click handler
                                 if (!element.onclick) {
                                     element.addEventListener('click', function(e) {
@@ -897,7 +911,7 @@
                                     });
                                 }
                             }
-                            
+
                             // Ensure buttons trigger their original onclick
                             if (originalOnClick && element.tagName === 'BUTTON') {
                                 // We don't need to do anything, the original onclick is preserved
@@ -907,10 +921,10 @@
                         }
                     });
                 }
-                
+
                 // Make function available globally for debug access
                 window.fixAllClickableElements = fixAllClickableElements;
-                
+
                 // Debug key combo listener (Ctrl+Shift+D)
                 document.addEventListener('keydown', function(e) {
                     if (e.ctrlKey && e.shiftKey && e.key === 'D') {
@@ -925,13 +939,13 @@
                                 });
                                 domInfo.textContent = domSummary || 'No clickable elements found';
                             }
-                            
+
                             // Show overlay
                             overlay.style.display = 'block';
                         }
                     }
                 });
-                
+
                 // Add handler to detect new content and fix it
                 const observer = new MutationObserver(function(mutations) {
                     // Only run fixAllClickableElements if actual nodes were added
@@ -941,18 +955,18 @@
                             shouldFix = true;
                         }
                     });
-                    
+
                     if (shouldFix) {
                         fixAllClickableElements();
                     }
                 });
-                
+
                 // Observe changes to the main content area with reduced sensitivity
-                observer.observe(mainContent, { 
-                    childList: true, 
+                observer.observe(mainContent, {
+                    childList: true,
                     subtree: true
                 });
-                
+
                 // Apply fixes initially
                 fixAllClickableElements();
             }

@@ -1,1 +1,0 @@
-@section('title', 'Branches Management') 

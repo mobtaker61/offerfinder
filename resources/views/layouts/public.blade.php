@@ -47,6 +47,18 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', config('app.name', 'Offer Finder'))</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script type="text/javascript">
+        (function(c, l, a, r, i, t, y) {
+            c[a] = c[a] || function() {
+                (c[a].q = c[a].q || []).push(arguments)
+            };
+            t = l.createElement(r);
+            t.async = 1;
+            t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0];
+            y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", "qvsf8dzrpj");
+    </script>
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-JZ2RWM7LX6"></script>
     <script>
@@ -265,7 +277,7 @@
                 <div class="row">
                     <div class="col-12 text-center">
                         <p class="mb-0">
-                            © {{ date('Y') }} {{ config('app.name') }}. All rights reserved.<br/> Developed by <a href="https://roniplus.ae">Roni Plus</a>
+                            © {{ date('Y') }} {{ config('app.name') }}. All rights reserved.<br /> Developed by <a href="https://roniplus.ae">Roni Plus</a>
                         </p>
                     </div>
                 </div>
@@ -334,7 +346,7 @@
             try {
                 // Request permission
                 const permission = await Notification.requestPermission();
-                
+
                 if (permission === 'granted') {
                     // Get FCM token
                     const token = await messaging.getToken({
@@ -344,7 +356,7 @@
 
                     // Send token to server
                     await registerFcmToken(token);
-                    
+
                     console.log('FCM Token:', token);
                     return token;
                 } else {
@@ -472,7 +484,7 @@
 
     .market-avatar:hover {
         transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
     /* Upcoming Offers Styles */

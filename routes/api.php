@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OfferController;
 use App\Http\Controllers\Api\OfferImageController;
 use App\Http\Controllers\Api\FcmTokenController;
+use App\Http\Controllers\DistrictController;
 use Illuminate\Support\Facades\Route;
 
 // API Routes - prefix 'api' already applied via RouteServiceProvider
@@ -42,4 +43,7 @@ Route::middleware('api')->group(function () {
     
     // FCM Token
     Route::post('fcm-token', [FcmTokenController::class, 'store']);
+
+    // Districts
+    Route::get('/get-districts/{emirate}', [DistrictController::class, 'getDistrictsByEmirate'])->name('api.districts.get');
 });

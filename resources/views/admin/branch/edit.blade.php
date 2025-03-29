@@ -313,11 +313,12 @@
             neighboursSelect.empty();
 
             if (emirateId) {
-                $.get(`{{ route('districts.get', '') }}/${emirateId}`, function(districts) {
+                $.get(`/api/get-districts/${emirateId}`, function(districts) {
                     districts.forEach(function(district) {
                         districtSelect.append(new Option(district.name, district.id));
                     });
-                }).fail(function(jqXHR, textStatus, errorThrown) {
+                })
+                .fail(function(jqXHR, textStatus, errorThrown) {
                     console.error('Error fetching districts:', textStatus, errorThrown);
                     alert('Error loading districts. Please try again.');
                 });
@@ -367,6 +368,17 @@
         mapElement.style.minHeight = '300px';
         mapElement.style.width = '100%';
 
+        // Add search box
+        const input = document.createElement('input');
+        input.className = 'form-control';
+        input.type = 'text';
+        input.placeholder = 'Search for a location...';
+        input.style.marginBottom = '10px';
+        document.getElementById('map').parentNode.insertBefore(input, document.getElementById('map'));
+
+        const searchBox = new google.maps.places.SearchBox(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
+
         map = new google.maps.Map(mapElement, {
             zoom: 12,
             center: initialCenter,
@@ -397,6 +409,19 @@
         map.addListener('click', function(e) {
             marker.setPosition(e.latLng);
             updateCoordinates(e.latLng);
+        });
+
+        // Update coordinates when place is selected
+        searchBox.addListener('places_changed', function() {
+            const places = searchBox.getPlaces();
+            if (places.length === 0) return;
+
+            const place = places[0];
+            if (!place.geometry || !place.geometry.location) return;
+
+            map.setCenter(place.geometry.location);
+            marker.setPosition(place.geometry.location);
+            updateCoordinates(place.geometry.location);
         });
 
         // Trigger a resize event to ensure the map displays correctly

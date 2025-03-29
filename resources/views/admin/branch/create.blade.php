@@ -2,7 +2,7 @@
 
 @section('title', 'Create Branch')
 
-@push('styles')
+@section('styles')
 <style>
     #map {
         height: 300px;
@@ -48,253 +48,265 @@
         color: red;
     }
 </style>
-@endpush
+@endsection
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h1 class="h3 mb-0">Create Branch</h1>
-    <a href="{{ route('admin.branches.index') }}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left"></i> Back to List
-    </a>
-</div>
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">Create Branch</h1>
+        <a href="{{ route('admin.branches.index') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
 
-@if ($errors->any())
-<div class="alert alert-danger">
-    <h5 class="alert-heading">Please fix the following errors:</h5>
-    <ul class="mb-0">
-        @foreach ($errors->all() as $error)
-        <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
+    <form action="{{ route('admin.branches.store') }}" method="POST" id="branchForm" onsubmit="return validateForm(event)">
+        @csrf
+        <div class="row">
+            <!-- Left Column - Branch Details -->
+            <div class="col-md-5">
+                <div class="branch-details">
+                    <h4 class="mb-4">Branch Details</h4>
 
-<form action="{{ route('admin.branches.store') }}" method="POST" id="branchForm" onsubmit="return validateForm(event)">
-    @csrf
-    <div class="row">
-        <!-- Left Column - Branch Details -->
-        <div class="col-md-5">
-            <div class="branch-details">
-                <h4 class="mb-4">Branch Details</h4>
+                    <div class="row g-3">
+                        <div class="col-md-12">
+                            <label for="market_id" class="form-label required">Market</label>
+                            <select class="form-select @error('market_id') is-invalid @enderror" id="market_id" name="market_id" required>
+                                <option value="">Select Market</option>
+                                @foreach($markets as $market)
+                                <option value="{{ $market->id }}" {{ old('market_id') == $market->id ? 'selected' : '' }}>
+                                    {{ $market->name }}
+                                </option>
+                                @endforeach
+                            </select>
+                            @error('market_id')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
 
+                        <div class="col-md-12">
+                            <label for="name" class="form-label required">Branch Name</label>
+                            <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>
+                            @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-md-12">
+                            <label for="type" class="form-label required">Branch Type</label>
+                            <select class="form-select @error('type') is-invalid @enderror" id="type" name="type" required>
+                                <option value="">Select Type</option>
+                                <option value="physical" {{ old('type') == 'physical' ? 'selected' : '' }}>Physical Branch</option>
+                                <option value="online" {{ old('type') == 'online' ? 'selected' : '' }}>Online Branch</option>
+                                <option value="single" {{ old('type') == 'single' ? 'selected' : '' }}>Single Branch</option>
+                            </select>
+                            @error('type')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-12">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea class="form-control @error('address') is-invalid @enderror" id="address" name="address" rows="3">{{ old('address') }}</textarea>
+                            @error('address')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label required">Location</label>
+                            <div id="map"
+                                data-lat="{{ old('latitude', '25.2048') }}"
+                                data-lng="{{ old('longitude', '55.2708') }}">
+                            </div>
+                            <div class="row g-2 mt-2">
+                                <div class="col-md-6">
+                                    <input type="number" step="any" name="latitude" id="latitude" class="form-control @error('latitude') is-invalid @enderror" placeholder="Latitude" readonly value="{{ old('latitude') }}" required>
+                                    @error('latitude')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <input type="number" step="any" name="longitude" id="longitude" class="form-control @error('longitude') is-invalid @enderror" placeholder="Longitude" readonly value="{{ old('longitude') }}" required>
+                                    @error('longitude')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="alert alert-info mt-2">
+                                <i class="fas fa-info-circle"></i> Click on the map to select the branch location
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+            <!-- Right Column - Contact Details -->
+            <div class="col-md-7">
+                <!-- Neighbours Selection Section -->
+                <h4 class="mb-4 mt-4">Coverage Area</h4>
                 <div class="row g-3">
-                    <div class="col-md-12">
-                        <label for="market_id" class="form-label required">Market</label>
-                        <select class="form-select @error('market_id') is-invalid @enderror" id="market_id" name="market_id" required>
-                            <option value="">Select Market</option>
-                            @foreach($markets as $market)
-                            <option value="{{ $market->id }}" {{ old('market_id') == $market->id ? 'selected' : '' }}>
-                                {{ $market->name }}
+                    <div class="col-md-6">
+                        <label for="emirate_id" class="form-label required">Emirate</label>
+                        <select class="form-select @error('emirate_id') is-invalid @enderror" id="emirate_id" name="emirate_id" required>
+                            <option value="">Select Emirate</option>
+                            @foreach($emirates as $emirate)
+                            <option value="{{ $emirate->id }}" {{ old('emirate_id') == $emirate->id ? 'selected' : '' }}>
+                                {{ $emirate->name }}
                             </option>
                             @endforeach
                         </select>
-                        @error('market_id')
+                        @error('emirate_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
-                    <div class="col-md-12">
-                        <label for="name" class="form-label required">Branch Name</label>
-                        <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" required>
-                        @error('name')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <div class="col-12">
-                        <label for="address" class="form-label">Address</label>
-                        <textarea class="form-control @error('address') is-invalid @enderror" id="address" name="address" rows="3">{{ old('address') }}</textarea>
-                        @error('address')
+                    <div class="col-md-6">
+                        <label for="district_id" class="form-label required">District</label>
+                        <select class="form-select @error('district_id') is-invalid @enderror" id="district_id" name="district_id" required>
+                            <option value="">Select District</option>
+                        </select>
+                        @error('district_id')
                         <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
 
                     <div class="col-12">
-                        <label class="form-label required">Location</label>
-                        <div id="map"
-                            data-lat="{{ old('latitude', '25.2048') }}"
-                            data-lng="{{ old('longitude', '55.2708') }}">
-                        </div>
-                        <div class="row g-2 mt-2">
-                            <div class="col-md-6">
-                                <input type="number" step="any" name="latitude" id="latitude" class="form-control @error('latitude') is-invalid @enderror" placeholder="Latitude" readonly value="{{ old('latitude') }}" required>
-                                @error('latitude')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <input type="number" step="any" name="longitude" id="longitude" class="form-control @error('longitude') is-invalid @enderror" placeholder="Longitude" readonly value="{{ old('longitude') }}" required>
-                                @error('longitude')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="alert alert-info mt-2">
-                            <i class="fas fa-info-circle"></i> Click on the map to select the branch location
-                        </div>
-                    </div>
-
-
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Column - Contact Details -->
-        <div class="col-md-7">
-            <div class="contact-details">
-                <h4 class="mb-4">Contact Details</h4>
-                <div id="contactProfiles">
-                    @if(old('contact_profiles'))
-                    @foreach(old('contact_profiles') as $index => $profile)
-                    <div class="contact-profile-item">
-                        <div class="row g-2 mb-2">
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="removeContactProfile(this)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                            <div class="col-md-4">
-                                <select class="form-select @error('contact_profiles.' . $index . '.type') is-invalid @enderror" name="contact_profiles[{{ $index }}][type]" required>
-                                    <option value="">Select Type</option>
-                                    @foreach(['phone', 'cell', 'whatsapp', 'email'] as $type)
-                                    <option value="{{ $type }}" {{ $profile['type'] == $type ? 'selected' : '' }}>
-                                        {{ ucfirst($type) }}
-                                    </option>
-                                    @endforeach
-                                </select>
-                                @error('contact_profiles.' . $index . '.type')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-5">
-                                <input type="text" class="form-control @error('contact_profiles.' . $index . '.value') is-invalid @enderror" name="contact_profiles[{{ $index }}][value]" value="{{ $profile['value'] }}" required>
-                                @error('contact_profiles.' . $index . '.value')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-check mt-2">
-                                    <input type="checkbox" class="form-check-input" name="contact_profiles[{{ $index }}][is_primary]" id="primary_{{ $index }}" value="1" {{ isset($profile['is_primary']) ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="primary_{{ $index }}">Primary</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endforeach
-                    @else
-                    <div class="contact-profile-item">
-                        <div class="row g-2 mb-2">
-                            <div class="col-md-1">
-                                <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="removeContactProfile(this)">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                            <div class="col-md-4">
-                                <select class="form-select" name="contact_profiles[0][type]" required>
-                                    <option value="">Select Type</option>
-                                    @foreach(['phone', 'cell', 'whatsapp', 'email'] as $type)
-                                    <option value="{{ $type }}">{{ ucfirst($type) }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-5">
-                                <input type="text" class="form-control" name="contact_profiles[0][value]" placeholder="Enter value" required>
-                            </div>
-                            <div class="col-md-2">
-                                <div class="form-check mt-2">
-                                    <input type="checkbox" class="form-check-input" name="contact_profiles[0][is_primary]" id="primary_0" value="1">
-                                    <label class="form-check-label" for="primary_0">Primary</label>
-                                </div>
-                            </div>
-                        </div>
+                        <label for="neighbours" class="form-label required">Neighbours</label>
+                        <select class="form-select @error('neighbours') is-invalid @enderror" id="neighbours" name="neighbours[]" size="15" multiple required>
+                            <option value="">Select Neighbours</option>
+                        </select>
+                        @error('neighbours')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                        <small class="text-muted">Hold Ctrl/Cmd to select multiple neighbours</small>
                     </div>
                 </div>
-                @endif
-            </div>
-            <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addContactProfile()">
-                <i class="fas fa-plus"></i> Add Contact
-            </button>
-
-            <!-- Neighbours Selection Section -->
-            <h4 class="mb-4 mt-4">Coverage Area</h4>
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label for="emirate_id" class="form-label required">Emirate</label>
-                    <select class="form-select @error('emirate_id') is-invalid @enderror" id="emirate_id" name="emirate_id" required>
-                        <option value="">Select Emirate</option>
-                        @foreach($emirates as $emirate)
-                        <option value="{{ $emirate->id }}" {{ old('emirate_id') == $emirate->id ? 'selected' : '' }}>
-                            {{ $emirate->name }}
-                        </option>
-                        @endforeach
-                    </select>
-                    @error('emirate_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                <div class="contact-details">
+                    <h4 class="mb-4">Contact Details</h4>
+                    <div id="contactProfiles">
+                        @if(old('contact_profiles'))
+                            @foreach(old('contact_profiles') as $index => $profile)
+                                <div class="contact-profile-item">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-md-1">
+                                            <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="removeContactProfile(this)">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <select class="form-select @error('contact_profiles.' . $index . '.type') is-invalid @enderror" name="contact_profiles[{{ $index }}][type]" required>
+                                                <option value="">Select Type</option>
+                                                @foreach(['phone', 'cell', 'whatsapp', 'email'] as $type)
+                                                <option value="{{ $type }}" {{ $profile['type'] == $type ? 'selected' : '' }}>
+                                                    {{ ucfirst($type) }}
+                                                </option>
+                                                @endforeach
+                                            </select>
+                                            @error('contact_profiles.' . $index . '.type')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-5">
+                                            <input type="text" class="form-control @error('contact_profiles.' . $index . '.value') is-invalid @enderror" name="contact_profiles[{{ $index }}][value]" value="{{ $profile['value'] }}" required>
+                                            @error('contact_profiles.' . $index . '.value')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="form-check mt-2">
+                                                <input type="checkbox" class="form-check-input" name="contact_profiles[{{ $index }}][is_primary]" id="primary_{{ $index }}" value="1" {{ isset($profile['is_primary']) ? 'checked' : '' }}>
+                                                <label class="form-check-label" for="primary_{{ $index }}">Primary</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="contact-profile-item">
+                                <div class="row g-2 mb-2">
+                                    <div class="col-md-1">
+                                        <button type="button" class="btn btn-sm btn-outline-danger mt-1" onclick="removeContactProfile(this)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select class="form-select" name="contact_profiles[0][type]" required>
+                                            <option value="">Select Type</option>
+                                            @foreach(['phone', 'cell', 'whatsapp', 'email'] as $type)
+                                            <option value="{{ $type }}">{{ ucfirst($type) }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <input type="text" class="form-control" name="contact_profiles[0][value]" placeholder="Enter value" required>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="form-check mt-2">
+                                            <input type="checkbox" class="form-check-input" name="contact_profiles[0][is_primary]" id="primary_0" value="1">
+                                            <label class="form-check-label" for="primary_0">Primary</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" onclick="addContactProfile()">
+                        <i class="fas fa-plus"></i> Add Contact
+                    </button>
                 </div>
 
                 <div class="col-md-6">
-                    <label for="district_id" class="form-label required">District</label>
-                    <select class="form-select @error('district_id') is-invalid @enderror" id="district_id" name="district_id" required>
-                        <option value="">Select District</option>
-                    </select>
-                    @error('district_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input @error('is_active') is-invalid @enderror" id="is_active" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
+                        <label class="form-check-label" for="is_active">Active</label>
+                        @error('is_active')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
 
-                <div class="col-12">
-                    <label for="neighbours" class="form-label required">Neighbours</label>
-                    <select class="form-select @error('neighbours') is-invalid @enderror" id="neighbours" name="neighbours[]" size="15" multiple required>
-                        <option value="">Select Neighbours</option>
-                    </select>
-                    @error('neighbours')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="text-muted">Hold Ctrl/Cmd to select multiple neighbours</small>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input @error('is_active') is-invalid @enderror" id="is_active" name="is_active" value="1" {{ old('is_active', true) ? 'checked' : '' }}>
-                    <label class="form-check-label" for="is_active">Active</label>
-                    @error('is_active')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-            <!-- Branch Admin Assignment -->
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="branch_admin_id">Branch Admin</label>
-                    <select class="form-control @error('branch_admin_id') is-invalid @enderror" 
-                            id="branch_admin_id" 
+                <!-- Branch Admin Assignment -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="branch_admin_id">Branch Admin</label>
+                        <select class="form-control @error('branch_admin_id') is-invalid @enderror"
+                            id="branch_admin_id"
                             name="branch_admin_id">
-                        <option value="">Select Branch Admin</option>
-                        @foreach($branchAdmins as $admin)
+                            <option value="">Select Branch Admin</option>
+                            @foreach($branchAdmins as $admin)
                             <option value="{{ $admin->id }}" {{ old('branch_admin_id') == $admin->id ? 'selected' : '' }}>
                                 {{ $admin->name }} ({{ $admin->email }})
                             </option>
-                        @endforeach
-                    </select>
-                    @error('branch_admin_id')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
+                            @endforeach
+                        </select>
+                        @error('branch_admin_id')
+                        <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Create Branch
+                    </button>
+                    @if ($errors->any())
+                    <div class="alert alert-danger">
+                        <h5 class="alert-heading">Please fix the following errors:</h5>
+                        <ul class="mb-0">
+                            @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    @endif
                 </div>
             </div>
-            <div class="mt-4">
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Create Branch
-                </button>
-            </div>
         </div>
-    </div>
-
-</form>
+    </form>
+</div>
 @endsection
 
-@push('scripts')
+@section('scripts')
 <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google.maps_api_key') }}&libraries=places"></script>
 <script>
     let map;
@@ -314,7 +326,8 @@
         // Initialize Select2 for neighbours
         $('#neighbours').select2({
             placeholder: 'Select Neighbours',
-            allowClear: true
+            allowClear: true,
+            data: []
         });
 
         // Handle emirate change
@@ -327,14 +340,15 @@
             neighboursSelect.empty();
 
             if (emirateId) {
-                $.get(`{{ route('districts.get', '') }}/${emirateId}`, function(districts) {
-                    districts.forEach(function(district) {
-                        districtSelect.append(new Option(district.name, district.id));
+                $.get(`/api/get-districts/${emirateId}`, function(districts) {
+                        districts.forEach(function(district) {
+                            districtSelect.append(new Option(district.name, district.id));
+                        });
+                    })
+                    .fail(function(jqXHR, textStatus, errorThrown) {
+                        console.error('Error fetching districts:', textStatus, errorThrown);
+                        alert('Error loading districts. Please try again.');
                     });
-                }).fail(function(jqXHR, textStatus, errorThrown) {
-                    console.error('Error fetching districts:', textStatus, errorThrown);
-                    alert('Error loading districts. Please try again.');
-                });
             }
         });
 
@@ -343,12 +357,24 @@
             var districtId = $(this).val();
             var neighboursSelect = $('#neighbours');
 
-            neighboursSelect.empty();
+            // Clear and destroy existing Select2
+            neighboursSelect.empty().trigger('change');
 
             if (districtId) {
-                $.get(`{{ route('neighbours.get', '') }}/${districtId}`, function(neighbours) {
-                    neighbours.forEach(function(neighbour) {
-                        neighboursSelect.append(new Option(neighbour.name, neighbour.id));
+                $.get(`/get-neighbours/${districtId}`, function(neighbours) {
+                    // Create options array for Select2
+                    var options = neighbours.map(function(neighbour) {
+                        return {
+                            id: neighbour.id,
+                            text: neighbour.name
+                        };
+                    });
+                    
+                    // Add options to Select2
+                    neighboursSelect.select2({
+                        placeholder: 'Select Neighbours',
+                        allowClear: true,
+                        data: options
                     });
                 }).fail(function(jqXHR, textStatus, errorThrown) {
                     console.error('Error fetching neighbours:', textStatus, errorThrown);
@@ -381,6 +407,15 @@
         mapElement.style.minHeight = '300px';
         mapElement.style.width = '100%';
 
+        // Add search box
+        const input = document.createElement('input');
+        input.className = 'form-control';
+        input.type = 'text';
+        input.placeholder = 'Search for a location...';
+        input.style.marginBottom = '10px';
+        document.getElementById('map').parentNode.insertBefore(input, document.getElementById('map'));
+
+        // Initialize the map first
         map = new google.maps.Map(mapElement, {
             zoom: 12,
             center: initialCenter,
@@ -389,6 +424,10 @@
             streetViewControl: false,
             fullscreenControl: true
         });
+
+        // Then initialize the search box
+        const searchBox = new google.maps.places.SearchBox(input);
+        map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
         // Add marker
         marker = new google.maps.Marker({
@@ -411,6 +450,19 @@
         map.addListener('click', function(e) {
             marker.setPosition(e.latLng);
             updateCoordinates(e.latLng);
+        });
+
+        // Update coordinates when place is selected
+        searchBox.addListener('places_changed', function() {
+            const places = searchBox.getPlaces();
+            if (places.length === 0) return;
+
+            const place = places[0];
+            if (!place.geometry || !place.geometry.location) return;
+
+            map.setCenter(place.geometry.location);
+            marker.setPosition(place.geometry.location);
+            updateCoordinates(place.geometry.location);
         });
 
         // Trigger a resize event to ensure the map displays correctly
@@ -502,4 +554,4 @@
         return true;
     }
 </script>
-@endpush
+@endsection
