@@ -286,16 +286,15 @@
     </footer>
 
     <!-- Bootstrap JavaScript Libraries -->
-    <script src="/js/jquery-1.11.0.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/isotope-layout@3/dist/isotope.pkgd.min.js"></script>
-    <script type="text/javascript" src="/js/plugins.js"></script>
-    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script> <!--cdn link-->
-    <script type="text/javascript" src="/js/script.js"></script>
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lightbox2/2.11.3/js/lightbox.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script>
         document.addEventListener("scroll", function() {
             const header = document.getElementById("myHeader");
-            if (window.scrollY > 50) { // Adjust the scroll threshold as needed
+            if (window.scrollY > 50) {
                 header.classList.add("bg-scrolled");
             } else {
                 header.classList.remove("bg-scrolled");

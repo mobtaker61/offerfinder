@@ -1,23 +1,39 @@
 import './bootstrap';
+
+// Import Bootstrap CSS and JS
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
-// Import Selectと directly to window
-window.$ = window.jQuery = require('jquery');
-require('select2');
+// Import jQuery and Select2
+import $ from 'jquery';
+window.$ = window.jQuery = $;
+import 'select2';
 
 // Import other libraries
-try {
-    require('toastr');
-} catch (e) {
-    console.warn('Toastr not found');
-}
+import 'toastr';
+import 'datatables.net-bs5';
 
-try {
-    require('datatables.net-bs5');
-} catch (e) {
-    console.warn('DataTables not found');
-}
+// Initialize Bootstrap components
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Initialize all popovers
+    const popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'));
+    popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl);
+    });
+
+    // Initialize Select2
+    if ($.fn.select2) {
+        $('.select2').select2({
+            theme: 'bootstrap-5'
+        });
+    }
+});
 
 import Alpine from 'alpinejs';
 window.Alpine = Alpine;

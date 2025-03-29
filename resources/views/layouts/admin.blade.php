@@ -13,7 +13,6 @@
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
     <!-- Styles -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
@@ -707,84 +706,17 @@
     <!-- Core Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <!-- Direct modal handler - fixes all modal issues -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Clean up modal elements on page load
-            function cleanModalElements() {
-                document.querySelectorAll('.modal-backdrop').forEach(element => element.remove());
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-            }
-
-            // Initial cleanup
-            cleanModalElements();
-
-            // Initialize all modals
-            document.querySelectorAll('.modal').forEach(function(modalEl) {
-                // Add proper event handler when modal is hidden
-                modalEl.addEventListener('hidden.bs.modal', function() {
-                    if (!document.querySelector('.modal.show')) {
-                        cleanModalElements();
-                    }
-                });
-            });
-
-            // Fix click handling on modal triggers
-            document.querySelectorAll('[data-bs-toggle="modal"]').forEach(function(element) {
-                element.addEventListener('click', function(e) {
-                    const targetId = this.getAttribute('data-bs-target') || this.getAttribute('href');
-                    if (!targetId) return;
-
-                    const modalEl = document.querySelector(targetId);
-                    if (!modalEl) return;
-
-                    // Ensure clean backdrop
-                    if (!document.querySelector('.modal.show')) {
-                        cleanModalElements();
-                    }
-
-                    try {
-                        const modal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                        modal.show();
-                    } catch (error) {
-                        // Silent error handling
-                    }
-                });
-            });
-
-            // Escape key handler to force close modals if stuck
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && (document.querySelector('.modal.show') || document.querySelector('.modal-backdrop'))) {
-                    document.querySelectorAll('.modal.show').forEach(function(modalEl) {
-                        try {
-                            const modal = bootstrap.Modal.getInstance(modalEl);
-                            if (modal) modal.hide();
-                        } catch (error) {
-                            // Silent error handling
-                        }
-                    });
-
-                    // Force cleanup after a short delay
-                    setTimeout(cleanModalElements, 100);
-                }
-            });
-        });
-    </script>
-
     <!-- Custom Scripts -->
     <script>
-        window.addEventListener('load', function() {
+        document.addEventListener('DOMContentLoaded', function() {
             // Initialize key components
             initializeSelect2();
             initializeCollapses();
             initializeSidebar();
-            initializeClickableElements(); // One-time initialization instead of interval
+            initializeClickableElements();
 
             // Initialize Select2 if available
             function initializeSelect2() {
@@ -924,27 +856,6 @@
 
                 // Make function available globally for debug access
                 window.fixAllClickableElements = fixAllClickableElements;
-
-                // Debug key combo listener (Ctrl+Shift+D)
-                document.addEventListener('keydown', function(e) {
-                    if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-                        const overlay = document.getElementById('debugOverlay');
-                        if (overlay) {
-                            // Get debug info
-                            const domInfo = document.getElementById('debugDomInfo');
-                            if (domInfo) {
-                                let domSummary = '';
-                                document.querySelectorAll('.main-content a, .main-content button').forEach(el => {
-                                    domSummary += `${el.tagName} - ${el.className} - ${el.id || 'no-id'}\n`;
-                                });
-                                domInfo.textContent = domSummary || 'No clickable elements found';
-                            }
-
-                            // Show overlay
-                            overlay.style.display = 'block';
-                        }
-                    }
-                });
 
                 // Add handler to detect new content and fix it
                 const observer = new MutationObserver(function(mutations) {
