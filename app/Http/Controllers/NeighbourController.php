@@ -9,9 +9,19 @@ use Illuminate\Http\Request;
 
 class NeighbourController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $neighbours = Neighbour::with(['district.emirate'])->latest()->paginate(10);
+        $query = Neighbour::with(['district.emirate'])->latest();
+        
+        // Filter by district_id if provided
+        if ($request->has('district_id')) {
+            $query->where('district_id', $request->district_id);
+        }
+        
+        // Get per_page from request with default value of 10
+        $perPage = $request->get('per_page', 10);
+        
+        $neighbours = $query->paginate($perPage);
         return view('admin.neighbours.index', compact('neighbours'));
     }
 

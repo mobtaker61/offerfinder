@@ -16,7 +16,7 @@ use Illuminate\Validation\ValidationException;
 
 class BranchController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
             $branches = Branch::with(['users', 'market'])->get();

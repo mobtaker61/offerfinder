@@ -9,7 +9,7 @@ class EmirateController extends Controller
 {
     public function index()
     {
-        $emirates = Emirate::all();
+        $emirates = Emirate::paginate(25);
         return view('admin.emirates.index', compact('emirates'));
     }
 

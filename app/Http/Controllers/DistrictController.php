@@ -8,9 +8,19 @@ use Illuminate\Http\Request;
 
 class DistrictController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $districts = District::with('emirate')->latest()->paginate(10);
+        $query = District::with('emirate')->latest();
+        
+        // Filter by emirate_id if provided
+        if ($request->has('emirate_id')) {
+            $query->where('emirate_id', $request->emirate_id);
+        }
+        
+        // Get per_page from request with default value of 10
+        $perPage = $request->get('per_page', 10);
+        
+        $districts = $query->paginate($perPage);
         return view('admin.districts.index', compact('districts'));
     }
 

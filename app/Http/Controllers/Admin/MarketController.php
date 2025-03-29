@@ -13,10 +13,11 @@ use Illuminate\Support\Facades\Log;
 
 class MarketController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $markets = Market::with(['users', 'plan'])->get();
+            $perPage = $request->get('per_page', 10);
+            $markets = Market::with(['users', 'plan'])->latest()->paginate($perPage);
             $availableMarketAdmins = User::where('user_type', User::TYPE_MARKET_ADMIN)->get();
             return view('admin.market.index', compact('markets', 'availableMarketAdmins'));
         } catch (\Exception $e) {

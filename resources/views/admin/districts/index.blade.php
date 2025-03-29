@@ -7,7 +7,17 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3">
             <div class="d-flex justify-content-between align-items-center">
-                <h1 class="h3 mb-0 text-gray-800">Districts</h1>
+                <div>
+                    <h1 class="h3 mb-0 text-gray-800">Districts</h1>
+                    @if(request('emirate_id'))
+                        <small class="text-muted">
+                            Showing districts for {{ \App\Models\Emirate::find(request('emirate_id'))->name }}
+                            <a href="{{ route('admin.districts.index') }}" class="ms-2">
+                                <i class="fas fa-times"></i> Clear filter
+                            </a>
+                        </small>
+                    @endif
+                </div>
                 <a href="{{ route('admin.districts.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus"></i> Add New District
                 </a>
@@ -108,8 +118,20 @@
             </div>
         </div>
         <div class="card-footer">
-            <div class="d-flex justify-content-center">
-                {{ $districts->links('vendor.pagination.bootstrap-5') }}
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <label class="me-2 mb-0">Show:</label>
+                    <select class="form-select form-select-sm" style="width: 80px;" onchange="window.location.href=this.value">
+                        <option value="{{ route('admin.districts.index', ['per_page' => 10]) }}" {{ request('per_page', 10) == 10 ? 'selected' : '' }}>10</option>
+                        <option value="{{ route('admin.districts.index', ['per_page' => 25]) }}" {{ request('per_page') == 25 ? 'selected' : '' }}>25</option>
+                        <option value="{{ route('admin.districts.index', ['per_page' => 50]) }}" {{ request('per_page') == 50 ? 'selected' : '' }}>50</option>
+                        <option value="{{ route('admin.districts.index', ['per_page' => 100]) }}" {{ request('per_page') == 100 ? 'selected' : '' }}>100</option>
+                    </select>
+                    <span class="ms-2 text-muted">entries</span>
+                </div>
+                <div>
+                    {{ $districts->appends(request()->query())->links('vendor.pagination.bootstrap-5') }}
+                </div>
             </div>
         </div>
     </div>
