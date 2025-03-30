@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             PagesSeeder::class,
             OfferCategorySeeder::class,
             SettingsTableSeeder::class,
+            OfferSeeder::class,
         ]);
     }
 }

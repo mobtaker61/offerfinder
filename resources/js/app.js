@@ -35,10 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-import Alpine from 'alpinejs';
-window.Alpine = Alpine;
-Alpine.start();
-
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
@@ -99,7 +95,6 @@ onMessage(messaging, (payload) => {
         body: payload.notification.body,
         icon: "/firebase-logo.png",
     };
-    new Notification(notificationTitle, notificationOptions);
 });
 
 // Request Permission on Page Load

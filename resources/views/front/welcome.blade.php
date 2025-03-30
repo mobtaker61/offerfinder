@@ -159,7 +159,7 @@
             @foreach ($markets->shuffle() as $market)
             <div class="swiper-slide">
                 <a href="{{ route('front.market.show', $market) }}" class="market-avatar">
-                    <img src="{{ $market->logo_url }}" alt="{{ $market->name }}" class="img-fluid rounded-circle">
+                    <img src="{{ $market->avatar }}" alt="{{ $market->name }}" class="img-fluid rounded-circle">
                 </a>
             </div>
             @endforeach

@@ -131,7 +131,7 @@ body {
     padding: 5px 30px;
     font-size: 1.2rem;
     font-weight: bold;
-    z-index: 3;
+    z-index: 2;
     text-transform: uppercase;
     letter-spacing: 2px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
