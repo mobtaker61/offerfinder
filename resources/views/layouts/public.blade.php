@@ -88,6 +88,7 @@
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-JZ2RWM7LX6"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
+
         function gtag() {
             dataLayer.push(arguments);
         }
@@ -111,46 +112,55 @@
     <header class="w-100 z-3 sticky-top" id="myHeader">
         <nav id="primary-header" class="navbar top-header navbar-expand-lg py-3 px-2">
             <div class="container-fluid mx-xl-5">
+                <!-- Logo -->
                 <a class="navbar-brand" href="{{ url('/') }}">
                     <img src="/images/logo-2.png" class="logo img-fluid">
                 </a>
-                <button class="navbar-toggler border-0 d-flex d-lg-none order-3 p-2 shadow-none" type="button"
-                    data-bs-toggle="offcanvas" data-bs-target="#bdNavbar" aria-controls="bdNavbar"
-                    aria-expanded="false">
-                    <svg class="text-black" width="40" height="40">
-                        <use xlink:href="#navbar-icon"></use>
-                    </svg>
+
+                
+                <!-- Search Input -->
+                <div class="flex-grow-1 mx-3">
+                    <form action="#" method="GET" class="d-flex">
+                        <!-- Location Selector Button -->
+                        <button class="btn btn-outline-primary p-2" type="button" data-bs-toggle="modal" data-bs-target="#locationModal" style="width: 120px;text-align: left;overflow: hidden;border-radius: 8px;"> 
+                            <span id="selectedLocation"><i class="fas fa-map-marker-alt me-2"></i>Location</span>
+                        </button>
+                        <div class="input-group">
+                            <input type="text" name="q" class="form-control" placeholder="Search for offers, products, or markets...">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
                 </button>
-                <div class="header-bottom offcanvas offcanvas-end" id="bdNavbar"
-                    aria-labelledby="bdNavbarOffcanvasLabel">
-                    <div class="offcanvas-header p-4">
-                        <button type="button" class="btn-close btn-close-black" data-bs-dismiss="offcanvas"
-                            aria-label="Close" data-bs-target="#bdNavbar"></button>
+                        </div>
+                    </form>
                     </div>
-                    <div class="offcanvas-body align-items-center justify-content-end">
+
+                <!-- Main Menu -->
                         <ul class="navbar-nav mb-2 mb-lg-0 text-uppercase">
-                            <li class="nav-item px-4">
-                                <a class="nav-link active p-0" aria-current="page"
-                                    href="{{ route('front.market.index') }}">Markets</a>
+                    <li class="nav-item px-3">
+                        <a class="nav-link {{ request()->routeIs('front.market.index') ? 'active' : '' }}" href="{{ route('front.market.index') }}">
+                            Markets
+                        </a>
                             </li>
-                            <li class="nav-item px-4">
-                                <a class="nav-link active p-0" aria-current="page"
-                                    href="{{ route('offer.list') }}">Offers</a>
+                    <li class="nav-item px-3">
+                        <a class="nav-link {{ request()->routeIs('offer.list') ? 'active' : '' }}" href="{{ route('offer.list') }}">
+                            <i class="fas fa-tags me-1"></i> Offers
+                        </a>
                             </li>
-                            <li class="nav-item px-4">
-                                <a class="nav-link active p-0" aria-current="page"
-                                    href="{{ route('blog.index') }}">Blog</a>
+                    <li class="nav-item px-3">
+                        <a class="nav-link {{ request()->routeIs('blog.index') ? 'active' : '' }}" href="{{ route('blog.index') }}">
+                            <i class="fas fa-blog me-1"></i> Blog
+                        </a>
                             </li>
                             @guest
-                            <li class="nav-item px-4">
-                                <a class="nav-link p-0" href="{{ route('login') }}">
-                                    <i class="fas fa-user-circle fa-lg"></i>
+                    <li class="nav-item px-3">
+                        <a class="nav-link" href="{{ route('login') }}">
+                            <i class="fas fa-user-circle me-1"></i> Login
                                 </a>
                             </li>
                             @else
-                            <li class="nav-item dropdown px-4">
-                                <a class="nav-link p-0 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    {{ Auth::user()->name }}
+                    <li class="nav-item dropdown px-3">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i> {{ Auth::user()->name }}
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
@@ -167,8 +177,15 @@
                             </li>
                             @endguest
                         </ul>
-                    </div>
-                </div>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="navbar-toggler border-0 d-flex d-lg-none order-3 p-2 shadow-none" type="button"
+                    data-bs-toggle="offcanvas" data-bs-target="#bdNavbar" aria-controls="bdNavbar"
+                    aria-expanded="false">
+                    <svg class="text-black" width="40" height="40">
+                        <use xlink:href="#navbar-icon"></use>
+                    </svg>
+                </button>
             </div>
         </nav>
     </header>
@@ -428,106 +445,431 @@
         });
     </script>
 
-    @yield('scripts')
+    <!-- Location Selection Modal -->
+    <div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+        <div id="locationData" data-locations='@json($locationData)' data-user-location='@json(session("user_location"))' style="display: none;"></div>
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="locationModalLabel">Select Your Location</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Current Location Button -->
+                    <div class="mb-4">
+                        <button class="btn btn-primary w-100" id="getCurrentLocation">
+                            <i class="fas fa-location-arrow me-2"></i>Use My Current Location
+                        </button>
+                    </div>
+
+                    <!-- Step 1: Emirates -->
+                    <div id="step1" class="location-step">
+                        <h6 class="mb-3">Select Emirate</h6>
+                        <div class="row g-3">
+                            @foreach($locationData as $emirate => $districts)
+                            <div class="col-md-4">
+                                <button class="btn btn-outline-primary w-100 emirate-btn" data-emirate="{{ $emirate }}">
+                                    {{ $emirate }}
+                                </button>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Districts -->
+                    <div id="step2" class="location-step d-none">
+                        <div class="d-flex align-items-center mb-3">
+                            <button class="btn btn-link p-0 me-3 back-btn">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <h6 class="mb-0">Select District</h6>
+                        </div>
+                        <div class="row g-3" id="districtsList">
+                            <!-- Districts will be loaded dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Neighborhoods -->
+                    <div id="step3" class="location-step d-none">
+                        <div class="d-flex align-items-center mb-3">
+                            <button class="btn btn-link p-0 me-3 back-btn">
+                                <i class="fas fa-arrow-left"></i>
+                            </button>
+                            <h6 class="mb-0">Select Neighborhood</h6>
+                        </div>
+                        <div class="row g-3" id="neighborhoodsList">
+                            <!-- Neighborhoods will be loaded dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this to your existing styles -->
     <style>
-        .footer-title {
-            color: #fff;
-            position: relative;
-            padding-bottom: 10px;
+        .location-step {
+            min-height: 300px;
         }
 
-        .footer-title::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: 0;
-            width: 50px;
-            height: 2px;
-            background-color: #0d6efd;
-        }
-
-        .footer-slogan {
-            color: #fcd100;
-        }
-
-        .footer-links a:hover {
-            color: #fcd100 !important;
-            padding-left: 5px;
+        .location-step .btn {
+            padding: 0.75rem;
+            font-weight: 500;
             transition: all 0.3s ease;
         }
 
-        .footer-contact i {
-            width: 20px;
-            text-align: center;
+        .location-step .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .footer-social .social-links a {
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            line-height: 32px;
-            text-align: center;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
+        .back-btn {
+            color: #0d6efd;
+            text-decoration: none;
         }
 
-        .footer-social .social-links a:hover {
-            color: #fff !important;
-            background-color: #0d6efd;
-            transform: translateY(-3px);
+        .back-btn:hover {
+            color: #0a58ca;
         }
 
-        .footer-logo img {
-            filter: brightness(0) invert(1);
+        #selectedLocation {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        @media (max-width: 768px) {
-            .footer-title {
-                margin-top: 1.5rem;
-            }
-        }
-
-        /* Market Avatar Slider Styles */
-        .market-avatar {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-        }
-
-        .market-avatar:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Upcoming Offers Styles */
-        .upcoming-offers .card {
-            transition: transform 0.3s ease;
-        }
-
-        .upcoming-offers .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .upcoming-offers .badge {
-            font-size: 0.8rem;
-            padding: 0.5em 1em;
-        }
-
-        /* Blog Section Styles */
-        .blog-section .card {
-            transition: transform 0.3s ease;
-            border: none;
-        }
-
-        .blog-section .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .blog-section .card-img-top {
-            height: 200px;
-            object-fit: cover;
+        .form-control-lg {
+            height: 48px;
+            font-size: 1rem;
         }
     </style>
+
+    <!-- Add this to your existing scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Location Selection Logic
+            const locationModal = document.getElementById('locationModal');
+            const selectedLocation = document.getElementById('selectedLocation');
+            const steps = document.querySelectorAll('.location-step');
+            const backButtons = document.querySelectorAll('.back-btn');
+            const districtsList = document.getElementById('districtsList');
+            const neighborhoodsList = document.getElementById('neighborhoodsList');
+            const getCurrentLocationBtn = document.getElementById('getCurrentLocation');
+
+            // Get location data from backend
+            const locationData = JSON.parse(document.getElementById('locationData').dataset.locations);
+            const userLocationData = document.getElementById('locationData').dataset.userLocation;
+            
+            // Set initial location from session if available
+            if (userLocationData && userLocationData !== 'null') {
+                const userLocation = JSON.parse(userLocationData);
+                const distanceKm = userLocation.distance.toFixed(2);
+                selectedLocation.textContent = `${userLocation.name} (${distanceKm}km)`;
+            }
+
+            // Get current location
+            getCurrentLocationBtn.addEventListener('click', function() {
+                if (!navigator.geolocation) {
+                    alert('Geolocation is not supported by your browser');
+                    return;
+                }
+
+                this.disabled = true;
+                this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Getting location...';
+
+                navigator.geolocation.getCurrentPosition(
+                    async function(position) {
+                        const { latitude, longitude } = position.coords;
+                        
+                        // Find nearest neighborhood
+                        let nearestNeighborhood = null;
+                        let shortestDistance = Infinity;
+
+                        // Function to calculate distance between two points using Haversine formula
+                        function calculateDistance(lat1, lon1, lat2, lon2) {
+                            const R = 6371; // Earth's radius in kilometers
+                            const dLat = (lat2 - lat1) * Math.PI / 180;
+                            const dLon = (lon2 - lon1) * Math.PI / 180;
+                            const a = 
+                                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                                Math.sin(dLon/2) * Math.sin(dLon/2);
+                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                            return R * c;
+                        }
+
+                        // Iterate through all locations to find nearest neighborhood
+                        for (const [emirate, districts] of Object.entries(locationData)) {
+                            for (const [district, neighborhoods] of Object.entries(districts)) {
+                                for (const neighborhood of neighborhoods) {
+                                    if (neighborhood.lat && neighborhood.lng) {
+                                        const distance = calculateDistance(
+                                            latitude,
+                                            longitude,
+                                            parseFloat(neighborhood.lat),
+                                            parseFloat(neighborhood.lng)
+                                        );
+
+                                        if (distance < shortestDistance) {
+                                            shortestDistance = distance;
+                                            nearestNeighborhood = {
+                                                name: neighborhood.name,
+                                                emirate: emirate,
+                                                district: district,
+                                                distance: distance
+                                            };
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (nearestNeighborhood) {
+                            // Format distance to 2 decimal places
+                            const distanceKm = nearestNeighborhood.distance.toFixed(2);
+                            selectedLocation.textContent = `${nearestNeighborhood.name} (${distanceKm}km)`;
+                            
+                            // Save location to session via AJAX
+                            try {
+                                const response = await fetch('{{ route("location.save") }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                    },
+                                    body: JSON.stringify(nearestNeighborhood)
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Failed to save location');
+                                }
+                            } catch (error) {
+                                console.error('Error saving location:', error);
+                            }
+                            
+                            locationModal.querySelector('.btn-close').click();
+                        } else {
+                            alert('Could not find nearby neighborhoods. Please select manually.');
+                        }
+
+                        getCurrentLocationBtn.disabled = false;
+                        getCurrentLocationBtn.innerHTML = '<i class="fas fa-location-arrow me-2"></i>Use My Current Location';
+                    },
+                    function(error) {
+                        console.error('Error getting location:', error);
+                        alert('Error getting your location. Please select manually.');
+                        getCurrentLocationBtn.disabled = false;
+                        getCurrentLocationBtn.innerHTML = '<i class="fas fa-location-arrow me-2"></i>Use My Current Location';
+                    }
+                );
+            });
+
+            // Emirate selection
+            document.querySelectorAll('.emirate-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const emirate = this.dataset.emirate;
+                    showDistricts(emirate);
+                    steps[0].classList.add('d-none');
+                    steps[1].classList.remove('d-none');
+                });
+            });
+
+            // Back button functionality
+            backButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const currentStep = this.closest('.location-step');
+                    const prevStep = currentStep.previousElementSibling;
+                    currentStep.classList.add('d-none');
+                    prevStep.classList.remove('d-none');
+                });
+            });
+
+            // Show districts for selected emirate
+            function showDistricts(emirate) {
+                districtsList.innerHTML = '';
+                if (locationData[emirate]) {
+                    Object.keys(locationData[emirate]).forEach(district => {
+                        const colDiv = document.createElement('div');
+                        colDiv.className = 'col-md-4';
+                        const btn = document.createElement('button');
+                        btn.className = 'btn btn-outline-primary w-100 district-btn';
+                        btn.textContent = district;
+                        btn.dataset.district = district;
+                        btn.dataset.emirate = emirate;
+                        btn.addEventListener('click', function() {
+                            showNeighborhoods(this.dataset.emirate, this.dataset.district);
+                            steps[1].classList.add('d-none');
+                            steps[2].classList.remove('d-none');
+                        });
+                        colDiv.appendChild(btn);
+                        districtsList.appendChild(colDiv);
+                    });
+                }
+            }
+
+            // Show neighborhoods for selected district
+            function showNeighborhoods(emirate, district) {
+                neighborhoodsList.innerHTML = '';
+                if (locationData[emirate] && locationData[emirate][district]) {
+                    locationData[emirate][district].forEach(neighborhood => {
+                        const colDiv = document.createElement('div');
+                        colDiv.className = 'col-md-4';
+                        const btn = document.createElement('button');
+                        btn.className = 'btn btn-outline-primary w-100 neighborhood-btn';
+                        btn.textContent = neighborhood.name || neighborhood;
+                        btn.dataset.neighborhood = neighborhood.name || neighborhood;
+                        btn.dataset.district = district;
+                        btn.dataset.emirate = emirate;
+                        btn.addEventListener('click', async function() {
+                            const location = {
+                                name: this.dataset.neighborhood,
+                                emirate: this.dataset.emirate,
+                                district: this.dataset.district,
+                                distance: 0 // Since it's manually selected, we'll set distance to 0
+                            };
+                            
+                            selectedLocation.textContent = location.name;
+                            
+                            // Save location to session via AJAX
+                            try {
+                                const response = await fetch('{{ route("location.save") }}', {
+                                    method: 'POST',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                    },
+                                    body: JSON.stringify(location)
+                                });
+
+                                if (!response.ok) {
+                                    throw new Error('Failed to save location');
+                                }
+                            } catch (error) {
+                                console.error('Error saving location:', error);
+                            }
+                            
+                            locationModal.querySelector('.btn-close').click();
+                        });
+                        colDiv.appendChild(btn);
+                        neighborhoodsList.appendChild(colDiv);
+                    });
+                }
+            }
+
+            // Reset modal when closed
+            locationModal.addEventListener('hidden.bs.modal', function() {
+                steps.forEach((step, index) => {
+                    if (index === 0) {
+                        step.classList.remove('d-none');
+                    } else {
+                        step.classList.add('d-none');
+                    }
+                });
+            });
+        });
+    </script>
+
+    @yield('scripts')
+<style>
+    .footer-title {
+        color: #fff;
+        position: relative;
+        padding-bottom: 10px;
+    }
+
+    .footer-title::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 50px;
+        height: 2px;
+        background-color: #0d6efd;
+    }
+
+    .footer-slogan {
+        color: #fcd100;
+    }
+
+    .footer-links a:hover {
+        color: #fcd100 !important;
+        padding-left: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .footer-contact i {
+        width: 20px;
+        text-align: center;
+    }
+
+    .footer-social .social-links a {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        text-align: center;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .footer-social .social-links a:hover {
+        color: #fff !important;
+        background-color: #0d6efd;
+        transform: translateY(-3px);
+    }
+
+    .footer-logo img {
+        filter: brightness(0) invert(1);
+    }
+
+    @media (max-width: 768px) {
+        .footer-title {
+            margin-top: 1.5rem;
+        }
+    }
+
+    /* Market Avatar Slider Styles */
+    .market-avatar {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .market-avatar:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Upcoming Offers Styles */
+    .upcoming-offers .card {
+        transition: transform 0.3s ease;
+    }
+
+    .upcoming-offers .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .upcoming-offers .badge {
+        font-size: 0.8rem;
+        padding: 0.5em 1em;
+    }
+
+    /* Blog Section Styles */
+    .blog-section .card {
+        transition: transform 0.3s ease;
+        border: none;
+    }
+
+    .blog-section .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .blog-section .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+</style>
 </body>
 
 </html>

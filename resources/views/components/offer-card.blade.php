@@ -79,39 +79,6 @@ $backgroundImage = $offer->cover_image ? asset('storage/' . $offer->cover_image)
     </div>
 </div>
 
-<style>
-.background-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: 0;
-}
-
-.background-image.grayscale {
-    filter: grayscale(1);
-}
-
-.expired-badge {
-    background: rgba(255, 0, 0, 0.8);
-}
-
-.upcoming-badge {
-    background: rgba(0, 128, 0, 0.8);
-}
-
-.status-message {
-    color: #b4976a;
-    font-size: 1.2rem;
-    font-weight: 600;
-    padding: 10px;
-}
-</style>
-
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const countdownElements = document.querySelectorAll('.countdown-timer');

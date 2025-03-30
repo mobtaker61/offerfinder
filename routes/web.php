@@ -28,6 +28,7 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\Admin\FinanceController as AdminFinanceController;
 use App\Http\Controllers\Admin\PaymentGatewayController;
+use App\Http\Controllers\LocationController;
 
 // Front Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -185,5 +186,8 @@ Route::get('/payment/success', [PaymentController::class, 'handleSuccess'])->nam
 Route::get('/payment/cancel', [PaymentController::class, 'handleCancel'])->name('payment.cancel');
 Route::get('/payment/failure', [PaymentController::class, 'handleFailure'])->name('payment.failure');
 Route::post('/webhooks/ziina', [PaymentController::class, 'handleWebhook'])->name('webhook.ziina');
+
+// Location Routes
+Route::post('/location/save', [LocationController::class, 'save'])->name('location.save');
 
 require __DIR__ . '/auth.php';

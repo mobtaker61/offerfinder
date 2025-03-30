@@ -78,7 +78,7 @@ body {
     border: none;
     border-radius: 8px;
     overflow: hidden;
-    height: 480px;
+    height: 100%;
     aspect-ratio: 3/4;
 }
 
@@ -98,7 +98,25 @@ body {
     background-position: center;
     background-repeat: no-repeat;
     z-index: 0;
-    transition: all 0.3s ease;
+}
+
+.background-image.grayscale {
+    filter: grayscale(1);
+}
+
+.expired-badge {
+    background: rgba(255, 0, 0, 0.8);
+}
+
+.upcoming-badge {
+    background: rgba(0, 128, 0, 0.8);
+}
+
+.status-message {
+    color: #b4976a;
+    font-size: 1.2rem;
+    font-weight: 600;
+    padding: 10px;
 }
 
 .background-image.grayscale {
@@ -171,7 +189,7 @@ body {
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid #b4976a;
     border-radius: 8px;
-    padding: 12px 10px;
+    padding: 2px;
 }
 
 .countdown-section label {
