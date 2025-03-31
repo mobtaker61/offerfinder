@@ -116,68 +116,64 @@
                 <a class="navbar-brand" href="{{ url('/') }}">
                     <img src="/images/logo-2.png" class="logo img-fluid">
                 </a>
-
-                
                 <!-- Search Input -->
                 <div class="flex-grow-1 mx-3">
                     <form action="#" method="GET" class="d-flex">
                         <!-- Location Selector Button -->
-                        <button class="btn btn-outline-primary p-2" type="button" data-bs-toggle="modal" data-bs-target="#locationModal" style="width: 120px;text-align: left;overflow: hidden;border-radius: 8px;"> 
+                        <button class="btn btn-outline-primary p-2" type="button" data-bs-toggle="modal" data-bs-target="#locationModal" style="width: 120px;text-align: left;overflow: hidden;border-radius: 8px;">
                             <span id="selectedLocation"><i class="fas fa-map-marker-alt me-2"></i>Location</span>
                         </button>
                         <div class="input-group">
                             <input type="text" name="q" class="form-control" placeholder="Search for offers, products, or markets...">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-search"></i>
-                </button>
+                            </button>
                         </div>
                     </form>
-                    </div>
-
+                </div>
                 <!-- Main Menu -->
-                        <ul class="navbar-nav mb-2 mb-lg-0 text-uppercase">
+                <ul class="navbar-nav mb-2 mb-lg-0 text-uppercase">
                     <li class="nav-item px-3">
                         <a class="nav-link {{ request()->routeIs('front.market.index') ? 'active' : '' }}" href="{{ route('front.market.index') }}">
                             Markets
                         </a>
-                            </li>
+                    </li>
                     <li class="nav-item px-3">
                         <a class="nav-link {{ request()->routeIs('offer.list') ? 'active' : '' }}" href="{{ route('offer.list') }}">
                             <i class="fas fa-tags me-1"></i> Offers
                         </a>
-                            </li>
+                    </li>
                     <li class="nav-item px-3">
                         <a class="nav-link {{ request()->routeIs('blog.index') ? 'active' : '' }}" href="{{ route('blog.index') }}">
                             <i class="fas fa-blog me-1"></i> Blog
                         </a>
-                            </li>
-                            @guest
+                    </li>
+                    @guest
                     <li class="nav-item px-3">
                         <a class="nav-link" href="{{ route('login') }}">
                             <i class="fas fa-user-circle me-1"></i> Login
-                                </a>
-                            </li>
-                            @else
+                        </a>
+                    </li>
+                    @else
                     <li class="nav-item dropdown px-3">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user-circle me-1"></i> {{ Auth::user()->name }}
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
-                                    <li>
-                                        <hr class="dropdown-divider">
-                                    </li>
-                                    <li>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item">Logout</button>
-                                        </form>
-                                    </li>
-                                </ul>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
                             </li>
-                            @endguest
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item">Logout</button>
+                                </form>
+                            </li>
                         </ul>
-
+                    </li>
+                    @endguest
+                </ul>
                 <!-- Mobile Menu Toggle -->
                 <button class="navbar-toggler border-0 d-flex d-lg-none order-3 p-2 shadow-none" type="button"
                     data-bs-toggle="offcanvas" data-bs-target="#bdNavbar" aria-controls="bdNavbar"
@@ -189,8 +185,8 @@
             </div>
         </nav>
     </header>
-    @if (!Request::is('/'))
-    <section id="billboard" style="margin-top: -80px;">
+    @if (!Request::is('/') && isset($hero) && $hero)
+    <section id="billboard" style="margin-top: -90px;">
         <div style="background-image: url(/images/background.png);background-repeat: no-repeat; width: 100%;">
             <div class="container d-flex position-relative" style="justify-content: center;">
                 <div class="row flex-row-reverse align-items-center text-center padding-medium mt-md-5">
@@ -202,9 +198,7 @@
         </div>
     </section>
     @endif
-
     @yield('content')
-
     <!-- Google AdSense Section -->
     <div class="container my-4 text-center">
         <p>Advertisement</p>
@@ -213,7 +207,6 @@
             <div overflow=""></div>
         </amp-ad>
     </div>
-
     <!-- Footer Section -->
     <footer class="bg-primary py-5 mt-5">
         <div class="container">
@@ -560,7 +553,7 @@
             // Get location data from backend
             const locationData = JSON.parse(document.getElementById('locationData').dataset.locations);
             const userLocationData = document.getElementById('locationData').dataset.userLocation;
-            
+
             // Set initial location from session if available
             if (userLocationData && userLocationData !== 'null') {
                 const userLocation = JSON.parse(userLocationData);
@@ -580,88 +573,91 @@
 
                 navigator.geolocation.getCurrentPosition(
                     async function(position) {
-                        const { latitude, longitude } = position.coords;
-                        
-                        // Find nearest neighborhood
-                        let nearestNeighborhood = null;
-                        let shortestDistance = Infinity;
+                            const {
+                                latitude,
+                                longitude
+                            } = position.coords;
 
-                        // Function to calculate distance between two points using Haversine formula
-                        function calculateDistance(lat1, lon1, lat2, lon2) {
-                            const R = 6371; // Earth's radius in kilometers
-                            const dLat = (lat2 - lat1) * Math.PI / 180;
-                            const dLon = (lon2 - lon1) * Math.PI / 180;
-                            const a = 
-                                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-                                Math.sin(dLon/2) * Math.sin(dLon/2);
-                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-                            return R * c;
-                        }
+                            // Find nearest neighborhood
+                            let nearestNeighborhood = null;
+                            let shortestDistance = Infinity;
 
-                        // Iterate through all locations to find nearest neighborhood
-                        for (const [emirate, districts] of Object.entries(locationData)) {
-                            for (const [district, neighborhoods] of Object.entries(districts)) {
-                                for (const neighborhood of neighborhoods) {
-                                    if (neighborhood.lat && neighborhood.lng) {
-                                        const distance = calculateDistance(
-                                            latitude,
-                                            longitude,
-                                            parseFloat(neighborhood.lat),
-                                            parseFloat(neighborhood.lng)
-                                        );
+                            // Function to calculate distance between two points using Haversine formula
+                            function calculateDistance(lat1, lon1, lat2, lon2) {
+                                const R = 6371; // Earth's radius in kilometers
+                                const dLat = (lat2 - lat1) * Math.PI / 180;
+                                const dLon = (lon2 - lon1) * Math.PI / 180;
+                                const a =
+                                    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                                return R * c;
+                            }
 
-                                        if (distance < shortestDistance) {
-                                            shortestDistance = distance;
-                                            nearestNeighborhood = {
-                                                name: neighborhood.name,
-                                                emirate: emirate,
-                                                district: district,
-                                                distance: distance
-                                            };
+                            // Iterate through all locations to find nearest neighborhood
+                            for (const [emirate, districts] of Object.entries(locationData)) {
+                                for (const [district, neighborhoods] of Object.entries(districts)) {
+                                    for (const neighborhood of neighborhoods) {
+                                        if (neighborhood.lat && neighborhood.lng) {
+                                            const distance = calculateDistance(
+                                                latitude,
+                                                longitude,
+                                                parseFloat(neighborhood.lat),
+                                                parseFloat(neighborhood.lng)
+                                            );
+
+                                            if (distance < shortestDistance) {
+                                                shortestDistance = distance;
+                                                nearestNeighborhood = {
+                                                    name: neighborhood.name,
+                                                    emirate: emirate,
+                                                    district: district,
+                                                    distance: distance
+                                                };
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
 
-                        if (nearestNeighborhood) {
-                            // Format distance to 2 decimal places
-                            const distanceKm = nearestNeighborhood.distance.toFixed(2);
-                            selectedLocation.textContent = `${nearestNeighborhood.name} (${distanceKm}km)`;
-                            
-                            // Save location to session via AJAX
-                            try {
-                                const response = await fetch('{{ route("location.save") }}', {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                                    },
-                                    body: JSON.stringify(nearestNeighborhood)
-                                });
+                            if (nearestNeighborhood) {
+                                // Format distance to 2 decimal places
+                                const distanceKm = nearestNeighborhood.distance.toFixed(2);
+                                selectedLocation.textContent = `${nearestNeighborhood.name} (${distanceKm}km)`;
 
-                                if (!response.ok) {
-                                    throw new Error('Failed to save location');
+                                // Save location to session via AJAX
+                                try {
+                                    const response = await fetch('{{ route("location.save") }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                                        },
+                                        body: JSON.stringify(nearestNeighborhood)
+                                    });
+
+                                    if (!response.ok) {
+                                        throw new Error('Failed to save location');
+                                    }
+                                } catch (error) {
+                                    console.error('Error saving location:', error);
                                 }
-                            } catch (error) {
-                                console.error('Error saving location:', error);
-                            }
-                            
-                            locationModal.querySelector('.btn-close').click();
-                        } else {
-                            alert('Could not find nearby neighborhoods. Please select manually.');
-                        }
 
-                        getCurrentLocationBtn.disabled = false;
-                        getCurrentLocationBtn.innerHTML = '<i class="fas fa-location-arrow me-2"></i>Use My Current Location';
-                    },
-                    function(error) {
-                        console.error('Error getting location:', error);
-                        alert('Error getting your location. Please select manually.');
-                        getCurrentLocationBtn.disabled = false;
-                        getCurrentLocationBtn.innerHTML = '<i class="fas fa-location-arrow me-2"></i>Use My Current Location';
-                    }
+                                locationModal.querySelector('.btn-close').click();
+                            } else {
+                                alert('Could not find nearby neighborhoods. Please select manually.');
+                            }
+
+                            getCurrentLocationBtn.disabled = false;
+                            getCurrentLocationBtn.innerHTML = '<i class="fas fa-location-arrow me-2"></i>Use My Current Location';
+                        },
+                        function(error) {
+                            console.error('Error getting location:', error);
+                            alert('Error getting your location. Please select manually.');
+                            getCurrentLocationBtn.disabled = false;
+                            getCurrentLocationBtn.innerHTML = '<i class="fas fa-location-arrow me-2"></i>Use My Current Location';
+                        }
                 );
             });
 
@@ -728,9 +724,9 @@
                                 district: this.dataset.district,
                                 distance: 0 // Since it's manually selected, we'll set distance to 0
                             };
-                            
+
                             selectedLocation.textContent = location.name;
-                            
+
                             // Save location to session via AJAX
                             try {
                                 const response = await fetch('{{ route("location.save") }}', {
@@ -748,7 +744,7 @@
                             } catch (error) {
                                 console.error('Error saving location:', error);
                             }
-                            
+
                             locationModal.querySelector('.btn-close').click();
                         });
                         colDiv.appendChild(btn);
@@ -771,105 +767,105 @@
     </script>
 
     @yield('scripts')
-<style>
-    .footer-title {
-        color: #fff;
-        position: relative;
-        padding-bottom: 10px;
-    }
-
-    .footer-title::after {
-        content: '';
-        position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 50px;
-        height: 2px;
-        background-color: #0d6efd;
-    }
-
-    .footer-slogan {
-        color: #fcd100;
-    }
-
-    .footer-links a:hover {
-        color: #fcd100 !important;
-        padding-left: 5px;
-        transition: all 0.3s ease;
-    }
-
-    .footer-contact i {
-        width: 20px;
-        text-align: center;
-    }
-
-    .footer-social .social-links a {
-        display: inline-block;
-        width: 32px;
-        height: 32px;
-        line-height: 32px;
-        text-align: center;
-        border-radius: 50%;
-        background-color: rgba(255, 255, 255, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .footer-social .social-links a:hover {
-        color: #fff !important;
-        background-color: #0d6efd;
-        transform: translateY(-3px);
-    }
-
-    .footer-logo img {
-        filter: brightness(0) invert(1);
-    }
-
-    @media (max-width: 768px) {
+    <style>
         .footer-title {
-            margin-top: 1.5rem;
+            color: #fff;
+            position: relative;
+            padding-bottom: 10px;
         }
-    }
 
-    /* Market Avatar Slider Styles */
-    .market-avatar {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        cursor: pointer;
-    }
+        .footer-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 50px;
+            height: 2px;
+            background-color: #0d6efd;
+        }
 
-    .market-avatar:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    }
+        .footer-slogan {
+            color: #fcd100;
+        }
 
-    /* Upcoming Offers Styles */
-    .upcoming-offers .card {
-        transition: transform 0.3s ease;
-    }
+        .footer-links a:hover {
+            color: #fcd100 !important;
+            padding-left: 5px;
+            transition: all 0.3s ease;
+        }
 
-    .upcoming-offers .card:hover {
-        transform: translateY(-5px);
-    }
+        .footer-contact i {
+            width: 20px;
+            text-align: center;
+        }
 
-    .upcoming-offers .badge {
-        font-size: 0.8rem;
-        padding: 0.5em 1em;
-    }
+        .footer-social .social-links a {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
 
-    /* Blog Section Styles */
-    .blog-section .card {
-        transition: transform 0.3s ease;
-        border: none;
-    }
+        .footer-social .social-links a:hover {
+            color: #fff !important;
+            background-color: #0d6efd;
+            transform: translateY(-3px);
+        }
 
-    .blog-section .card:hover {
-        transform: translateY(-5px);
-    }
+        .footer-logo img {
+            filter: brightness(0) invert(1);
+        }
 
-    .blog-section .card-img-top {
-        height: 200px;
-        object-fit: cover;
-    }
-</style>
+        @media (max-width: 768px) {
+            .footer-title {
+                margin-top: 1.5rem;
+            }
+        }
+
+        /* Market Avatar Slider Styles */
+        .market-avatar {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .market-avatar:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Upcoming Offers Styles */
+        .upcoming-offers .card {
+            transition: transform 0.3s ease;
+        }
+
+        .upcoming-offers .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .upcoming-offers .badge {
+            font-size: 0.8rem;
+            padding: 0.5em 1em;
+        }
+
+        /* Blog Section Styles */
+        .blog-section .card {
+            transition: transform 0.3s ease;
+            border: none;
+        }
+
+        .blog-section .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .blog-section .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
 </body>
 
 </html>
