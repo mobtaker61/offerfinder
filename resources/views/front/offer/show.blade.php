@@ -144,6 +144,7 @@
         </main>
         <aside class="col-md-4" id="info-sidebar">
             <div class="post-sidebar">
+                <!-- Offer Details -->
                 <div class="reviews-components widget sidebar-categories border border-primary rounded-4 p-3 mb-5">
                     <h5 class="widget-title text-uppercase border-bottom border-primary pb-3 mb-3">Offer Details</h5>
                     <table class="table">
@@ -167,16 +168,28 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th class="heading-color" scope="row">Emirates:</th>
-                                <td class="text-end">{{ $offer->clients }}</td>
+                                <th class="heading-color" scope="row">Category:</th>
+                                <td class="text-end">{{ $offer->category->name ?? 'N/A' }}</td>
                             </tr>
                             <tr>
                                 <th class="heading-color" scope="row">Market:</th>
-                                <td class="text-end">{{ $offer->tags }}</td>
+                                <td class="text-end">
+                                    @if($offer->branches->isNotEmpty())
+                                        {{ $offer->branches->pluck('market.name')->unique()->join(', ') }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
-                                <th class="heading-color" scope="row">Branchs:</th>
-                                <td class="text-end">{{ $offer->category }}</td>
+                                <th class="heading-color" scope="row">Branches:</th>
+                                <td class="text-end">
+                                    @if($offer->branches->isNotEmpty())
+                                        {{ $offer->branches->pluck('name')->join(', ') }}
+                                    @else
+                                        N/A
+                                    @endif
+                                </td>
                             </tr>
                         </tbody>
                     </table>
