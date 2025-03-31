@@ -57,7 +57,7 @@
 <div class="container mt-n4" id="offerList">
     <div class="row row-cols-xs-2 row-cols-sm-2 row-cols-md-4 row-cols-lg-6 mb-4">
         @foreach ($offers as $offer)
-        <div class="col align-items-stretch m-2" style="height: 330px;">
+        <div class="col align-items-stretch mb-4" style="height: 330px;">
             @include('components.offer-card', ['offer' => $offer])
         </div>
         @endforeach

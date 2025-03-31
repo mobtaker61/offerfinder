@@ -15,8 +15,8 @@ This is main CSS file that contains custom style rules used in this template
 
 /* fonts family */
 :root {
-  font-family: "roboto", sans-serif;
-  --body-font: "roboto", sans-serif;
+  font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --body-font: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 /* fonts color */
@@ -68,7 +68,7 @@ body [data-bs-theme=light] {
 
 body {
   font-family: var(--body-font);
-  font-size: calc(1rem);
+  font-size: calc(0.75rem);
   color: var(--bs-gray);
   font-weight: 400;
 }
