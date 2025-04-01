@@ -109,7 +109,7 @@
 </head>
 
 <body>
-    <header class="w-100 z-3 sticky-top" id="myHeader">
+    <header class="w-100 z-3 sticky-top bg-secondary" id="myHeader">
         <nav id="primary-header" class="navbar top-header navbar-expand-lg py-3 px-2">
             <div class="container-fluid mx-xl-5">
                 <!-- Logo -->

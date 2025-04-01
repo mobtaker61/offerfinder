@@ -172,4 +172,13 @@ class MarketController extends Controller
             'pagination' => view('front.market._pagination', compact('offers'))->render()
         ]);
     }
+
+    public function getMarketsByEmirate(Request $request)
+    {
+        $markets = Market::whereHas('branches.neighbours.district.emirate', function ($query) use ($request) {
+            $query->where('emirates.id', $request->emirate_id);
+        })->get();
+
+        return response()->json(['markets' => $markets]);
+    }
 } 

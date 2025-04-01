@@ -16,7 +16,7 @@
                     <div class="container mt-4">
                         <form id="offerFilterForm">
                             <div class="row">
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <select name="emirate_id" id="emirateFilter" class="form-control">
                                         <option value="all">All Emirates</option>
                                         @foreach ($emirates as $emirate)
@@ -24,25 +24,14 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <select name="market_id" id="marketFilter" class="form-control" disabled>
-                                        <option value="all">All Markets</option>
+                                        <option value="all">Select Market</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-md-4">
                                     <select name="branch_id" id="branchFilter" class="form-control" disabled>
-                                        <option value="all">All Branches</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-3">
-                                    <select name="category_id" id="categoryFilter" class="form-control">
-                                        <option value="all">All Categories</option>
-                                        @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                        @foreach ($category->children as $child)
-                                        <option value="{{ $child->id }}">&nbsp;&nbsp;&nbsp;- {{ $child->name }}</option>
-                                        @endforeach
-                                        @endforeach
+                                        <option value="all">Select Branch</option>
                                     </select>
                                 </div>
                             </div>
@@ -99,22 +88,10 @@
             <h2 class="display-6 fw-bold">Upcoming Offers</h2>
             <p class="text-muted">Don't miss out on these upcoming deals!</p>
         </div>
-        <div class="row g-4">
-            @foreach($upcomingOffers ?? [] as $offer)
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="position-relative">
-                        <img src="{{ $offer->image_url }}" class="card-img-top" alt="{{ $offer->title }}">
-                        <div class="position-absolute top-0 end-0 p-2">
-                            <span class="badge bg-warning">Coming Soon</span>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $offer->title }}</h5>
-                        <p class="card-text text-muted">{{ Str::limit($offer->description, 100) }}</p>
-                        <p class="mb-0"><small class="text-muted">Starts: {{ $offer->start_date->format('d M Y') }}</small></p>
-                    </div>
-                </div>
+        <div class="row row-cols-xs-2 row-cols-sm-2 row-cols-md-4 row-cols-lg-6 mb-4">
+            @foreach ($upcomingOffers as $offer)
+            <div class="col align-items-stretch mb-4" style="height: 330px;">
+                @include('components.offer-card', ['offer' => $offer])
             </div>
             @endforeach
         </div>
@@ -125,7 +102,7 @@
 <section class="blog-section py-5">
     <div class="container">
         <div class="section-header text-center mb-5">
-            <h2 class="display-6 fw-bold">Latest from Our Blog</h2>
+            <h2 class="display-6 fw-bold">Latest News</h2>
             <p class="text-muted">Stay updated with the latest news and tips</p>
         </div>
         <div class="row g-4">
@@ -137,9 +114,10 @@
                         <div class="mb-2">
                             <small class="text-muted">{{ $post->created_at->format('M d, Y') }}</small>
                         </div>
-                        <h5 class="card-title">{{ $post->title }}</h5>
+                        <a href="{{ route('blog.show', $post->slug) }}">
+                            <h5 class="card-title">{{ $post->title }}</h5>
+                        </a>
                         <p class="card-text">{{ Str::limit($post->excerpt, 100) }}</p>
-                        <a href="{{ route('blog.show', $post->slug) }}" class="btn btn-outline-primary btn-sm">Read More</a>
                     </div>
                 </div>
             </div>
@@ -152,14 +130,14 @@
 </section>
 
 <!-- Market Logo Slider -->
-<section id="brand-collection" class="bg-secondary py-5">
-    <h3 class="text-center mb-4">Our Markets</h3>
+<section id="brand-collection" class="bg-primary py-5">
+    <h3 class="text-center mb-4 text-white">Markets</h3>
     <div class="swiper-container">
         <div class="swiper-wrapper">
             @foreach ($markets->shuffle() as $market)
-            <div class="swiper-slide">
-                <a href="{{ route('front.market.show', $market) }}" class="market-avatar">
-                    <img src="{{ $market->avatar }}" alt="{{ $market->name }}" class="img-fluid rounded-circle">
+            <div class="swiper-slide text-center">
+                <a href="{{ route('front.market.show', $market) }}">
+                    <img src="{{ asset('storage/' . $market->avatar) }}" alt="{{ $market->name }}" class=" rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
                 </a>
             </div>
             @endforeach
@@ -257,7 +235,6 @@
         const emirateFilter = document.getElementById('emirateFilter');
         const marketFilter = document.getElementById('marketFilter');
         const branchFilter = document.getElementById('branchFilter');
-        const categoryFilter = document.getElementById('categoryFilter');
         const offerList = document.getElementById('offerList');
 
         function updateOffers() {
@@ -274,46 +251,40 @@
                     // Update the offer list
                     const offersHtml = data.offers.map(offer => {
                         return `
-                        <div class="col-md-3 mb-4 align-items-stretch">
-                            ${renderOfferCard(offer)}
+                        <div class="col align-items-stretch mb-4" style="height: 330px;">
+                            <div class="card h-100">
+                                <div class="image-container">
+                                    <div class="first">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            ${offer.market ? `<h6 class="discount">${offer.market.name}</h6>` : ''}
+                                            ${offer.pdf ? `<a href="/storage/${offer.pdf}" class="wishlist" target="_blank"><i class="fa fa-pdf"></i></a>` : ''}
+                                        </div>
+                                    </div>
+                                    <img src="${offer.cover_image ? `/storage/${offer.cover_image}` : '/images/default-cover.jpg'}" 
+                                         class="img-fluid rounded thumbnail-image" 
+                                         alt="${offer.title}">
+                                </div>
+                                <div class="product-detail-container p-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h4 class="offer-title">
+                                            <a href="/offer/${offer.id}">${offer.title}</a>
+                                        </h4>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center pt-1">
+                                        <h6 class="text-muted m-0">Valid: ${new Date(offer.end_date).toLocaleDateString()}</h6>
+                                        <div class="d-flex">
+                                            <span class="buy">${calculateRemainingDays(offer.end_date)} days</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     `;
                     }).join('');
 
-                    offerList.innerHTML = `<div class="row">${offersHtml}</div>`;
+                    offerList.innerHTML = `<div class="row row-cols-xs-2 row-cols-sm-2 row-cols-md-4 row-cols-lg-6 mb-4">${offersHtml}</div>`;
                 })
                 .catch(error => console.error('Error:', error));
-        }
-
-        function renderOfferCard(offer) {
-            return `
-                <div class="card h-100">
-                    <div class="image-container">
-                        <div class="first">
-                            <div class="d-flex justify-content-between align-items-center">
-                                ${offer.market ? `<h6 class="discount">${offer.market.name}</h6>` : ''}
-                                ${offer.pdf ? `<a href="/storage/${offer.pdf}" class="wishlist" target="_blank"><i class="fa fa-pdf"></i></a>` : ''}
-                            </div>
-                        </div>
-                        <img src="${offer.cover_image ? `/storage/${offer.cover_image}` : '/images/default-cover.jpg'}" 
-                             class="img-fluid rounded thumbnail-image" 
-                             alt="${offer.title}">
-                    </div>
-                    <div class="product-detail-container p-2">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h4 class="offer-title">
-                                <a href="/offer/${offer.id}">${offer.title}</a>
-                            </h4>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center pt-1">
-                            <h6 class="text-muted m-0">Valid: ${new Date(offer.end_date).toLocaleDateString()}</h6>
-                            <div class="d-flex">
-                                <span class="buy">${calculateRemainingDays(offer.end_date)} days</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
         }
 
         function calculateRemainingDays(endDate) {
@@ -324,10 +295,60 @@
         }
 
         // Event listeners for filters
-        emirateFilter.addEventListener('change', updateOffers);
-        marketFilter.addEventListener('change', updateOffers);
+        emirateFilter.addEventListener('change', function() {
+            const emirateId = this.value;
+            
+            // Reset and disable market and branch filters
+            marketFilter.innerHTML = '<option value="all">Select Market</option>';
+            marketFilter.disabled = true;
+            branchFilter.innerHTML = '<option value="all">Select Branch</option>';
+            branchFilter.disabled = true;
+
+            if (emirateId === 'all') {
+                updateOffers();
+                return;
+            }
+
+            // Update markets based on emirate
+            fetch(`/get-markets-by-emirate?emirate_id=${emirateId}`)
+            .then(response => response.json())
+            .then(data => {
+                    marketFilter.innerHTML = '<option value="all">Select Market</option>';
+                    data.markets.forEach(market => {
+                        marketFilter.innerHTML += `<option value="${market.id}">${market.name}</option>`;
+                    });
+                    marketFilter.disabled = false;
+                    updateOffers();
+                });
+        });
+
+        marketFilter.addEventListener('change', function() {
+            const marketId = this.value;
+            const emirateId = emirateFilter.value;
+            
+            // Reset and disable branch filter
+            branchFilter.innerHTML = '<option value="all">Select Branch</option>';
+            branchFilter.disabled = true;
+
+            if (marketId === 'all') {
+                updateOffers();
+                return;
+            }
+
+            // Update branches based on market and emirate
+            fetch(`/get-branches-by-market-and-emirate/${marketId}/${emirateId}`)
+                .then(response => response.json())
+                .then(data => {
+                    branchFilter.innerHTML = '<option value="all">Select Branch</option>';
+                    data.forEach(branch => {
+                        branchFilter.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
+                    });
+                    branchFilter.disabled = false;
+                    updateOffers();
+                });
+        });
+
         branchFilter.addEventListener('change', updateOffers);
-        categoryFilter.addEventListener('change', updateOffers);
     });
 </script>
 @endsection

@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\OfferImageController;
 use App\Http\Controllers\Api\FcmTokenController;
 use App\Http\Controllers\DistrictController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 // API Routes - prefix 'api' already applied via RouteServiceProvider
 Route::middleware('api')->group(function () {
@@ -46,4 +47,27 @@ Route::middleware('api')->group(function () {
 
     // Districts
     Route::get('/get-districts/{emirate}', [DistrictController::class, 'getDistrictsByEmirate'])->name('api.districts.get');
+
+    // Cascading dropdowns
+    Route::get('/markets', function (Request $request) {
+        $query = \App\Models\Market::query();
+        
+        if ($request->has('emirate_id') && $request->emirate_id !== 'all') {
+            $query->whereHas('branches', function ($q) use ($request) {
+                $q->where('emirate_id', $request->emirate_id);
+            });
+        }
+        
+        return $query->get(['id', 'name']);
+    });
+
+    Route::get('/branches', function (Request $request) {
+        $query = \App\Models\Branch::query();
+        
+        if ($request->has('market_id') && $request->market_id !== 'all') {
+            $query->where('market_id', $request->market_id);
+        }
+        
+        return $query->get(['id', 'name']);
+    });
 });

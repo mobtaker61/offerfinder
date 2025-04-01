@@ -19,7 +19,10 @@ class HomeController extends Controller
         $branchId = $request->query('branch_id');
         $categoryId = $request->query('category_id');
 
+        // Get active offers (current date is between start_date and end_date)
         $offers = Offer::with(['branches.market', 'images', 'category'])
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
             ->when($emirateId && $emirateId !== 'all', function ($query) use ($emirateId) {
                 return $query->whereHas('branches', function ($query) use ($emirateId) {
                     $query->where('emirate_id', $emirateId);
@@ -46,23 +49,31 @@ class HomeController extends Controller
                     }
                 }
             })
+            ->take(29)
             ->get();
 
-        $vipOffers = Offer::where('vip', true)->inRandomOrder()->take(3)->get();
+        // Get VIP offers that are currently active
+        $vipOffers = Offer::where('vip', true)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->inRandomOrder()
+            ->take(3)
+            ->get();
 
         $emirates = Emirate::all();
         $markets = Market::all();
         $branches = Branch::all();
         $categories = OfferCategory::with('children')->mainCategories()->get();
 
+        // Get upcoming offers (start_date is in the future)
         $upcomingOffers = Offer::where('start_date', '>', now())
-                              ->orderBy('start_date')
-                              ->take(3)
-                              ->get();
+            ->orderBy('start_date')
+            ->take(6)
+            ->get();
                               
         $latestPosts = Post::latest()
-                           ->take(3)
-                           ->get();
+            ->take(3)
+            ->get();
 
         if ($request->ajax()) {
             return response()->json([

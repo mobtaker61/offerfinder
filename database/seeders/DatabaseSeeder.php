@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
             OfferCategorySeeder::class,
             SettingsTableSeeder::class,
             OfferSeeder::class,
+            PostSeeder::class,
         ]);
     }
 }

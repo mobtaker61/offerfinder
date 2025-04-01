@@ -21,9 +21,10 @@
                         <div class="mb-2">
                             <small class="text-muted">{{ $post->created_at->format('M d, Y') }}</small>
                         </div>
-                        <h5 class="card-title">{{ $post->title }}</h5>
+                        <a href="{{ route('blog.show', $post->slug) }}">
+                            <h5 class="card-title">{{ $post->title }}</h5>
+                        </a>
                         <p class="card-text">{{ $post->excerpt }}</p>
-                        <a href="{{ route('blog.show', $post->slug) }}" class="btn btn-primary">Read More</a>
                     </div>
                 </div>
             </div>
