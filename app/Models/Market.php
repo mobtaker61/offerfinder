@@ -83,4 +83,12 @@ class Market extends Model
     {
         return $this->belongsTo(Plan::class);
     }
+
+    /**
+     * Get the coupons for this market.
+     */
+    public function coupons()
+    {
+        return $this->morphMany(Coupon::class, 'couponable');
+    }
 }

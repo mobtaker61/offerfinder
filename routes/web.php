@@ -29,6 +29,7 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\Admin\FinanceController as AdminFinanceController;
 use App\Http\Controllers\Admin\PaymentGatewayController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\Admin\CouponController;
 
 // Front Routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -167,6 +168,10 @@ Route::middleware(['auth', \App\Http\Middleware\AdminMiddleware::class])->prefix
     Route::post('settings/schemas', [AdminSettingsController::class, 'storeSchema'])->name('settings.schemas.store');
     Route::put('settings/schemas/{id}', [AdminSettingsController::class, 'updateSchema'])->name('settings.schemas.update');
     Route::delete('settings/schemas/{id}', [AdminSettingsController::class, 'destroySchema'])->name('settings.schemas.destroy');
+
+    // Coupon Management Routes
+    Route::resource('coupons', CouponController::class);
+    Route::patch('coupons/{coupon}/toggle-active', [CouponController::class, 'toggleActive'])->name('coupons.toggle-active');
 });
 
 // Pages
@@ -189,5 +194,13 @@ Route::post('/webhooks/ziina', [PaymentController::class, 'handleWebhook'])->nam
 
 // Location Routes
 Route::post('/location/save', [LocationController::class, 'save'])->name('location.save');
+
+// Add this route at a suitable location in your web.php file
+Route::get('/test-no-refresh', function () {
+    return view('front.test-page');
+});
+
+Route::get('/coupons', [App\Http\Controllers\Front\CouponController::class, 'index'])->name('coupons.index');
+Route::get('/coupons/branches', [App\Http\Controllers\Front\CouponController::class, 'getBranches'])->name('coupons.branches');
 
 require __DIR__ . '/auth.php';

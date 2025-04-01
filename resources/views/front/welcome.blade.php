@@ -53,6 +53,29 @@
     </div>
 </div>
 
+<!-- Active Coupons Section -->
+<section class="active-coupons-section py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="section-title text-center">Active Coupons</h2>
+            <a href="{{ route('coupons.index') }}" class="btn btn-outline-primary">View All</a>
+        </div>        
+        <div class="coupons-scroll-container">
+            <div class="coupons-scroll-wrapper">
+                @forelse($activeCoupons as $coupon)
+                    <div class="coupon-scroll-item">
+                        <x-coupon-card :coupon="$coupon" />
+                    </div>
+                @empty
+                    <div class="text-center py-5">
+                        <p class="text-muted">No active coupons available at the moment.</p>
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Exclusive Offer -->
 <section id="Exclusive" class="mb-4">
     <div class="position-relative z-n1">
@@ -132,12 +155,12 @@
 <!-- Market Logo Slider -->
 <section id="brand-collection" class="bg-primary py-5">
     <h3 class="text-center mb-4 text-white">Markets</h3>
-    <div class="swiper-container">
-        <div class="swiper-wrapper">
-            @foreach ($markets->shuffle() as $market)
-            <div class="swiper-slide text-center">
+    <div class="market-logos-container">
+        <div class="market-logos-scroll" id="market-logos-scroll">
+            @foreach ($markets->shuffle()->take(20) as $market)
+            <div class="market-logo">
                 <a href="{{ route('front.market.show', $market) }}">
-                    <img src="{{ asset('storage/' . $market->avatar) }}" alt="{{ $market->name }}" class=" rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
+                    <img src="{{ asset('storage/' . $market->avatar) }}" alt="{{ $market->name }}" class="rounded-circle" style="width: 100px; height: 100px; object-fit: cover;">
                 </a>
             </div>
             @endforeach
@@ -166,189 +189,150 @@
 @endsection
 
 @section('scripts')
-<!-- SCRIPTS -->
 <script>
-    // Request FCM Token
-    function requestFcmToken() {
-        if (typeof firebase !== 'undefined') {
-            const messaging = firebase.messaging();
-            messaging.requestPermission()
-                .then(() => messaging.getToken())
-                .then(token => {
-                    document.getElementById('fcm_token').value = token;
-                })
-                .catch(err => console.error('FCM token error:', err));
-        }
-    }
-    if (typeof firebase !== 'undefined') {
-        requestFcmToken();
-    }
+    // Remove all conflicting event handlers
+    window.onbeforeunload = null;
 
-    // AJAX Newsletter Submission
-    document.getElementById('newsletterForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-
-        let email = document.getElementById('newsletterEmail').value;
-        let fcmToken = document.getElementById('fcm_token').value;
-        let csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-
-        fetch("{{ route('subscribe') }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": csrfToken
-                },
-                body: JSON.stringify({
-                    email: email,
-                    fcm_token: fcmToken
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('newsletterMessage').innerHTML =
-                    `<div class="alert alert-success">${data.message}</div>`;
-            })
-            .catch(error => {
-                console.error("Error:", error);
-                document.getElementById('newsletterMessage').innerHTML =
-                    `<div class="alert alert-danger">Subscription failed. Please try again.</div>`;
-            });
+    // Handle form submission
+    document.getElementById('offerFilterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        updateOffers();
     });
 
-    document.addEventListener("DOMContentLoaded", function() {
-        var swiper = new Swiper('.swiper-container', {
-            slidesPerView: 7,
-            spaceBetween: 5,
-            autoplay: {
-                delay: 3000,
-                disableOnInteraction: false,
-            },
-            loop: true,
-            pagination: {
-                el: '.swiper-pagination',
-                clickable: true,
-            },
-        });
+    // Handle offer card clicks
+    document.querySelectorAll('.offer-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // If clicking on the share button, don't navigate
+            if (e.target.closest('.wishlist')) {
+                return;
+            }
 
-        // Handle filter changes
-        const filterForm = document.getElementById('offerFilterForm');
+            // Get the offer URL from the link
+            const link = this.querySelector('a');
+            if (link) {
+                window.location.href = link.href;
+            }
+        });
+    });
+
+    // Handle filter changes
+    document.addEventListener('DOMContentLoaded', function() {
         const emirateFilter = document.getElementById('emirateFilter');
         const marketFilter = document.getElementById('marketFilter');
         const branchFilter = document.getElementById('branchFilter');
-        const offerList = document.getElementById('offerList');
 
-        function updateOffers() {
-            const formData = new FormData(filterForm);
-            const params = new URLSearchParams(formData);
-
-            fetch(`${window.location.pathname}?${params.toString()}`, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Update the offer list
-                    const offersHtml = data.offers.map(offer => {
-                        return `
-                        <div class="col align-items-stretch mb-4" style="height: 330px;">
-                            <div class="card h-100">
-                                <div class="image-container">
-                                    <div class="first">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            ${offer.market ? `<h6 class="discount">${offer.market.name}</h6>` : ''}
-                                            ${offer.pdf ? `<a href="/storage/${offer.pdf}" class="wishlist" target="_blank"><i class="fa fa-pdf"></i></a>` : ''}
-                                        </div>
-                                    </div>
-                                    <img src="${offer.cover_image ? `/storage/${offer.cover_image}` : '/images/default-cover.jpg'}" 
-                                         class="img-fluid rounded thumbnail-image" 
-                                         alt="${offer.title}">
-                                </div>
-                                <div class="product-detail-container p-2">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h4 class="offer-title">
-                                            <a href="/offer/${offer.id}">${offer.title}</a>
-                                        </h4>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center pt-1">
-                                        <h6 class="text-muted m-0">Valid: ${new Date(offer.end_date).toLocaleDateString()}</h6>
-                                        <div class="d-flex">
-                                            <span class="buy">${calculateRemainingDays(offer.end_date)} days</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    }).join('');
-
-                    offerList.innerHTML = `<div class="row row-cols-xs-2 row-cols-sm-2 row-cols-md-4 row-cols-lg-6 mb-4">${offersHtml}</div>`;
-                })
-                .catch(error => console.error('Error:', error));
+        if (emirateFilter) {
+            emirateFilter.addEventListener('change', function(e) {
+                e.preventDefault();
+                updateOffers();
+            });
         }
 
-        function calculateRemainingDays(endDate) {
-            const end = new Date(endDate);
-            const today = new Date();
-            const diffTime = Math.abs(end - today);
-            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (marketFilter) {
+            marketFilter.addEventListener('change', function(e) {
+                e.preventDefault();
+                updateOffers();
+            });
         }
 
-        // Event listeners for filters
-        emirateFilter.addEventListener('change', function() {
-            const emirateId = this.value;
-            
-            // Reset and disable market and branch filters
-            marketFilter.innerHTML = '<option value="all">Select Market</option>';
-            marketFilter.disabled = true;
-            branchFilter.innerHTML = '<option value="all">Select Branch</option>';
-            branchFilter.disabled = true;
-
-            if (emirateId === 'all') {
+        if (branchFilter) {
+            branchFilter.addEventListener('change', function(e) {
+                e.preventDefault();
                 updateOffers();
-                return;
-            }
-
-            // Update markets based on emirate
-            fetch(`/get-markets-by-emirate?emirate_id=${emirateId}`)
-            .then(response => response.json())
-            .then(data => {
-                    marketFilter.innerHTML = '<option value="all">Select Market</option>';
-                    data.markets.forEach(market => {
-                        marketFilter.innerHTML += `<option value="${market.id}">${market.name}</option>`;
-                    });
-                    marketFilter.disabled = false;
-                    updateOffers();
-                });
-        });
-
-        marketFilter.addEventListener('change', function() {
-            const marketId = this.value;
-            const emirateId = emirateFilter.value;
-            
-            // Reset and disable branch filter
-            branchFilter.innerHTML = '<option value="all">Select Branch</option>';
-            branchFilter.disabled = true;
-
-            if (marketId === 'all') {
-                updateOffers();
-                return;
-            }
-
-            // Update branches based on market and emirate
-            fetch(`/get-branches-by-market-and-emirate/${marketId}/${emirateId}`)
-                .then(response => response.json())
-                .then(data => {
-                    branchFilter.innerHTML = '<option value="all">Select Branch</option>';
-                    data.forEach(branch => {
-                        branchFilter.innerHTML += `<option value="${branch.id}">${branch.name}</option>`;
-                    });
-                    branchFilter.disabled = false;
-                    updateOffers();
-                });
-        });
-
-        branchFilter.addEventListener('change', updateOffers);
+            });
+        }
     });
 </script>
+@endsection
+
+@section('styles')
+<style>
+    .active-coupons {
+        background-color: #f8f9fa;
+    }
+
+    /* Market logos styles */
+    .market-logos-container {
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+        padding: 0 20px;
+    }
+
+    .market-logos-scroll {
+        display: flex;
+        overflow-x: auto;
+        padding: 10px 0;
+        gap: 20px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .market-logos-scroll::-webkit-scrollbar {
+        display: none;
+    }
+
+    .market-logo {
+        flex: 0 0 auto;
+        text-align: center;
+    }
+
+    .market-logo img {
+        transition: transform 0.3s ease;
+    }
+
+    .market-logo img:hover {
+        transform: scale(1.1);
+    }
+
+    /* Active Coupons Section Styles */
+    .active-coupons-section {
+        background-color: #f8f9fa;
+    }
+
+    .coupons-scroll-container {
+        position: relative;
+        width: 100%;
+        overflow-x: auto;
+        padding: 1rem 0;
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1;
+    }
+
+    .coupons-scroll-container::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .coupons-scroll-container::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .coupons-scroll-container::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 4px;
+    }
+
+    .coupons-scroll-container::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+
+    .coupons-scroll-wrapper {
+        display: flex;
+        gap: 1rem;
+        padding: 0.5rem;
+    }
+
+    .coupon-scroll-item {
+        flex: 0 0 300px;
+        min-width: 300px;
+    }
+
+    @media (max-width: 768px) {
+        .coupon-scroll-item {
+            flex: 0 0 250px;
+            min-width: 250px;
+        }
+    }
+</style>
 @endsection

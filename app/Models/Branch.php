@@ -81,4 +81,17 @@ class Branch extends Model
             ->where('user_type', User::TYPE_BRANCH_ADMIN)
             ->withTimestamps();
     }
+
+    public function plan()
+    {
+        return $this->belongsTo(Plan::class);
+    }
+
+    /**
+     * Get the coupons for this branch.
+     */
+    public function coupons()
+    {
+        return $this->morphMany(Coupon::class, 'couponable');
+    }
 }

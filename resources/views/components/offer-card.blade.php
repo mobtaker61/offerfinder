@@ -97,6 +97,19 @@ $backgroundImage = $offer->cover_image ? asset('storage/' . $offer->cover_image)
                 const shouldContinue = updateCountdown(element, endDate, isUpcoming);
                 if (!shouldContinue) {
                     clearInterval(timer);
+                    
+                    // Update UI to show offer has started/ended
+                    if (isUpcoming) {
+                        element.querySelector('label').textContent = 'Offer has started!';
+                    } else {
+                        element.querySelector('label').textContent = 'Offer has ended!';
+                    }
+                    
+                    // Reset counters to zero
+                    element.querySelector('.days').textContent = '00';
+                    element.querySelector('.hours').textContent = '00';
+                    element.querySelector('.minutes').textContent = '00';
+                    element.querySelector('.seconds').textContent = '00';
                 }
             }, 1000);
         });
@@ -107,10 +120,7 @@ $backgroundImage = $offer->cover_image ? asset('storage/' . $offer->cover_image)
         const distance = targetDate - now;
 
         if (distance < 0) {
-            if (isUpcoming) {
-                window.location.reload(); // Refresh the page when offer starts
-            }
-            return false;
+            return false; // Timer has ended
         }
 
         const days = Math.floor(distance / (1000 * 60 * 60 * 24));

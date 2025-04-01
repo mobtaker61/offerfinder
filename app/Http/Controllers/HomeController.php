@@ -8,6 +8,7 @@ use App\Models\Offer;
 use App\Models\Emirate;
 use App\Models\Post;
 use App\Models\OfferCategory;
+use App\Models\Coupon;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -75,6 +76,15 @@ class HomeController extends Controller
             ->take(3)
             ->get();
 
+        // Get active coupons with their relationships
+        $activeCoupons = Coupon::with(['couponable'])
+            ->where('is_active', true)
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->latest()
+            ->take(20)
+            ->get();
+
         if ($request->ajax()) {
             return response()->json([
                 'offers' => $offers,
@@ -83,7 +93,17 @@ class HomeController extends Controller
             ]);
         }
 
-        return view('front.welcome', compact('offers', 'markets', 'branches', 'emirates', 'vipOffers', 'upcomingOffers', 'latestPosts', 'categories'));
+        return view('front.welcome', compact(
+            'offers', 
+            'markets', 
+            'branches', 
+            'emirates', 
+            'vipOffers', 
+            'upcomingOffers', 
+            'latestPosts', 
+            'categories',
+            'activeCoupons'
+        ));
     }
 
     public function list(Request $request)

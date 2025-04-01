@@ -465,7 +465,7 @@
                         Offer Management
                         <i class="fas fa-chevron-down ms-auto"></i>
                     </a>
-                    <div class="collapse {{ request()->routeIs('admin.offers.*') || request()->routeIs('admin.offer-categories.*') ? 'show' : '' }}" id="offerMenu">
+                    <div class="collapse {{ request()->routeIs('admin.offers.*') || request()->routeIs('admin.offer-categories.*') || request()->routeIs('admin.coupons.*') ? 'show' : '' }}" id="offerMenu">
                         <ul class="nav flex-column ms-3">
                             <li class="nav-item">
                                 <a href="{{ route('admin.offer-categories.index') }}"
@@ -479,6 +479,13 @@
                                     class="nav-link {{ request()->routeIs('admin.offers.*') ? 'active' : '' }}">
                                     <i class="fas fa-tag"></i>
                                     Offers
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('admin.coupons.index') }}"
+                                    class="nav-link {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
+                                    <i class="fas fa-ticket-alt"></i>
+                                    Coupons
                                 </a>
                             </li>
                         </ul>
