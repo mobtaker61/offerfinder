@@ -33,7 +33,7 @@
                             <label for="image">Image</label>
                             @if($coupon->image)
                                 <div class="mb-2">
-                                    <img src="{{ $coupon->image_url }}" alt="{{ $coupon->title }}" class="img-thumbnail" style="max-width: 200px;">
+                                    <img src="{{ Storage::url($coupon->image) }}" alt="{{ $coupon->title }}" class="img-thumbnail" style="max-width: 200px;">
                                 </div>
                             @endif
                             <input type="file" class="form-control-file @error('image') is-invalid @enderror" id="image" name="image">
@@ -66,7 +66,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group usage-limit-group {{ $coupon->is_unlimited ? 'd-none' : '' }}">
+                        <div class="form-group usage-limit-group {{ old('is_unlimited', $coupon->is_unlimited) ? 'd-none' : '' }}">
                             <label for="usage_limit">Usage Limit</label>
                             <input type="number" class="form-control @error('usage_limit') is-invalid @enderror" id="usage_limit" name="usage_limit" value="{{ old('usage_limit', $coupon->usage_limit) }}" min="1">
                             @error('usage_limit')
@@ -131,8 +131,9 @@
         </div>
     </div>
 </div>
+@endsection
 
-@push('scripts')
+@section('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Get DOM elements
@@ -147,7 +148,11 @@
         // Initialize usage limit visibility
         if (isUnlimitedSwitch && usageLimitGroup) {
             function toggleUsageLimit() {
-                usageLimitGroup.style.display = isUnlimitedSwitch.checked ? 'none' : 'block';
+                if (isUnlimitedSwitch.checked) {
+                    usageLimitGroup.classList.add('d-none');
+                } else {
+                    usageLimitGroup.classList.remove('d-none');
+                }
             }
             isUnlimitedSwitch.addEventListener('change', toggleUsageLimit);
             toggleUsageLimit(); // Set initial state
@@ -262,5 +267,4 @@
         }
     });
 </script>
-@endpush
 @endsection 
