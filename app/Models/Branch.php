@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\HasViewCount;
+use Illuminate\Support\Str;
 
 class Branch extends Model
 {
@@ -15,14 +16,16 @@ class Branch extends Model
 
     protected $fillable = [
         'name',
-        'type',
-        'address',
-        'location',
-        'working_hours',
-        'customer_service',
+        'slug',
+        'market_id',
         'emirate_id',
-        'district_id',
-        'market_id'
+        'address',
+        'phone',
+        'email',
+        'working_hours',
+        'location',
+        'is_active',
+        'view_count'
     ];
 
     protected $casts = [
@@ -30,6 +33,43 @@ class Branch extends Model
         'longitude' => 'decimal:8',
         'is_active' => 'boolean'
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($branch) {
+            $marketSlug = $branch->market ? \Illuminate\Support\Str::slug($branch->market->name) : '';
+            $baseSlug = $marketSlug ? $marketSlug . '-' . \Illuminate\Support\Str::slug($branch->name) : \Illuminate\Support\Str::slug($branch->name);
+            $slug = $baseSlug;
+            $counter = 1;
+
+            // If slug already exists, append a number
+            while (static::where('slug', $slug)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+
+            $branch->slug = $slug;
+        });
+
+        static::updating(function ($branch) {
+            if ($branch->isDirty('name') || $branch->isDirty('market_id')) {
+                $marketSlug = $branch->market ? \Illuminate\Support\Str::slug($branch->market->name) : '';
+                $baseSlug = $marketSlug ? $marketSlug . '-' . \Illuminate\Support\Str::slug($branch->name) : \Illuminate\Support\Str::slug($branch->name);
+                $slug = $baseSlug;
+                $counter = 1;
+
+                // If slug already exists, append a number
+                while (static::where('slug', $slug)->where('id', '!=', $branch->id)->exists()) {
+                    $slug = $baseSlug . '-' . $counter;
+                    $counter++;
+                }
+
+                $branch->slug = $slug;
+            }
+        });
+    }
 
     public function emirate()
     {
@@ -93,5 +133,10 @@ class Branch extends Model
     public function coupons()
     {
         return $this->morphMany(Coupon::class, 'couponable');
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 }

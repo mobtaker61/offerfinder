@@ -58,7 +58,7 @@ class HomeController extends Controller
             ->where('start_date', '<=', now())
             ->where('end_date', '>=', now())
             ->inRandomOrder()
-            ->take(3)
+            ->take(10)
             ->get();
 
         $emirates = Emirate::all();

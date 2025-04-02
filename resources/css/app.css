@@ -202,6 +202,7 @@ body {
     color: #b4976a;
     border: 1px solid #b4976a;
     border-radius: 8px 8px 0px 0px;
+    z-index: -1;
 }
 
 .time-block {
@@ -232,17 +233,6 @@ body {
     align-self: flex-start;
     line-height: 1;
     padding-top: 2px;
-}
-
-.market-avatar {
-    margin-right: 5px;
-}
-
-.market-avatar img {
-    border: 2px solid #fff;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    width: 32px !important;
-    height: 32px !important;
 }
 
 /* Coupon Card Styles */
@@ -298,7 +288,6 @@ body {
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid white;
 }
 
 .market-avatar-placeholder {

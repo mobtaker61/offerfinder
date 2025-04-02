@@ -121,7 +121,7 @@
                 let queryString = new URLSearchParams(formData).toString();
                 let csrfToken = document.querySelector('meta[name="csrf-token"]').content;
 
-                fetch("{{ route('offer.filter') }}", {
+                fetch("{{ route('offers.filter') }}", {
                         method: "POST",
                         headers: {
                             "X-CSRF-TOKEN": csrfToken,

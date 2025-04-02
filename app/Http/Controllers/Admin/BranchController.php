@@ -60,7 +60,12 @@ class BranchController extends Controller
             'branch_admin_id' => 'nullable|exists:users,id'
         ]);
 
-        $branch = Branch::create($validated);
+        // Load the market relationship before creating the branch
+        $market = \App\Models\Market::findOrFail($validated['market_id']);
+        
+        $branch = new Branch($validated);
+        $branch->market()->associate($market);
+        $branch->save();
 
         // Handle branch admin assignment
         if ($request->has('branch_admin_id')) {

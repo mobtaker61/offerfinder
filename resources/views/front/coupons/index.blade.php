@@ -30,7 +30,9 @@
                                 <option value="all">All Branches</option>
                                 @foreach($branches as $branch)
                                     <option value="{{ $branch->id }}" {{ request('branch_id') == $branch->id ? 'selected' : '' }}>
-                                        {{ $branch->name }}
+                                        <a href="{{ route('front.branch.show', $branch) }}" class="text-decoration-none">
+                                            {{ $branch->name }}
+                                        </a>
                                     </option>
                                 @endforeach
                             </select>

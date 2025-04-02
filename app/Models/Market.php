@@ -52,7 +52,7 @@ class Market extends Model
 
     public function getRouteKeyName()
     {
-        return 'id';
+        return 'slug';
     }
 
     public function branches(): HasMany
@@ -90,5 +90,13 @@ class Market extends Model
     public function coupons()
     {
         return $this->morphMany(Coupon::class, 'couponable');
+    }
+
+    /**
+     * Get the posts for this market.
+     */
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
     }
 }

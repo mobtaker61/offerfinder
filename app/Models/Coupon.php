@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Coupon extends Model
 {
@@ -12,6 +13,7 @@ class Coupon extends Model
 
     protected $fillable = [
         'title',
+        'slug',
         'description',
         'image',
         'start_date',
@@ -30,6 +32,21 @@ class Coupon extends Model
         'is_unlimited' => 'boolean',
         'is_active' => 'boolean',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($coupon) {
+            $coupon->slug = $coupon->slug ?? Str::slug($coupon->title);
+        });
+
+        static::updating(function ($coupon) {
+            if ($coupon->isDirty('title') && !$coupon->isDirty('slug')) {
+                $coupon->slug = Str::slug($coupon->title);
+            }
+        });
+    }
 
     /**
      * Get the parent couponable model (market or branch).
@@ -103,5 +120,10 @@ class Coupon extends Model
                $this->start_date <= now() &&
                $this->end_date >= now() &&
                ($this->is_unlimited || $this->used_count < $this->usage_limit);
+    }
+
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 } 

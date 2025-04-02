@@ -128,12 +128,12 @@
                 <div class="card h-100">
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-4">
+                            <div class="col-12 col-md-4 text-center text-md-start">
                                 <img src="{{ $market->logo ? asset('storage/' . $market->logo) : 'https://placehold.co/200x200?text=Market' }}"
                                     alt="{{ $market->name }}"
                                     class="market-logo img-fluid rounded">
                             </div>
-                            <div class="col-8">
+                            <div class="col-12 col-md-8 text-center text-md-start">
                                 <h4 class="card-title mb-1">{{ $market->name }}</h4>
                                 @if($market->local_name)
                                 <h6 class="text-muted mb-3">{{ $market->local_name }}</h6>
@@ -146,23 +146,23 @@
                                 @endif
 
                                 <div class="market-stats">
-                                    <div class="row g-3">
-                                        <div class="col-auto">
+                                    <div class="row row-cols-3 g-3">
+                                        <div class="col">
                                             <div class="stat-item">
                                                 <i class="fas fa-map-marker-alt me-2"></i>
                                                 <span>{{ $stats['emirates_count'] }} Emirates</span>
                                             </div>
                                         </div>
-                                        <div class="col-auto">
+                                        <div class="col">
                                             <div class="stat-item">
                                                 <i class="fas fa-store me-2"></i>
                                                 <span>{{ $stats['total_branches'] }} Branches</span>
                                             </div>
                                         </div>
-                                        <div class="col-auto">
+                                        <div class="col">
                                             <div class="stat-item">
                                                 <i class="fas fa-tag me-2"></i>
-                                                <span>{{ $stats['active_offers'] }} Active Offers</span>
+                                                <span>{{ $stats['active_offers'] }} Offers</span>
                                             </div>
                                         </div>
                                     </div>
@@ -312,7 +312,7 @@
         <div class="tab-content" id="offersTabContent">
             <!-- Active Offers -->
             <div class="tab-pane fade show active" id="active" role="tabpanel" aria-labelledby="active-tab">
-                <div class="row row-cols-6 g-4">
+                <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
                     @forelse($activeOffers as $offer)
                     <div class="col">
                         @include('components.offer-card', ['offer' => $offer])
@@ -334,7 +334,7 @@
 
             <!-- Upcoming Offers -->
             <div class="tab-pane fade" id="upcoming" role="tabpanel" aria-labelledby="upcoming-tab">
-                <div class="row row-cols-6 g-4">
+                <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
                     @forelse($upcomingOffers as $offer)
                     <div class="col">
                         @include('components.offer-card', ['offer' => $offer])
@@ -356,7 +356,7 @@
 
             <!-- Finished Offers -->
             <div class="tab-pane fade" id="finished" role="tabpanel" aria-labelledby="finished-tab">
-                <div class="row row-cols-6 g-4">
+                <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
                     @forelse($finishedOffers as $offer)
                     <div class="col">
                         @include('components.offer-card', ['offer' => $offer])
@@ -408,6 +408,24 @@
             <div class="col-12">
                 <div class="alert alert-info">
                     No branches available.
+                </div>
+            </div>
+            @endforelse
+        </div>
+    </section>
+
+    <!-- Latest News Section -->
+    <section class="mb-5">
+        <h2 class="section-title">Latest News</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @forelse($market->posts()->latest()->take(3)->get() as $post)
+            <div class="col">
+                <x-blog-post-card :post="$post" />
+            </div>
+            @empty
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No news available at the moment.
                 </div>
             </div>
             @endforelse

@@ -109,82 +109,72 @@
 </head>
 
 <body>
-    <header class="w-100 z-3 sticky-top bg-secondary" id="myHeader">
-        <nav id="primary-header" class="navbar top-header navbar-expand-lg py-3 px-2">
+    <header class="w-100 z-3 sticky-top bg-secondary bg-scrolled" id="myHeader">
+        <nav id="primary-header" class="navbar top-header navbar-expand-lg py-2">
             <div class="container-fluid mx-xl-5">
-                <!-- Logo -->
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    <img src="/images/logo-2.png" class="logo img-fluid">
-                </a>
-                <!-- Search Input -->
-                <div class="flex-grow-1 mx-3">
-                    <form action="#" method="GET" class="d-flex">
-                        <!-- Location Selector Button -->
-                        <button class="btn btn-outline-primary p-2" type="button" data-bs-toggle="modal" data-bs-target="#locationModal" style="width: 120px;text-align: left;overflow: hidden;border-radius: 8px;">
-                            <span id="selectedLocation"><i class="fas fa-map-marker-alt me-2"></i>Location</span>
-                        </button>
-                        <div class="input-group">
-                            <input type="text" name="q" class="form-control" placeholder="Search for offers, products, or markets...">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search"></i>
+                    <!-- Logo -->
+                    <a class="navbar-brand me-5" href="{{ url('/') }}">
+                        <img src="/images/logo-2.png" class="logo img-fluid" style="max-height: 2rem;">
+                    </a>
+                    <!-- Search Input -->
+                    <div class="flex-grow-1 mx-3 d-none">
+                        <form action="#" method="GET" class="d-flex">
+                            <button class="btn btn-outline-primary p-2" type="button" data-bs-toggle="modal" data-bs-target="#locationModal" style="width: 150px;text-align: left;overflow: hidden;border-radius: 8px;">
+                                <span id="selectedLocation"><i class="fas fa-map-marker-alt me-2"></i>Location</span>
                             </button>
-                        </div>
-                    </form>
-                </div>
-                <!-- Main Menu -->
-                <ul class="navbar-nav mb-2 mb-lg-0 text-uppercase">
-                    <li class="nav-item px-3">
-                        <a class="nav-link {{ request()->routeIs('front.market.index') ? 'active' : '' }}" href="{{ route('front.market.index') }}">
-                            Markets
-                        </a>
-                    </li>
-                    <li class="nav-item px-3">
-                        <a class="nav-link {{ request()->routeIs('offer.list') ? 'active' : '' }}" href="{{ route('offer.list') }}">
-                            <i class="fas fa-tags me-1"></i> Offers
-                        </a>
-                    </li>
-                    <li class="nav-item px-3">
-                        <a class="nav-link {{ request()->routeIs('blog.index') ? 'active' : '' }}" href="{{ route('blog.index') }}">
-                            <i class="fas fa-blog me-1"></i> Blog
-                        </a>
-                    </li>
-                    @guest
-                    <li class="nav-item px-3">
-                        <a class="nav-link" href="{{ route('login') }}">
-                            <i class="fas fa-user-circle me-1"></i> Login
-                        </a>
-                    </li>
-                    @else
-                    <li class="nav-item dropdown px-3">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user-circle me-1"></i> {{ Auth::user()->name }}
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
+                            <div class="input-group">
+                                <input type="text" name="q" class="form-control" placeholder="Search for offers, products, or markets...">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- Main Menu -->
+                        <ul class="navbar-nav mb-2 mb-lg-0 text-uppercase">
+                            <li class="nav-item px-3">
+                                <a class="nav-link {{ request()->routeIs('offer.list') ? 'active' : '' }}" href="{{ route('offer.list') }}">
+                                    <i class="fas fa-tags me-1"></i> Offers
+                                </a>
                             </li>
-                            <li>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="dropdown-item">Logout</button>
-                                </form>
+                            @guest
+                            <li class="nav-item px-3">
+                                <a class="nav-link" href="{{ route('login') }}">
+                                    <i class="fas fa-user-circle me-1"></i> Login
+                                </a>
                             </li>
+                            @else
+                            <li class="nav-item dropdown px-3">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user-circle me-1"></i> {{ Auth::user()->name }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Profile</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                            @endguest
                         </ul>
-                    </li>
-                    @endguest
-                </ul>
-                <!-- Mobile Menu Toggle -->
-                <button class="navbar-toggler border-0 d-flex d-lg-none order-3 p-2 shadow-none" type="button"
-                    data-bs-toggle="offcanvas" data-bs-target="#bdNavbar" aria-controls="bdNavbar"
-                    aria-expanded="false">
-                    <svg class="text-black" width="40" height="40">
+                    <!-- Mobile Menu Toggle -->
+                    <button class="navbar-toggler border-0 d-flex d-lg-none order-3 p-2 shadow-none" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <svg class="text-black" width="40" height="40">
                         <use xlink:href="#navbar-icon"></use>
                     </svg>
                 </button>
             </div>
         </nav>
     </header>
+
     @if (!Request::is('/') && isset($hero) && $hero)
     <section id="billboard" style="margin-top: -90px;">
         <div style="background-image: url(/images/background.png);background-repeat: no-repeat; width: 100%;">
@@ -212,7 +202,7 @@
         <div class="container">
             <div class="row g-4">
                 <!-- Logo & About Column -->
-                <div class="col-md-4">
+                <div class="col-md-4 col-sm-12 text-center text-md-start">
                     <div class="footer-logo mb-3">
                         <img src="{{ asset('images/logo-2.png') }}" alt="Logo" class="img-fluid" style="max-height: 60px;">
                     </div>
@@ -226,7 +216,7 @@
                 </div>
 
                 <!-- Quick Menu Column -->
-                <div class="col-md-2 offset-1">
+                <div class="col-md-2  offset-md-1 col-6 offset-sm-0">
                     <h5 class="footer-title mb-3">Quick Menu</h5>
                     <ul class="list-unstyled footer-links">
                         <li class="mb-2">
@@ -248,7 +238,7 @@
                 </div>
 
                 <!-- Official Links Column -->
-                <div class="col-md-2">
+                <div class="col-md-2 col-6">
                     <h5 class="footer-title mb-3">Official Links</h5>
                     <ul class="list-unstyled footer-links">
                         <li class="mb-2">
@@ -270,7 +260,7 @@
                 </div>
 
                 <!-- Contact & Social Column -->
-                <div class="col-md-3">
+                <div class="col-md-3 col-sm-12 text-center text-md-start">
                     <h5 class="footer-title mb-3">Get in Touch</h5>
                     <ul class="list-unstyled footer-contact">
                         <li class="mb-2">
@@ -827,6 +817,20 @@
         }
 
         /* Market Avatar Slider Styles */
+        .market-avatars-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE and Edge */
+        }
+
+        .market-avatars-scroll::-webkit-scrollbar {
+            display: none;
+            /* Chrome, Safari, Opera */
+        }
+
         .market-avatar {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;

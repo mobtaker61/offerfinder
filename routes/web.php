@@ -46,10 +46,13 @@ Route::get('/get-markets-by-emirate', [MarketController::class, 'getMarketsByEmi
 Route::get('/get-districts/{emirate}', [DistrictController::class, 'getDistrictsByEmirate'])->name('districts.get');
 Route::get('/get-neighbours/{district}', [NeighbourController::class, 'getNeighboursByDistrict'])->name('neighbours.get');
 
+// Branch routes
+Route::get('/branch/{branch}', [BranchController::class, 'show'])->name('front.branch.show');
+
 Route::get('/offers', [OfferController::class, 'list'])->name('offer.list');
 Route::get('/offer/{offer}', [OfferController::class, 'show'])->name('offer.show');
 Route::get('/offer/card/{id}', [OfferController::class, 'card'])->name('offer.card');
-Route::post('/offers/filter', [OfferController::class, 'filter'])->name('offer.filter');
+Route::get('/offers/filter', [App\Http\Controllers\OfferController::class, 'filter'])->name('offers.filter');
 
 // Market offers routes
 Route::get('/offers/market/{market}', [App\Http\Controllers\OfferController::class, 'getOffersByMarket'])

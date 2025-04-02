@@ -46,8 +46,53 @@ class BranchController extends Controller
     {
         // Increment view count
         $branch->incrementViewCount();
-        
-        // Rest of your existing show method code...
-        return view('branches.show', compact('branch'));
+
+        // Get active offers
+        $activeOffers = $branch->offers()
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->get();
+
+        // Get upcoming offers
+        $upcomingOffers = $branch->offers()
+            ->where('start_date', '>', now())
+            ->get();
+
+        // Get finished offers
+        $finishedOffers = $branch->offers()
+            ->where('end_date', '<', now())
+            ->latest()
+            ->take(6)
+            ->get();
+
+        // Get active coupons count from branch
+        $branchActiveCoupons = $branch->coupons()
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->count();
+
+        // Get active coupons count from market
+        $marketActiveCoupons = $branch->market->coupons()
+            ->where('start_date', '<=', now())
+            ->where('end_date', '>=', now())
+            ->count();
+
+        // Prepare stats
+        $stats = [
+            'active_offers' => $activeOffers->count(),
+            'upcoming_offers' => $upcomingOffers->count(),
+            'finished_offers' => $finishedOffers->count(),
+            'active_coupons' => $branchActiveCoupons + $marketActiveCoupons
+        ];
+
+        return view('front.branch.show', compact(
+            'branch',
+            'activeOffers',
+            'upcomingOffers',
+            'finishedOffers',
+            'stats',
+            'branchActiveCoupons',
+            'marketActiveCoupons'
+        ));
     }
 } 

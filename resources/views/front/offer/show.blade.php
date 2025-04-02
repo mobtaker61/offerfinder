@@ -61,7 +61,7 @@ $hero = false;
 
     .sticky-widget {
         position: sticky;
-        top: 90px;
+        top: 60px;
         z-index: 1000;
         border-radius: 8px;
         margin-bottom: 20px;
@@ -368,9 +368,14 @@ $hero = false;
                                 <th class="heading-color" scope="row">Branches:</th>
                                 <td class="text-end">
                                     @if($offer->branches->isNotEmpty())
-                                    {{ $offer->branches->pluck('name')->join(', ') }}
+                                        @foreach($offer->branches as $branch)
+                                            <a href="{{ route('front.branch.show', $branch) }}" class="text-decoration-none">
+                                                {{ $branch->name }}
+                                            </a>
+                                            @if(!$loop->last), @endif
+                                        @endforeach
                                     @else
-                                    N/A
+                                        N/A
                                     @endif
                                 </td>
                             </tr>
@@ -386,7 +391,11 @@ $hero = false;
                             <h2 class="accordion-header" id="heading{{ $branch->id }}">
                                 <button class="accordion-button" type="button" data-bs-toggle="collapse"
                                     data-bs-target="#collapse{{ $branch->id }}" aria-expanded="true"
-                                    aria-controls="collapse{{ $branch->id }}">{{ $branch->name }}</button>
+                                    aria-controls="collapse{{ $branch->id }}">
+                                    <a href="{{ route('front.branch.show', $branch) }}" class="text-decoration-none text-dark">
+                                        {{ $branch->name }}
+                                    </a>
+                                </button>
                             </h2>
                             <div id="collapse{{ $branch->id }}" class="accordion-collapse collapse"
                                 aria-labelledby="heading{{ $branch->id }}" data-bs-parent="#branchAccordion">
