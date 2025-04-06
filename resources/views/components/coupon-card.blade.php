@@ -1,7 +1,7 @@
 @props(['coupon'])
 
 <div class="coupon-card" data-bs-toggle="modal" data-bs-target="#couponModal{{ $coupon->id }}" style="cursor: pointer;">
-    <div class="coupon-background" data-bg-image="{{ $coupon->image ? Storage::url($coupon->image) : asset('images/placeholder.jpg') }}">
+<div class="coupon-background" data-bg-image="{{ $coupon->image ? Storage::url($coupon->image) : asset('images/placeholder.jpg') }}">
         <div class="coupon-overlay">
             <!-- Top Section -->
             <div class="coupon-top">

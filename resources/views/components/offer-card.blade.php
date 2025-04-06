@@ -31,11 +31,6 @@ $isExpired = $offer->end_date < $now;
                                 alt="{{ $marketName }}"
                                 class="market-avatar">
                             @endforeach
-                            <!-- Share Button -->
-                            <button type="button" class="wishlist text-white border-0 bg-transparent" id="shareBtn-{{ $offer->id }}"
-                                data-id="{{ $offer->id }}" data-title="{{ $offer->title }}">
-                                <i class="fa fa-share"></i>
-                            </button>
                         </div>
                     </div>
 

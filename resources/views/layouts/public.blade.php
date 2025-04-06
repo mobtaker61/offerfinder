@@ -114,7 +114,7 @@
             <div class="container-fluid mx-xl-5">
                     <!-- Logo -->
                     <a class="navbar-brand me-5" href="{{ url('/') }}">
-                        <img src="/images/logo-2.png" class="logo img-fluid" style="max-height: 2rem;">
+                        <img src="/images/logo-2.png" class="logo img-fluid" style="max-height: 2rem;" alt="OfferFinder" title="OfferFinder" aria-label="OfferFinder">
                     </a>
                     <!-- Search Input -->
                     <div class="flex-grow-1 mx-3 d-none">

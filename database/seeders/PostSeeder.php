@@ -42,7 +42,7 @@ class PostSeeder extends Seeder
                 <p>Map out your shopping route to maximize time and minimize walking.</p>
                 <h2>10. Keep Records</h2>
                 <p>Save receipts and take photos of important purchases for warranty purposes.</p>',
-                'image_url' => '/images/blog/shopping-tips.jpg',
+                'image_url' => '/storage/blog_images/qWEIKwx6VinGHCbleuMKyvO4ZWzB8KrW0azHhNCj.webp',
                 'meta_title' => 'Top 10 Shopping Tips for Dubai Markets | Expert Guide',
                 'meta_description' => 'Learn the best shopping strategies and insider tips for navigating Dubai\'s vibrant markets and getting the best deals.',
                 'is_active' => true,
@@ -63,7 +63,7 @@ class PostSeeder extends Seeder
                 <p>November brings massive discounts across all major retailers.</p>
                 <h2>White Day</h2>
                 <p>March brings special promotions on electronics and home appliances.</p>',
-                'image_url' => '/images/blog/seasonal-sales.jpg',
+                'image_url' => '/storage/blog_images/Xpjpy8CIN5h75X1y1QR6q7ayQs2GYG8s9rIU2jKG.webp',
                 'meta_title' => 'The Ultimate Guide to Seasonal Sales in Dubai | Shopping Calendar',
                 'meta_description' => 'Complete guide to Dubai\'s major sales seasons, including Dubai Shopping Festival, Summer Surprises, and other shopping events.',
                 'is_active' => true,
@@ -82,7 +82,7 @@ class PostSeeder extends Seeder
                 <p>Browse through stunning gold jewelry and precious metals.</p>
                 <h2>Fruit and Vegetable Market</h2>
                 <p>Fresh produce and local specialties at wholesale prices.</p>',
-                'image_url' => '/images/blog/hidden-markets.jpg',
+                'image_url' => '/storage/blog_images/BoR0qaKOsTUDx1xay5vWJJk6XlopZemAVXsQVzhh.webp',
                 'meta_title' => 'Hidden Gems: Local Markets in Dubai | Off-the-Beaten-Path Shopping',
                 'meta_description' => 'Discover lesser-known markets in Dubai offering unique shopping experiences and authentic local products.',
                 'is_active' => true,
@@ -101,7 +101,7 @@ class PostSeeder extends Seeder
                 <p>Monitor price changes over time to identify the best time to buy.</p>
                 <h2>Consider Total Cost</h2>
                 <p>Factor in shipping, warranties, and other additional costs.</p>',
-                'image_url' => '/images/blog/price-comparison.jpg',
+                'image_url' => '/storage/blog_images/lR813lip0m0xIG2HQzGkI4zoNWqYdZgsHUMhFd4P.webp',
                 'meta_title' => 'Smart Shopping: Price Comparison Guide | Save Money in Dubai',
                 'meta_description' => 'Learn effective strategies for comparing prices across different markets and getting the best value for your money.',
                 'is_active' => true,
@@ -120,7 +120,7 @@ class PostSeeder extends Seeder
                 <p>Discover stores offering sustainable alternatives.</p>
                 <h2>Recycling Initiatives</h2>
                 <p>Learn about Dubai\'s recycling programs and how to participate.</p>',
-                'image_url' => '/images/blog/eco-shopping.jpg',
+                'image_url' => '/storage/blog_images/CvAuHDZAY0Jw9Lf2g50Kl8rNv5p1y35ptV3Qbot5.webp',
                 'meta_title' => 'Eco-Friendly Shopping in Dubai | Sustainable Shopping Guide',
                 'meta_description' => 'Discover sustainable shopping options and eco-friendly markets in Dubai that promote environmental consciousness.',
                 'is_active' => true,
@@ -139,7 +139,7 @@ class PostSeeder extends Seeder
                 <p>Explore new payment methods and digital wallets.</p>
                 <h2>Smart Shopping Apps</h2>
                 <p>Discover apps that enhance your shopping experience.</p>',
-                'image_url' => '/images/blog/digital-shopping.jpg',
+                'image_url' => '/storage/blog_images/HYdTGQcyiGeETix0RfcxsHlVKDiGX8JyCoHMs6pp.webp',
                 'meta_title' => 'Digital Shopping: The Future of Retail in Dubai | Tech Shopping Guide',
                 'meta_description' => 'Explore how technology is transforming the shopping experience in Dubai, from virtual try-ons to AI-powered recommendations.',
                 'is_active' => true,
