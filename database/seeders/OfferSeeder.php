@@ -15,7 +15,12 @@ class OfferSeeder extends Seeder
     {
         $now = Carbon::now();
         $categories = OfferCategory::all();
-        $markets = Market::all();
+        $markets = Market::whereHas('branches')->get();
+
+        if ($markets->isEmpty()) {
+            $this->command->info('No markets with branches found. Skipping offer seeding.');
+            return;
+        }
 
         // Active offers (15)
         for ($i = 0; $i < 15; $i++) {

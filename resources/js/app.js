@@ -12,6 +12,12 @@ import 'select2';
 // Import other libraries
 import 'toastr';
 import 'datatables.net-bs5';
+import Swiper from 'swiper';
+import Isotope from 'isotope-layout';
+
+// Import custom scripts
+import './custom.js'; // Move contents of public/js/script.js here
+import './plugins.js'; // Move contents of public/js/plugins.js here
 
 // Initialize Bootstrap components
 document.addEventListener('DOMContentLoaded', function() {

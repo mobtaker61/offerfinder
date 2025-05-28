@@ -8,7 +8,8 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OfferController;
 use App\Http\Controllers\Api\OfferImageController;
 use App\Http\Controllers\Api\FcmTokenController;
-use App\Http\Controllers\DistrictController;
+use App\Http\Controllers\Api\DistrictController;
+use App\Http\Controllers\Api\NeighbourController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -35,6 +36,10 @@ Route::middleware('api')->group(function () {
     
     // Emirates
     Route::apiResource('emirates', EmirateController::class);
+    // Districts by emirate
+    Route::get('emirates/{emirate}/districts', [DistrictController::class, 'getDistrictsByEmirate']);
+    // Neighbours by district
+    Route::get('districts/{district}/neighbours', [NeighbourController::class, 'getNeighboursByDistrict']);
     
     // Notifications
     Route::apiResource('notifications', NotificationController::class);
@@ -70,4 +75,5 @@ Route::middleware('api')->group(function () {
         
         return $query->get(['id', 'name']);
     });
+
 });
