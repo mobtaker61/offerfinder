@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\OfferImageController;
 use App\Http\Controllers\Api\FcmTokenController;
 use App\Http\Controllers\Api\DistrictController;
 use App\Http\Controllers\Api\NeighbourController;
+use App\Http\Controllers\Api\OfferProductController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -33,6 +34,7 @@ Route::middleware('api')->group(function () {
     Route::post('offers/by-emirate-and-market', [OfferController::class, 'getOffersByEmirateAndMarket']);
     Route::post('offers/filter', [OfferController::class, 'filter']);
     Route::post('offers/{offer}/toggle-vip', [OfferController::class, 'toggleVip']);
+    Route::get('offers/{offer}/products', [OfferProductController::class, 'index']);
     
     // Emirates
     Route::apiResource('emirates', EmirateController::class);
