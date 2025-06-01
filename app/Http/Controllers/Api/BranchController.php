@@ -18,7 +18,13 @@ class BranchController extends Controller
      */
     public function index()
     {
-        $branches = Branch::with('market.emirate')->get();
+        $branches = Branch::with([
+            'market.emirate',
+            'district',
+            'neighbours',
+            'contactProfiles',
+            'offers'
+        ])->get();
         return response()->json(['branches' => $branches], 200);
     }
 
@@ -53,7 +59,13 @@ class BranchController extends Controller
      */
     public function show(Branch $branch)
     {
-        $branch->load('market.emirate', 'offers');
+        $branch->load([
+            'market.emirate',
+            'district',
+            'neighbours',
+            'contactProfiles',
+            'offers'
+        ]);
         return response()->json(['branch' => $branch], 200);
     }
 
