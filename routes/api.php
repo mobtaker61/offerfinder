@@ -16,9 +16,10 @@ use Illuminate\Http\Request;
 
 // API Routes - prefix 'api' already applied via RouteServiceProvider
 Route::middleware('api')->group(function () {
-    // Markets
-    Route::apiResource('markets', MarketController::class);
-    Route::get('markets/by-emirate/{emirate}', [MarketController::class, 'getMarketsByEmirate']);
+    // Custom show route to support both id and slug (must be before resource!)
+    Route::get('markets/{marketKey}', [MarketController::class, 'showByIdOrSlug']);
+    // Markets resource (exclude show)
+    Route::apiResource('markets', MarketController::class)->except(['show']);
     
     // Branches
     Route::apiResource('branches', BranchController::class);

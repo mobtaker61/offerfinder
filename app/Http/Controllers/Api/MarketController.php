@@ -107,4 +107,46 @@ class MarketController extends Controller
         
         return response()->json(['markets' => $markets], 200);
     }
+
+    /**
+     * Display the specified market by id or slug.
+     *
+     * @param  string  $marketKey
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function showByIdOrSlug($marketKey)
+    {
+        $market = null;
+        if (is_numeric($marketKey)) {
+            $market = Market::with(['emirate', 'branches:id,market_id'])->where('id', $marketKey)->first();
+        } else {
+            $market = Market::with(['emirate', 'branches:id,market_id'])->where('slug', $marketKey)->first();
+        }
+        if (!$market) {
+            return response()->json(['message' => 'Market not found'], 404);
+        }
+
+        // فقط id شعبه‌ها را جمع‌آوری کن
+        $branchIds = $market->branches->pluck('id')->unique()->values();
+
+        // آفرهای غیرتکراری همه شعبه‌ها (id, start_date, end_date)
+        $offerQuery = \App\Models\Offer::select('offers.id', 'offers.start_date', 'offers.end_date')
+            ->join('offer_branch', 'offers.id', '=', 'offer_branch.offer_id')
+            ->whereIn('offer_branch.branch_id', $branchIds)
+            ->distinct();
+        $offers = $offerQuery->get()->map(function($offer) {
+            return [
+                'id' => $offer->id,
+                'start_date' => $offer->start_date,
+                'end_date' => $offer->end_date,
+            ];
+        })->values();
+
+        // اطلاعات مارکت به صورت کامل (با روابط)
+        $marketArr = $market->toArray();
+        $marketArr['offers'] = $offers;
+        return response()->json([
+            'market' => $marketArr,
+        ], 200);
+    }
 }
