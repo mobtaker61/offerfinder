@@ -68,14 +68,4 @@ Route::middleware('api')->group(function () {
         return $query->get(['id', 'name']);
     });
 
-    Route::get('/branches', function (Request $request) {
-        $query = \App\Models\Branch::query();
-        
-        if ($request->has('market_id') && $request->market_id !== 'all') {
-            $query->where('market_id', $request->market_id);
-        }
-        
-        return $query->get(['id', 'name']);
-    });
-
 });

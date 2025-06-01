@@ -57,8 +57,9 @@ class BranchController extends Controller
      * @param  \App\Models\Branch  $branch
      * @return \Illuminate\Http\JsonResponse
      */
-    public function show(Branch $branch)
+    public function show($key)
     {
+        $branch = \App\Models\Branch::where('id', $key)->orWhere('slug', $key)->firstOrFail();
         $branch->load([
             'market.emirate',
             'district',
