@@ -84,4 +84,5 @@ Route::middleware('auth:sanctum')->group(function () {
     // Profile routes
     Route::get('/user/profile', [ProfileController::class, 'show']);
     Route::put('/user/profile', [ProfileController::class, 'update']);
+    Route::delete('/user/avatar', [ProfileController::class, 'deleteAvatar']);
 });
