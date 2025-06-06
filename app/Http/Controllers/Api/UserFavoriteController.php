@@ -63,10 +63,10 @@ class UserFavoriteController extends Controller
             'type' => 'nullable|in:offer,market,branch'
         ]);
 
-        $query = Auth::user()->favorites()->with('favoriteable');
+        $query = UserFavorite::where('user_id', Auth::id())->with('favoriteable');
 
         if ($request->type) {
-            $type = 'App\\Models\\' . ucfirst($request->type);
+            $type = 'App\Models\\' . ucfirst($request->type);
             $query->where('favoriteable_type', $type);
         }
 
