@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\NeighbourController;
 use App\Http\Controllers\Api\OfferProductController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\UserFavoriteController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -85,4 +86,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user/profile', [ProfileController::class, 'show']);
     Route::put('/user/profile', [ProfileController::class, 'update']);
     Route::delete('/user/avatar', [ProfileController::class, 'deleteAvatar']);
+
+    // User Favorites
+    Route::get('/favorites', [UserFavoriteController::class, 'index']);
+    Route::post('/favorites', [UserFavoriteController::class, 'store']);
+    Route::delete('/favorites', [UserFavoriteController::class, 'destroy']);
 });

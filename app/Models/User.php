@@ -280,4 +280,24 @@ class User extends Authenticatable
             $user->clearPermissionCache();
         });
     }
+
+    public function favorites()
+    {
+        return $this->hasMany(UserFavorite::class);
+    }
+
+    public function favoriteOffers()
+    {
+        return $this->morphedByMany(Offer::class, 'favoriteable', 'user_favorites');
+    }
+
+    public function favoriteMarkets()
+    {
+        return $this->morphedByMany(Market::class, 'favoriteable', 'user_favorites');
+    }
+
+    public function favoriteBranches()
+    {
+        return $this->morphedByMany(Branch::class, 'favoriteable', 'user_favorites');
+    }
 }
