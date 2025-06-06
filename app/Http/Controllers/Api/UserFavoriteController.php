@@ -19,6 +19,21 @@ class UserFavoriteController extends Controller
             'favoriteable_id' => 'required|integer'
         ]);
 
+        // Check if the model exists
+        $modelClass = $request->favoriteable_type;
+        if (!class_exists($modelClass)) {
+            return response()->json([
+                'message' => 'Invalid model type'
+            ], 422);
+        }
+
+        $model = $modelClass::find($request->favoriteable_id);
+        if (!$model) {
+            return response()->json([
+                'message' => 'Model not found'
+            ], 404);
+        }
+
         $favorite = UserFavorite::create([
             'user_id' => Auth::id(),
             'favoriteable_type' => $request->favoriteable_type,
