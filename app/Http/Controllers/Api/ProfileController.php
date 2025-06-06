@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
@@ -64,12 +65,21 @@ class ProfileController extends Controller
 
         try {
             $user = $request->user();
+            Log::info('Updating profile for user: ' . $user->id);
+            
             $data = $request->except('avatar');
 
             // Handle avatar upload
             if ($request->hasFile('avatar')) {
+                Log::info('Avatar file received', [
+                    'original_name' => $request->file('avatar')->getClientOriginalName(),
+                    'mime_type' => $request->file('avatar')->getMimeType(),
+                    'size' => $request->file('avatar')->getSize()
+                ]);
+
                 // Delete old avatar if exists
                 if ($user->avatar) {
+                    Log::info('Deleting old avatar: ' . $user->avatar);
                     Storage::delete($user->avatar);
                 }
 
@@ -79,14 +89,22 @@ class ProfileController extends Controller
                 
                 // Store the new avatar
                 $path = $request->file('avatar')->storeAs('avatars', $filename, 'public');
+                Log::info('New avatar stored at: ' . $path);
+                
+                if (!$path) {
+                    throw new \Exception('Failed to store avatar file');
+                }
+
                 $data['avatar'] = $path;
             }
 
             $user->update($data);
+            Log::info('Profile updated successfully for user: ' . $user->id);
 
             // Add full avatar URL to the response
             if ($user->avatar) {
                 $user->avatar_url = Storage::url($user->avatar);
+                Log::info('Avatar URL: ' . $user->avatar_url);
             }
 
             return response()->json([
@@ -98,6 +116,12 @@ class ProfileController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Profile update failed', [
+                'user_id' => $user->id ?? 'unknown',
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to update profile',
@@ -118,10 +142,12 @@ class ProfileController extends Controller
     {
         try {
             $user = $request->user();
+            Log::info('Deleting avatar for user: ' . $user->id);
 
             if ($user->avatar) {
                 Storage::delete($user->avatar);
                 $user->update(['avatar' => null]);
+                Log::info('Avatar deleted successfully for user: ' . $user->id);
             }
 
             return response()->json([
@@ -130,6 +156,11 @@ class ProfileController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            Log::error('Avatar deletion failed', [
+                'user_id' => $user->id ?? 'unknown',
+                'error' => $e->getMessage()
+            ]);
+
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to delete avatar',
