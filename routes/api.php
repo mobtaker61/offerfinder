@@ -11,6 +11,8 @@ use App\Http\Controllers\Api\FcmTokenController;
 use App\Http\Controllers\Api\DistrictController;
 use App\Http\Controllers\Api\NeighbourController;
 use App\Http\Controllers\Api\OfferProductController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
@@ -69,4 +71,17 @@ Route::middleware('api')->group(function () {
         return $query->get(['id', 'name']);
     });
 
+});
+
+// Public routes
+Route::post('/auth/register', [AuthController::class, 'register']);
+Route::post('/auth/login', [AuthController::class, 'login']);
+
+// Protected routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    
+    // Profile routes
+    Route::get('/user/profile', [ProfileController::class, 'show']);
+    Route::put('/user/profile', [ProfileController::class, 'update']);
 });
