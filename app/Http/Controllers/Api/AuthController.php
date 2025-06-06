@@ -64,39 +64,65 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'identifier' => 'required|string',
-            'password' => 'required|string',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'identifier' => 'required|string',
+                'password' => 'required|string',
+            ]);
 
-        if ($validator->fails()) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Validation failed',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // Check if identifier is email or phone
+            $field = filter_var($request->identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+            
+            if (!Auth::attempt([$field => $request->identifier, 'password' => $request->password])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Invalid credentials',
+                    'errors' => [
+                        'identifier' => ['The provided credentials are incorrect.']
+                    ]
+                ], 401);
+            }
+
+            $user = User::where($field, $request->identifier)->first();
+            
+            if (!$user->is_active) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Account is inactive',
+                    'errors' => [
+                        'account' => ['Your account has been deactivated.']
+                    ]
+                ], 403);
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Login successful',
+                'data' => [
+                    'user' => $user,
+                    'token' => $token
+                ]
+            ]);
+
+        } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Validation failed',
-                'errors' => $validator->errors()
-            ], 422);
+                'message' => 'An error occurred during login',
+                'errors' => [
+                    'server' => [$e->getMessage()]
+                ]
+            ], 500);
         }
-
-        // Check if identifier is email or phone
-        $field = filter_var($request->identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
-        
-        if (!Auth::attempt([$field => $request->identifier, 'password' => $request->password])) {
-            throw ValidationException::withMessages([
-                'identifier' => ['The provided credentials are incorrect.'],
-            ]);
-        }
-
-        $user = User::where($field, $request->identifier)->first();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Login successful',
-            'data' => [
-                'user' => $user,
-                'token' => $token
-            ]
-        ]);
     }
 
     /**
@@ -107,11 +133,21 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        try {
+            $request->user()->currentAccessToken()->delete();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Successfully logged out'
-        ]);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Successfully logged out'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred during logout',
+                'errors' => [
+                    'server' => [$e->getMessage()]
+                ]
+            ], 500);
+        }
     }
 } 
