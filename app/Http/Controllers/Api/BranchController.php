@@ -112,12 +112,23 @@ class BranchController extends Controller
     /**
      * Get branches by market.
      *
-     * @param  \App\Models\Market  $market
+     * @param  string|int  $marketKey
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getBranchesByMarket(Market $market)
+    public function getBranchesByMarket($marketKey)
     {
-        $branches = Branch::where('market_id', $market->id)->get();
+        $market = Market::where('id', $marketKey)
+            ->orWhere('slug', $marketKey)
+            ->firstOrFail();
+
+        $branches = Branch::with([
+            'market.emirate',
+            'district',
+            'neighbours',
+            'contactProfiles',
+            'offers'
+        ])->where('market_id', $market->id)->get();
+
         return response()->json(['branches' => $branches], 200);
     }
 
