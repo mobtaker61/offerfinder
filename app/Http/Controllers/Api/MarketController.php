@@ -17,7 +17,26 @@ class MarketController extends Controller
      */
     public function index()
     {
-        $markets = Market::with('emirate')->get();
+        $markets = Market::select([
+            'id',
+            'name',
+            'local_name',
+            'logo',
+            'avatar',
+            'website',
+            'android_app_link',
+            'ios_app_link',
+            'whatsapp',
+            'is_active',
+            'slug',
+            'banner',
+            'description',
+            'plan_id',
+            'view_count',
+            'created_at',
+            'updated_at'
+        ])->get();
+        
         return response()->json(['markets' => $markets], 200);
     }
 
