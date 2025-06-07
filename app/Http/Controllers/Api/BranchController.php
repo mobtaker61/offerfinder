@@ -122,11 +122,7 @@ class BranchController extends Controller
             ->firstOrFail();
 
         $branches = Branch::with([
-            'market.emirate',
-            'district',
-            'neighbours',
             'contactProfiles',
-            'offers'
         ])->where('market_id', $market->id)->get();
 
         return response()->json(['branches' => $branches], 200);
