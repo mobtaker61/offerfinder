@@ -17,26 +17,7 @@ class MarketController extends Controller
      */
     public function index()
     {
-        $markets = Market::select([
-            'id',
-            'name',
-            'local_name',
-            'logo',
-            'avatar',
-            'website',
-            'android_app_link',
-            'ios_app_link',
-            'whatsapp',
-            'is_active',
-            'slug',
-            'banner',
-            'description',
-            'plan_id',
-            'view_count',
-            'created_at',
-            'updated_at'
-        ])->get();
-        
+        $markets = Market::all();
         return response()->json(['markets' => $markets], 200);
     }
 
@@ -167,5 +148,25 @@ class MarketController extends Controller
         return response()->json([
             'market' => $marketArr,
         ], 200);
+    }
+
+    /**
+     * Get markets for dropdown (only id and name).
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function dropdown(Request $request)
+    {
+        $query = Market::query();
+        
+        if ($request->has('emirate_id') && $request->emirate_id !== 'all') {
+            $query->whereHas('branches', function ($q) use ($request) {
+                $q->where('emirate_id', $request->emirate_id);
+            });
+        }
+        
+        $markets = $query->select(['id', 'name'])->get();
+        return response()->json($markets);
     }
 }

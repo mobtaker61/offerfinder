@@ -60,17 +60,7 @@ Route::middleware('api')->group(function () {
     Route::get('/get-districts/{emirate}', [DistrictController::class, 'getDistrictsByEmirate'])->name('api.districts.get');
 
     // Cascading dropdowns
-    Route::get('/markets', function (Request $request) {
-        $query = \App\Models\Market::query();
-        
-        if ($request->has('emirate_id') && $request->emirate_id !== 'all') {
-            $query->whereHas('branches', function ($q) use ($request) {
-                $q->where('emirate_id', $request->emirate_id);
-            });
-        }
-        
-        return $query->get(['id', 'name']);
-    });
+    Route::get('/markets/dropdown', [MarketController::class, 'dropdown']);
 
 });
 
